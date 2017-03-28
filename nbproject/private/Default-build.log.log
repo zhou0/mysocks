@@ -1,0 +1,11 @@
+gyp	\
+	-Duv_library=static_library \
+	-Goutput_dir=. \
+	-I../../common.gypi \
+	-f make \
+	--depth=. \
+	--generator-output=build \
+	build.gyp
+gmake: gyp: Command not found
+Makefile:39: recipe for target 'build/Makefile' failed
+gmake: *** [build/Makefile] Error 127
