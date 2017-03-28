@@ -351,11 +351,13 @@ static int do_req_parse(client_ctx *cx) {
     incoming->request.len = size;
     //incoming->request.len = size;
     //incoming->request = uv_buf_init(data,size);
+    /*
 #if defined(NDEBUG)
 #else
     dump("REQUEST", incoming->request.base, incoming->request.len);
     pr_info("%s %lu", __FUNCTION__, incoming->request.len);
 #endif
+     */
     conn_getaddrinfo(outgoing, (const char *) config.remote_host);
     cipher.encrypt.init = 0;
     cipher.decrypt.init = 0;
@@ -703,7 +705,7 @@ static void conn_read(conn *c) {
 static void conn_read_done(uv_stream_t *handle,
         ssize_t nread,
         const uv_buf_t *buf) {
-    pr_info("%s %zd", __FUNCTION__, nread);
+    //    pr_info("%s %zd", __FUNCTION__, nread);
     conn *c;
 
     c = CONTAINER_OF(handle, conn, handle);
@@ -758,11 +760,13 @@ static void conn_alloc(uv_handle_t *handle, size_t size, uv_buf_t *buf) {
 }
 
 static void conn_write(conn *c, const void *data, unsigned int len) {
-    pr_info("%s %d", __FUNCTION__, len);
+    /*
+pr_info("%s %d", __FUNCTION__, len);
 #if defined(NDEBUG)
 #else
     dump("WRITE", data, len);
 #endif
+     */
     uv_buf_t buf;
 
     ASSERT(c->wrstate == c_stop || c->wrstate == c_done);
@@ -783,7 +787,7 @@ static void conn_write(conn *c, const void *data, unsigned int len) {
 }
 
 static void conn_write_done(uv_write_t *req, int status) {
-    pr_info("%s %d", __FUNCTION__, status);
+    //    pr_info("%s %d", __FUNCTION__, status);
     conn *c;
 
     if (status == UV_ECANCELED) {

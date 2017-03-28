@@ -42,11 +42,12 @@ void initialize_cipher() {
         EVP_BytesToKey(cipher.type, EVP_md5(), 0,
                 (uint8_t *) config.password, (int) strlen(config.password), 1,
                 cipher.key, 0);
-
-#if defined(NDEBUG)
-#else
-        dump("KEY", cipher.key, cipher.keyl);
-#endif
+        /*
+        #if defined(NDEBUG)
+        #else
+                dump("KEY", cipher.key, cipher.keyl);
+        #endif
+         */
     } else {
         cleanup_cipher();
         pr_err("wrong cipher name %s;", config.method);
@@ -74,7 +75,7 @@ void destroy_cipher(cipher_t * cipher) {
 
 unsigned char * cipher_encrypt(conn* c, size_t * encryptl,
         char * plain, size_t plainl) {
-    pr_info("%s %lu", __FUNCTION__, plainl);
+    //    pr_info("%s %lu", __FUNCTION__, plainl);
     //    cipher_t * cipher = shadow->cipher;
     unsigned char * encrypt = 0;
 
@@ -90,10 +91,12 @@ unsigned char * cipher_encrypt(conn* c, size_t * encryptl,
         //            uint8_t * iv = malloc(ivl);
         cipher.encrypt.iv.base = malloc(cipher.encrypt.iv.len);
         RAND_bytes(cipher.encrypt.iv.base, cipher.encrypt.iv.len);
+        /*
 #if defined(NDEBUG)
 #else
         dump("IV", cipher.encrypt.iv.base, cipher.encrypt.iv.len);
 #endif
+         */
         //            cipher.encrypt.iv.base = malloc(ivl);
         //            memcpy(cipher.encrypt.iv.base,iv,ivl);
         //            cipher.encrypt.iv.len = ivl;
@@ -107,7 +110,7 @@ unsigned char * cipher_encrypt(conn* c, size_t * encryptl,
 
         ASSERT(c->request.base != 0);
         //        size_t prepend = shadow->socks5->len - 3
-        pr_info("%s %lu", __FUNCTION__, c->request.len);
+        //        pr_info("%s %lu", __FUNCTION__, c->request.len);
         size_t prepend = c->request.len - 3;
 
         uint8_t * src, * ptr;
@@ -168,7 +171,7 @@ unsigned char * cipher_encrypt(conn* c, size_t * encryptl,
 }
 
 unsigned char * cipher_decrypt(conn *c, size_t * plainl, char * encrypt, size_t encryptl) {
-    pr_info("%s %lu", __FUNCTION__, encryptl);
+    //    pr_info("%s %lu", __FUNCTION__, encryptl);
     //    cipher_t * cipher = shadow->cipher;
     unsigned char * plain = 0;
 
@@ -254,9 +257,11 @@ unsigned char * create_key(char * iv, int ivl) {
     memcpy(key_iv, cipher.key, ivl);
     memcpy(key_iv + 16, iv, ivl);
     MD5(key_iv, 32, true_key);
+    /*
 #if defined(NDEBUG)
 #else
     dump("RC4 KEY", true_key, ivl);
 #endif
+     */
     return true_key;
 }

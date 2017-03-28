@@ -233,8 +233,8 @@ s5_err s5_parse(s5_ctx *cx, uint8_t **data, size_t *size) {
     err = s5_ok;
 
 out:
-//    *data = p + i;
-//    *size = n - i;
+    //    *data = p + i;
+    //    *size = n - i;
     return err;
 }
 

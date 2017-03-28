@@ -19,6 +19,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 # Projects
 SET(CMAKE_C_FLAGS_DEBUG "$ENV{CFLAGS}  -O0 -Wall -g -ggdb")
+SET(CMAKE_C_FLAGS_RELEASE "$ENV{CFLAGS}  -DNDEBUG")
 IF (WIN32)
 add_executable(ssclient client.c cipher.c getopt.c main.c s5.c server.c  util.c)
 target_link_libraries(ssclient uv crypto ssl ws2_32)

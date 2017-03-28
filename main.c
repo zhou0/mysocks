@@ -79,8 +79,7 @@ static void parse_opts(int argc, char **argv) {
                     pr_err("bad port number: %s", optarg);
                     usage();
                 }
-                if ( config.bind_port <= 1024 )
-                {
+                if (config.bind_port <= 1024) {
                     pr_err("can not bind to port number %s with no  root privilege", optarg);
                     usage();
                 }

@@ -14,9 +14,10 @@ extern "C" {
 #endif
 
     typedef struct {
-            size_t keyl;
-    uint8_t * key;
-    const EVP_CIPHER * type;
+        size_t keyl;
+        uint8_t * key;
+        const EVP_CIPHER * type;
+
         struct {
             int init;
             EVP_CIPHER_CTX ctx;
@@ -35,10 +36,10 @@ extern "C" {
     //void      cipher_decrypt(shadow_t   *, size_t,  uv_buf_t *, uv_buf_t *);
     unsigned char* cipher_encrypt(conn*, size_t * encryptl,
             char * plain, size_t plainl);
-    unsigned char * cipher_decrypt(conn *,size_t * plainl,
+    unsigned char * cipher_decrypt(conn *, size_t * plainl,
             char * encrypt, size_t encryptl);
     void cleanup_cipher();
-    unsigned char * create_key(char * iv,int);
+    unsigned char * create_key(char * iv, int);
 #ifdef	__cplusplus
 }
 #endif

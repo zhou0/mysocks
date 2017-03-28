@@ -55,7 +55,8 @@ typedef struct {
     unsigned int idle_timeout;
     struct client_ctx *client; /* Backlink to owning client context. */
     ssize_t result;
-     uv_buf_t buf;
+    uv_buf_t buf;
+
     union {
         uv_handle_t handle;
         uv_stream_t stream;
@@ -73,7 +74,7 @@ typedef struct {
         struct sockaddr_in6 addr6;
         struct sockaddr_in addr4;
         struct sockaddr addr;
-//        char buf[2048]; /* Scratch space. Used to read data into. */
+        //        char buf[2048]; /* Scratch space. Used to read data into. */
     } t;
     uv_buf_t request;
     unsigned char * cipher_text;

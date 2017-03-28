@@ -34,49 +34,50 @@
   V(2, auth_verify, "Verify authentication.")                                 \
   V(3, exec_cmd, "Execute command.")                                          \
 
+
 typedef enum {
 #define S5_ERR_GEN(code, name, _) s5_ ## name = code,
-  S5_ERR_MAP(S5_ERR_GEN)
+    S5_ERR_MAP(S5_ERR_GEN)
 #undef S5_ERR_GEN
-  s5_max_errors
+    s5_max_errors
 } s5_err;
 
 typedef enum {
-  S5_AUTH_NONE = 1 << 0,
-  S5_AUTH_GSSAPI = 1 << 1,
-  S5_AUTH_PASSWD = 1 << 2
+    S5_AUTH_NONE = 1 << 0,
+    S5_AUTH_GSSAPI = 1 << 1,
+    S5_AUTH_PASSWD = 1 << 2
 } s5_auth_method;
 
 typedef enum {
-  s5_auth_allow,
-  s5_auth_deny
+    s5_auth_allow,
+    s5_auth_deny
 } s5_auth_result;
 
 typedef enum {
-  s5_atyp_ipv4,
-  s5_atyp_ipv6,
-  s5_atyp_host
+    s5_atyp_ipv4,
+    s5_atyp_ipv6,
+    s5_atyp_host
 } s5_atyp;
 
 typedef enum {
-  s5_cmd_tcp_connect,
-  s5_cmd_tcp_bind,
-  s5_cmd_udp_assoc
+    s5_cmd_tcp_connect,
+    s5_cmd_tcp_bind,
+    s5_cmd_udp_assoc
 } s5_cmd;
 
 typedef struct {
-  uint32_t arg0;  /* Scratch space for the state machine. */
-  uint32_t arg1;  /* Scratch space for the state machine. */
-  uint8_t state;
-  uint8_t methods;
-  uint8_t cmd;
-  uint8_t atyp;
-  uint8_t userlen;
-  uint8_t passlen;
-  uint16_t dport;
-  uint8_t username[257];
-  uint8_t password[257];
-  uint8_t daddr[257];  /* TODO(bnoordhuis) Merge with username/password. */
+    uint32_t arg0; /* Scratch space for the state machine. */
+    uint32_t arg1; /* Scratch space for the state machine. */
+    uint8_t state;
+    uint8_t methods;
+    uint8_t cmd;
+    uint8_t atyp;
+    uint8_t userlen;
+    uint8_t passlen;
+    uint16_t dport;
+    uint8_t username[257];
+    uint8_t password[257];
+    uint8_t daddr[257]; /* TODO(bnoordhuis) Merge with username/password. */
 } s5_ctx;
 
 void s5_init(s5_ctx *ctx);
