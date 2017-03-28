@@ -1,0 +1,1 @@
+/bin/cc     CMakeFiles/ssclient.dir/client.c.o CMakeFiles/ssclient.dir/cipher.c.o CMakeFiles/ssclient.dir/main.c.o CMakeFiles/ssclient.dir/s5.c.o CMakeFiles/ssclient.dir/server.c.o CMakeFiles/ssclient.dir/util.c.o  -o bin/ssclient -rdynamic -luv -lcrypto -lssl 
