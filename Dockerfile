@@ -2,7 +2,7 @@
 # Dockerfile for mysocks
 #
 
-FROM alpine
+FROM alpine:3.1
 MAINTAINER lzh <lzh@cpan.org>
 
 ARG MYSOCKS_URL=https://github.com/zhou0/mysocks/archive/0.1.tar.gz
@@ -17,6 +17,7 @@ RUN set -ex && \
                                 curl \
                                 libtool \
                                 linux-headers \
+                                openssl-dev \
                                 tar \
                                 && \
     curl -sSL $LIBUV_URL | tar xz && cd libuv-1.11.0 && ./autogen.sh && ./configure --prefix=/usr && make && make install && cd .. && \
