@@ -6,6 +6,7 @@ Mysocks
   <img alt="Coverity Scan Build Status"
        src="https://img.shields.io/coverity/scan/12236.svg"/>
 </a>
-
+[![](https://images.microbadger.com/badges/image/fgfw/mysocks.svg)](https://microbadger.com/images/fgfw/mysocks "Get your own image badge on microbadger.com")
+[![](https://images.microbadger.com/badges/version/fgfw/mysocks.svg)](https://microbadger.com/images/fgfw/mysocks "Get your own version badge on microbadger.com")
 Mysocks depends only on libuv and openssl. And the result is a client and server executable with size less than 100KB.
 
