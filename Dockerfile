@@ -27,7 +27,7 @@ RUN set -ex && \
     make && make install && \ 
     
     runDeps="$( \
-        scanelf --needed --nobanner ./bin/ss-* \
+        scanelf --needed --nobanner /usr/local/bin/ssclient \
             | awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
             | xargs -r apk info --installed \
             | sort -u \
