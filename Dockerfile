@@ -6,6 +6,7 @@ FROM alpine
 MAINTAINER lzh <lzh@cpan.org>
 
 ARG MYSOCKS_URL=https://github.com/zhou0/mysocks/archive/0.1.tar.gz
+ARG LIBUV_URL = https://github.com/libuv/libuv/archive/v1.11.0.tar.gz 
 
 RUN set -ex && \
     apk add --no-cache --virtual .build-deps \
@@ -19,8 +20,8 @@ RUN set -ex && \
                                 unzip \
                                 && \
     cd /tmp && \
-    curl -sSL $MYSOCKS_URL | tar xz --strip 1 && \ 
-    cd build/debug && \
+    curl -sSl $LIBUV_URL | tar fx && cd libuv-1.11.0 && ./autogen.sh && ./configure --prefix=/usr && make && sudo make install && cd .. \
+    curl -sSL $MYSOCKS_URL | tar fx && cd mysocks-0.1/build/debug && \
     rm CMakeCache.txt && \
     cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr ../.. && \
     make && \
