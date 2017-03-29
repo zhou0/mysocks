@@ -21,7 +21,7 @@ RUN set -ex && \
     cd /tmp && \
     curl -sSL $MYSOCKS_URL | tar xz --strip 1 && \ 
     cd build/debug && \
-    cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr && \
+    cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr ../.. && \
     make install && \
     cd .. && \
 
