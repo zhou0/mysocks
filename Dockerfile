@@ -15,6 +15,7 @@ RUN set -ex && \
                                 build-base \
                                 cmake \
                                 curl \
+                                file \
                                 libtool \
                                 linux-headers \
                                 openssl-dev \
