@@ -23,11 +23,10 @@ RUN set -ex && \
     cd build/debug && \
     rm CMakeCache.txt && \
     cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr ../.. && \
-    make install && \
-    cd .. && \
-
+    make && \
+    
     runDeps="$( \
-        scanelf --needed --nobanner /usr/local/bin/ss-* \
+        scanelf --needed --nobanner ./bin/ss-* \
             | awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
             | xargs -r apk info --installed \
             | sort -u \
