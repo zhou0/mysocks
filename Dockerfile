@@ -19,7 +19,7 @@ RUN set -ex && \
                                 tar \
                                 unzip \
                                 && \
-    curl -sSl $LIBUV_URL | tar xz && cd libuv-1.11.0 && ./autogen.sh && ./configure --prefix=/usr && make && sudo make install && cd .. \
+    curl -sSL $LIBUV_URL | tar xz && cd libuv-1.11.0 && ./autogen.sh && ./configure --prefix=/usr && make && sudo make install && cd .. \
     curl -sSL $MYSOCKS_URL | tar xz && cd mysocks-0.1/build/debug && \
     rm CMakeCache.txt && \
     cmake -DCMAKE_BUILD_TYPE=Debug ../.. && \
