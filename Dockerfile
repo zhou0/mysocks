@@ -20,7 +20,7 @@ RUN set -ex && \
                                 && \
     cd /tmp && \
     curl -sSL $MYSOCKS_URL | tar xz --strip 1 && cd build/debug \
-    cmake && \
+    cmake -DCMAKE_INSTALL_PREFIX=/usr && \
     make install && \
     cd .. && \
 
