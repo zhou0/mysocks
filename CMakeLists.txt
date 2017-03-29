@@ -67,5 +67,4 @@ elseif ("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
  set_property(TARGET ssclient PROPERTY C_STANDARD 11)
     endif()
 endif()
-install(TARGETS ssclient)
 
