@@ -1,0 +1,16 @@
+language: c
+compiler:
+  - gcc
+  - clang   
+env:
+    global:
+        - LIBUV_VER=1.11.0
+before_install: 
+    - wget https://github.com/libuv/libuv/archive/v$LIBUV_VER.tar.gz 
+    - tar xvf v$LIBUV_VER.tar.gz 
+    - pushd libuv-$LIBUV_VER
+    - ./autogen.sh && ./configure --prefix=/usr && make
+    - sudo make install
+    - popd
+script: cd build/debug && rm CMakeCache.txt && cmake ../.. && make 
+sudo: required
