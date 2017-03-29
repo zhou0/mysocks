@@ -24,7 +24,7 @@ RUN set -ex && \
     curl -sSL $MYSOCKS_URL | tar xz && cd mysocks-0.1/build/debug && \
     rm CMakeCache.txt && \
     cmake -DCMAKE_BUILD_TYPE=Debug ../.. && \
-    make && \
+    make && make install && \ 
     
     runDeps="$( \
         scanelf --needed --nobanner ./bin/ss-* \
@@ -32,5 +32,7 @@ RUN set -ex && \
             | xargs -r apk info --installed \
             | sort -u \
     )" && \
+    cd ../../.. && \
     apk add --no-cache --virtual .run-deps $runDeps && \
-    apk del .build-deps 
+    apk del .build-deps && \
+    rm -fr libuv-1.11.0 && rm -fr mysocks-0.1 
