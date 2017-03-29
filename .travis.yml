@@ -13,7 +13,10 @@ before_install:
     - sudo make install
     - popd
     - pip install --user cpp-coveralls
-script: cd build/debug && rm CMakeCache.txt && cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_GCOV=1 ../.. && make && make check
+script: cd build/debug && \
+        rm CMakeCache.txt && \
+        cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_GCOV=1 ../.. && \
+        make 
 sudo: required
 after_success:
   - coveralls --exclude lib --exclude tests --gcov-options '\-lp'
