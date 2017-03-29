@@ -20,10 +20,10 @@ RUN set -ex && \
                                 unzip \
                                 && \
     cd /tmp && \
-    curl -sSl $LIBUV_URL | tar fx && cd libuv-1.11.0 && ./autogen.sh && ./configure --prefix=/usr && make && sudo make install && cd .. \
-    curl -sSL $MYSOCKS_URL | tar fx && cd mysocks-0.1/build/debug && \
+    curl -sSl $LIBUV_URL | tar xz && cd libuv-1.11.0 && ./autogen.sh && ./configure --prefix=/usr && make && sudo make install && cd .. \
+    curl -sSL $MYSOCKS_URL | tar xz && cd mysocks-0.1/build/debug && \
     rm CMakeCache.txt && \
-    cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr ../.. && \
+    cmake -DCMAKE_BUILD_TYPE=Debug ../.. && \
     make && \
     
     runDeps="$( \
