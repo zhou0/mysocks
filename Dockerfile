@@ -2,14 +2,14 @@
 # Dockerfile for mysocks
 #
 
-FROM alpine:3.1
+FROM alpine:3.3
 MAINTAINER lzh <lzh@cpan.org>
 
 ARG MYSOCKS_URL=https://github.com/zhou0/mysocks/archive/0.1.tar.gz
 ARG LIBUV_URL=https://github.com/libuv/libuv/archive/v1.11.0.tar.gz 
 
 RUN set -ex && \
-    apk add --virtual .build-deps \
+    apk add --no-cache --virtual .build-deps \
                                 autoconf \
                                 automake \
                                 build-base \
