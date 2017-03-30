@@ -1,5 +1,3 @@
-addons:
-  srcclr: true
 language: c
 compiler:
   - gcc
