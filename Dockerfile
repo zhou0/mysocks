@@ -5,7 +5,7 @@
 FROM alpine:3.3
 MAINTAINER lzh <lzh@cpan.org>
 
-ARG MYSOCKS_URL=https://github.com/zhou0/mysocks/archive/0.3tar.gz
+ARG MYSOCKS_URL=https://github.com/zhou0/mysocks/archive/0.3.tar.gz
 ARG LIBUV_URL=https://github.com/libuv/libuv/archive/v1.11.0.tar.gz 
 
 RUN set -ex && \
