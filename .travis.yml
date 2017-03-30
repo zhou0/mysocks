@@ -16,4 +16,5 @@ before_install:
 script: cd build/debug && rm CMakeCache.txt && cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_GCOV=1 ../.. && make && make test 
 sudo: required
 after_success:
+  - bash <(curl -s https://codecov.io/bash)
   - coveralls --exclude lib --exclude tests --gcov-options '\-lp'
