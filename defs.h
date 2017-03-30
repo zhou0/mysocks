@@ -79,6 +79,7 @@ typedef struct {
     uv_buf_t request;
     unsigned char * cipher_text;
     size_t cipher_len;
+//    unsigned int init;
 } conn;
 
 typedef struct client_ctx {

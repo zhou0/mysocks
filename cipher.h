@@ -19,7 +19,7 @@ extern "C" {
         const EVP_CIPHER * type;
 
         struct {
-            int init;
+//            int init;
             EVP_CIPHER_CTX ctx;
             uv_buf_t iv;
         } encrypt, decrypt;

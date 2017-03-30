@@ -229,6 +229,34 @@ CMakeFiles/ssclient.dir/build: bin/ssclient
 
 .PHONY : CMakeFiles/ssclient.dir/build
 
+# Object files for target ssclient
+ssclient_OBJECTS = \
+"CMakeFiles/ssclient.dir/client.c.o" \
+"CMakeFiles/ssclient.dir/cipher.c.o" \
+"CMakeFiles/ssclient.dir/main.c.o" \
+"CMakeFiles/ssclient.dir/s5.c.o" \
+"CMakeFiles/ssclient.dir/server.c.o" \
+"CMakeFiles/ssclient.dir/util.c.o"
+
+# External object files for target ssclient
+ssclient_EXTERNAL_OBJECTS =
+
+CMakeFiles/CMakeRelink.dir/ssclient: CMakeFiles/ssclient.dir/client.c.o
+CMakeFiles/CMakeRelink.dir/ssclient: CMakeFiles/ssclient.dir/cipher.c.o
+CMakeFiles/CMakeRelink.dir/ssclient: CMakeFiles/ssclient.dir/main.c.o
+CMakeFiles/CMakeRelink.dir/ssclient: CMakeFiles/ssclient.dir/s5.c.o
+CMakeFiles/CMakeRelink.dir/ssclient: CMakeFiles/ssclient.dir/server.c.o
+CMakeFiles/CMakeRelink.dir/ssclient: CMakeFiles/ssclient.dir/util.c.o
+CMakeFiles/CMakeRelink.dir/ssclient: CMakeFiles/ssclient.dir/build.make
+CMakeFiles/CMakeRelink.dir/ssclient: CMakeFiles/ssclient.dir/relink.txt
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/lizhou/dist.libuv.org/dist/v1.11.0/libuv-v1.11.0/samples/mysocks/build/debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking C executable CMakeFiles/CMakeRelink.dir/ssclient"
+	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/ssclient.dir/relink.txt --verbose=$(VERBOSE)
+
+# Rule to relink during preinstall.
+CMakeFiles/ssclient.dir/preinstall: CMakeFiles/CMakeRelink.dir/ssclient
+
+.PHONY : CMakeFiles/ssclient.dir/preinstall
+
 CMakeFiles/ssclient.dir/requires: CMakeFiles/ssclient.dir/client.c.o.requires
 CMakeFiles/ssclient.dir/requires: CMakeFiles/ssclient.dir/cipher.c.o.requires
 CMakeFiles/ssclient.dir/requires: CMakeFiles/ssclient.dir/main.c.o.requires

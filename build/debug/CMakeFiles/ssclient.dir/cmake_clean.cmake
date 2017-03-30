@@ -7,6 +7,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/ssclient.dir/util.c.o"
   "bin/ssclient.pdb"
   "bin/ssclient"
+  "bin/ssclient.pdb"
+  "CMakeFiles/CMakeRelink.dir/ssclient"
 )
 
 # Per-language clean rules from dependency scanning.

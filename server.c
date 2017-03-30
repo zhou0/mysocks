@@ -193,6 +193,18 @@ static void on_connection(uv_stream_t *server, int status) {
     cx = xmalloc(sizeof (*cx));
     CHECK(0 == uv_tcp_init(sx->loop, &cx->incoming.handle.tcp));
     CHECK(0 == uv_accept(server, &cx->incoming.handle.stream));
+            /*
+    char client_addr[INET6_ADDRSTRLEN + 1];
+    uint16_t client_port;
+    if (cx->incoming.t.addr.sa_family == AF_INET) {
+        uv_ip4_name(&cx->incoming.t.addr4, client_addr, sizeof (client_addr));
+        client_port = ntohs(cx->incoming.t.addr4.sin_port);
+    } else {
+        uv_ip6_name(&cx->incoming.t.addr6, client_addr, sizeof (client_addr));
+        client_port = ntohs(cx->incoming.t.addr6.sin6_port);
+    }
+    pr_info("%s:connected with %s:%u", __FUNCTION__, client_addr, client_port);
+*/
     client_finish_init(sx, cx);
 }
 
@@ -207,24 +219,25 @@ int can_auth_passwd(const server_ctx *sx, const client_ctx *cx) {
 int can_access(const server_ctx *sx,
         const client_ctx *cx,
         const struct sockaddr *addr) {
-    const struct sockaddr_in6 *addr6;
-    const struct sockaddr_in *addr4;
-    const uint32_t *p;
-    uint32_t a;
-    uint32_t b;
-    uint32_t c;
+    
     uint32_t d;
-
     /* TODO(bnoordhuis) Implement proper access checks.  For now, just reject
      * traffic to localhost.
      */
     if (addr->sa_family == AF_INET) {
+        const struct sockaddr_in *addr4;
         addr4 = (const struct sockaddr_in *) addr;
         d = ntohl(addr4->sin_addr.s_addr);
         return (d >> 24) != 0x7F;
     }
 
     if (addr->sa_family == AF_INET6) {
+        const struct sockaddr_in6 *addr6;
+        const uint32_t *p;
+        uint32_t a;
+        uint32_t b;
+        uint32_t c;
+
         addr6 = (const struct sockaddr_in6 *) addr;
         p = (const uint32_t *) &addr6->sin6_addr.s6_addr;
         a = ntohl(p[0]);
@@ -239,6 +252,5 @@ int can_access(const server_ctx *sx,
         }
         return 1;
     }
-
     return 0;
 }

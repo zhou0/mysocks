@@ -25,8 +25,8 @@ void initialize_cipher() {
     OpenSSL_add_all_algorithms();
 
     //    cipher_t * cipher = calloc(1, sizeof (cipher_t));
-    cipher.encrypt.init = 0;
-    cipher.decrypt.init = 0;
+    //cipher.encrypt.init = 0;
+    //cipher.decrypt.init = 0;
     pr_info("%s %s", __FUNCTION__, config.method);
     if (strcmp(config.method, "rc4-md5") == 0) {
         config.method = "rc4";
@@ -81,7 +81,8 @@ unsigned char * cipher_encrypt(conn* c, size_t * encryptl,
 
     uint8_t * dst;
 
-    if (!cipher.encrypt.init) {
+    // if (!cipher.encrypt.init) {
+    if (c->request.len) {
         //            int ivl;
         if (strcmp(config.method, "rc4") == 0) {
             cipher.encrypt.iv.len = 16;
@@ -106,11 +107,14 @@ unsigned char * cipher_encrypt(conn* c, size_t * encryptl,
             EVP_CipherInit_ex(&cipher.encrypt.ctx, cipher.type, 0, cipher.key, cipher.encrypt.iv.base, 1);
         }
         //        cipher.encrypt.init = 1;
-        //    }
+        //    c->init = 1;    
+        //}
 
-        ASSERT(c->request.base != 0);
+        //ASSERT(c->request.base != 0);
+        //if( c->request.len )
+        // {
         //        size_t prepend = shadow->socks5->len - 3
-        //        pr_info("%s %lu", __FUNCTION__, c->request.len);
+        //                pr_info("%s %lu", __FUNCTION__, c->request.len);
         size_t prepend = c->request.len - 3;
 
         uint8_t * src, * ptr;
@@ -142,10 +146,12 @@ unsigned char * cipher_encrypt(conn* c, size_t * encryptl,
 
         //        free(iv);
         plain = (char *) src;
-        cipher.encrypt.init = 1;
-        //    c->request.base = 0;
-        //    c->request.len = 0;
+        //cipher.encrypt.init = 1
+        //        c->init = 1;
+        c->request.base = 0;
+        c->request.len = 0;
     } else {
+        //        pr_info("%s",__FUNCTION__); 
 
         *encryptl = plainl;
         encrypt = malloc(*encryptl);
@@ -177,8 +183,9 @@ unsigned char * cipher_decrypt(conn *c, size_t * plainl, char * encrypt, size_t 
 
     uint8_t * src;
 
-    if (!cipher.decrypt.init) {
-        //            if (!c->request.base){
+    //if (!cipher.decrypt.init) {
+    //if (!c->init) {
+    if (!c->request.len) {
         //     int ivl;
         if (strcmp(config.method, "rc4") == 0) {
             cipher.decrypt.iv.len = 16;
@@ -207,11 +214,12 @@ unsigned char * cipher_decrypt(conn *c, size_t * plainl, char * encrypt, size_t 
         //    printf("---key---\n");
         //    for (i = 0; i < cipher->keyl; i++) printf("%02x ", cipher->key[i]);
         //    printf("\n");
-        //        c->request.base = malloc(ivl);
-        //        memcpy(c->request.base, iv, ivl);
-        //        c->request.len = ivl;
+        c->request.base = malloc(cipher.decrypt.iv.len);
+        memcpy(c->request.base, cipher.decrypt.iv.base, cipher.decrypt.iv.len);
+        c->request.len = cipher.decrypt.iv.len;
         //        free(iv);
-        cipher.decrypt.init = 1;
+        //    cipher.decrypt.init = 1;
+        //        c->init = 1;
     } else {
 
         *plainl = encryptl;

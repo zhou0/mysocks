@@ -134,7 +134,8 @@ void client_finish_init(server_ctx *sx, client_ctx *cx) {
     incoming->rdstate = c_stop;
     incoming->wrstate = c_stop;
     incoming->idle_timeout = sx->idle_timeout;
-    //incoming->request = 0;
+    incoming->request.base = 0;
+    incoming->request.len = 0;
     CHECK(0 == uv_timer_init(sx->loop, &incoming->timer_handle));
 
     outgoing = &cx->outgoing;
@@ -143,7 +144,8 @@ void client_finish_init(server_ctx *sx, client_ctx *cx) {
     outgoing->rdstate = c_stop;
     outgoing->wrstate = c_stop;
     outgoing->idle_timeout = sx->idle_timeout;
-    //outgoing->request = 0;
+    outgoing->request.base = 0;
+    outgoing->request.len = 0;
     CHECK(0 == uv_tcp_init(cx->sx->loop, &outgoing->handle.tcp));
     CHECK(0 == uv_timer_init(cx->sx->loop, &outgoing->timer_handle));
 
@@ -346,10 +348,11 @@ static int do_req_parse(client_ctx *cx) {
         return do_kill(cx);
     }
     ASSERT(parser->cmd == s5_cmd_tcp_connect);
-
-    incoming->request.base = malloc(size);
-    memcpy(incoming->request.base, data, size);
-    incoming->request.len = size;
+    if (!incoming->request.len) {
+        incoming->request.base = malloc(size);
+        memcpy(incoming->request.base, data, size);
+        incoming->request.len = size;
+    }
     //incoming->request.len = size;
     //incoming->request = uv_buf_init(data,size);
     /*
@@ -359,9 +362,10 @@ static int do_req_parse(client_ctx *cx) {
     pr_info("%s %lu", __FUNCTION__, incoming->request.len);
 #endif
      */
+
     conn_getaddrinfo(outgoing, (const char *) config.remote_host);
-    cipher.encrypt.init = 0;
-    cipher.decrypt.init = 0;
+    //cipher.encrypt.init = 0;
+    //cipher.decrypt.init = 0;
     uv_read_stop(&cx->incoming.handle.stream);
     return s_req_lookup;
 
@@ -626,10 +630,11 @@ static void conn_timer_reset(conn *c) {
 }
 
 //static void conn_timer_expire(uv_timer_t *handle, int status) {
+
 static void conn_timer_expire(uv_timer_t *handle) {
     conn *c;
 
-//    CHECK(0 == status);
+    //    CHECK(0 == status);
     c = CONTAINER_OF(handle, conn, timer_handle);
     c->result = UV_ETIMEDOUT;
     do_next(c->client);
@@ -742,9 +747,7 @@ static void conn_read_done(uv_stream_t *handle,
             }
             c->cipher_len = buf->len;
         }
-    } 
-    else if(nread < 0)
-    {
+    } else if (nread < 0) {
         uv_read_stop(&c->handle.stream);
     }
     do_next(c->client);

@@ -66,7 +66,7 @@ CMAKE_BINARY_DIR = /home/lizhou/dist.libuv.org/dist/v1.11.0/libuv-v1.11.0/sample
 CMakeFiles/ssclient.dir/all:
 	$(MAKE) -f CMakeFiles/ssclient.dir/build.make CMakeFiles/ssclient.dir/depend
 	$(MAKE) -f CMakeFiles/ssclient.dir/build.make CMakeFiles/ssclient.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lizhou/dist.libuv.org/dist/v1.11.0/libuv-v1.11.0/samples/mysocks/build/debug/CMakeFiles --progress-num=1,2,3,4,5,6,7 "Built target ssclient"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lizhou/dist.libuv.org/dist/v1.11.0/libuv-v1.11.0/samples/mysocks/build/debug/CMakeFiles --progress-num=1,2,3,4,5,6,7,8 "Built target ssclient"
 .PHONY : CMakeFiles/ssclient.dir/all
 
 # Include target in all.
@@ -76,7 +76,7 @@ all: CMakeFiles/ssclient.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/ssclient.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/lizhou/dist.libuv.org/dist/v1.11.0/libuv-v1.11.0/samples/mysocks/build/debug/CMakeFiles 7
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/lizhou/dist.libuv.org/dist/v1.11.0/libuv-v1.11.0/samples/mysocks/build/debug/CMakeFiles 8
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/ssclient.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/lizhou/dist.libuv.org/dist/v1.11.0/libuv-v1.11.0/samples/mysocks/build/debug/CMakeFiles 0
 .PHONY : CMakeFiles/ssclient.dir/rule
@@ -85,6 +85,16 @@ CMakeFiles/ssclient.dir/rule: cmake_check_build_system
 ssclient: CMakeFiles/ssclient.dir/rule
 
 .PHONY : ssclient
+
+# Pre-install relink rule for target.
+CMakeFiles/ssclient.dir/preinstall:
+	$(MAKE) -f CMakeFiles/ssclient.dir/build.make CMakeFiles/ssclient.dir/preinstall
+.PHONY : CMakeFiles/ssclient.dir/preinstall
+
+# Prepare target for install.
+preinstall: CMakeFiles/ssclient.dir/preinstall
+
+.PHONY : preinstall
 
 # clean rule for target.
 CMakeFiles/ssclient.dir/clean:
