@@ -1,5 +1,6 @@
 Mysocks
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/a457935ff4474195a171d11ebb79dc13)](https://www.codacy.com/app/zhou0/mysocks?utm_source=github.com&utm_medium=referral&utm_content=zhou0/mysocks&utm_campaign=badger)
 [![Build Status](https://travis-ci.org/zhou0/mysocks.svg?branch=master)](https://travis-ci.org/zhou0/mysocks)
 [![Build status](https://ci.appveyor.com/api/projects/status/okfccad7f94s0ex7?svg=true)](https://ci.appveyor.com/project/zhou0/tinysocks)[![Coverage Status](https://coveralls.io/repos/github/zhou0/mysocks/badge.svg?branch=master)](https://coveralls.io/github/zhou0/mysocks?branch=master)
 <a href="https://scan.coverity.com/projects/zhou0-mysocks">
