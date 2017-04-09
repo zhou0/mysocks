@@ -13,7 +13,7 @@ before_install:
     - sudo make install
     - popd
     - pip install --user cpp-coveralls
-script: mkdir -p build/debug && cd build/debug && rm CMakeCache.txt && cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_GCOV=ON ../.. && make && make test 
+script: mkdir -p build/debug && cd build/debug && cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_GCOV=ON ../.. && make && make test 
 sudo: required
 after_success:
   - bash <(curl -s https://codecov.io/bash)
