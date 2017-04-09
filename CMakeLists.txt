@@ -58,6 +58,7 @@ set_target_properties ( ssclient-openssl PROPERTIES COMPILE_FLAGS "-DWITH_OPENSS
 ELSE()
 SET(CMAKE_C_FLAGS_DEBUG "-DHAVE_UNISTD_H=1 ${CMAKE_C_FLAGS_DEBUG}")
 SET(CMAKE_C_FLAGS_RELEASE "-DHAVE_UNISTD_H=1 ${CMAKE_C_FLAGS_RELEASE}")
+link_directories(/usr/local/lib)
 add_executable(ssclient gnulib/lib/arcfour.c libmd5-rfc/md5.c src/client.c src/cipher.c src/main.c src/s5.c src/server.c  src/util.c)
 target_link_libraries(ssclient uv )
 add_executable(ssclient-openssl src/client.c src/cipher-openssl.c src/main.c src/s5.c src/server.c  src/util.c)
