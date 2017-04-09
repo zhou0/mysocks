@@ -5,7 +5,7 @@
 FROM alpine:3.3
 MAINTAINER lzh <lzh@cpan.org>
 
-ARG MYSOCKS_URL=https://github.com/zhou0/mysocks/archive/0.3.1.tar.gz
+ARG MYSOCKS_URL=https://github.com/zhou0/mysocks/archive/0.3.2.tar.gz
 ARG LIBUV_URL=https://github.com/libuv/libuv/archive/v1.11.0.tar.gz 
 
 RUN set -ex && \
@@ -22,7 +22,7 @@ RUN set -ex && \
                                 tar \
                                 && \
     curl -sSL $LIBUV_URL | tar xz && cd libuv-1.11.0 && ./autogen.sh && ./configure --prefix=/usr --disable-static && make && make install && cd .. && \
-    curl -sSL $MYSOCKS_URL | tar xz && cd mysocks-0.3.1 && mkdir -p build/release && cd build/release && \
+    curl -sSL $MYSOCKS_URL | tar xz && cd mysocks-0.3.2 && mkdir -p build/release && cd build/release && \
     rm CMakeCache.txt && \
     cmake -DCMAKE_BUILD_TYPE=Release ../.. && \
     make && make install && \ 
@@ -36,4 +36,4 @@ RUN set -ex && \
     cd ../../.. && \
     apk add --no-cache --virtual .run-deps $runDeps && \
     apk del .build-deps && \
-    rm -fr libuv-1.11.0 && rm -fr mysocks-0.3.1 
+    rm -fr libuv-1.11.0 && rm -fr mysocks-0.3.2
