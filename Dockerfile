@@ -2,7 +2,7 @@
 # Dockerfile for mysocks
 #
 
-FROM alpine:3.4
+FROM alpine:3.3
 MAINTAINER lzh <lzh@cpan.org>
 
 ARG MYSOCKS_URL=https://github.com/zhou0/mysocks/archive/0.3.2.tar.gz
