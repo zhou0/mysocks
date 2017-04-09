@@ -1,0 +1,14 @@
+# CMake generation dependency list for this directory.
+D:/mysocks/libuv-1.11.0/CMakeLists.txt
+D:/mysocks/libuv-1.11.0/build/mswin32/CMakeFiles/3.0.2/CMakeSystem.cmake
+D:/mysocks/libuv-1.11.0/build/mswin32/CMakeFiles/3.0.2/CMakeCCompiler.cmake
+D:/Program Files/CMake/share/cmake-3.0/Modules/CMakeSystemSpecificInformation.cmake
+D:/Program Files/CMake/share/cmake-3.0/Modules/CMakeGenericSystem.cmake
+D:/Program Files/CMake/share/cmake-3.0/Modules/Platform/Windows.cmake
+D:/Program Files/CMake/share/cmake-3.0/Modules/Platform/WindowsPaths.cmake
+D:/Program Files/CMake/share/cmake-3.0/Modules/CMakeCInformation.cmake
+D:/Program Files/CMake/share/cmake-3.0/Modules/Platform/Windows-MSVC-C.cmake
+D:/Program Files/CMake/share/cmake-3.0/Modules/Platform/Windows-MSVC.cmake
+D:/mysocks/libuv-1.11.0/build/mswin32/CMakeFiles/3.0.2/CMakeRCCompiler.cmake
+D:/Program Files/CMake/share/cmake-3.0/Modules/CMakeRCInformation.cmake
+D:/Program Files/CMake/share/cmake-3.0/Modules/CMakeCommonLanguageInclude.cmake

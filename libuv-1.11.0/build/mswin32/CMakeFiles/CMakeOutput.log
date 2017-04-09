@@ -1,0 +1,79 @@
+The system is: Windows - 6.1 - x86
+Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+Compiler:  
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+Microsoft (R) Visual C++ 速成版 9.0.30729.1 版。
+版权所有 (C) Microsoft Corp 2007。保留所有权利。
+1>------ 已启动生成: 项目: CompilerIdC, 配置: Debug Win32 ------
+1>正在编译...
+1>CMakeCCompilerId.c
+1>正在链接...
+1>正在嵌入清单...
+1>正在执行生成后事件...
+1>CMAKE_C_COMPILER=D:\Program Files\Microsoft Visual Studio 9.0\VC\bin\cl.exe
+1>生成日志保存在“file://d:\mysocks\libuv-1.11.0\build\mswin32\CMakeFiles\3.0.2\CompilerIdC\Debug\BuildLog.htm”
+1>CompilerIdC - 0 个错误，0 个警告
+========== 生成: 成功 1 个，失败 0 个，最新 0 个，跳过 0 个 ==========
+
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.exe"
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.vcproj"
+
+The C compiler identification is MSVC, found in "D:/mysocks/libuv-1.11.0/build/mswin32/CMakeFiles/3.0.2/CompilerIdC/CompilerIdC.exe"
+
+Determining if the C compiler works passed with the following output:
+Change Dir: D:/mysocks/libuv-1.11.0/build/mswin32/CMakeFiles/CMakeTmp
+
+Run Build Command:"D:/Program Files/Microsoft Visual Studio 9.0/Common7/IDE/VCExpress.exe" "CMAKE_TRY_COMPILE.sln" "/build" "Debug" "/project" "cmTryCompileExec179577165"
+
+Microsoft (R) Visual C++ 速成版 9.0.30729.1 版。
+版权所有 (C) Microsoft Corp 2007。保留所有权利。
+1>------ 已启动生成: 项目: cmTryCompileExec179577165, 配置: Debug Win32 ------
+1>正在编译...
+1>用于 80x86 的 Microsoft (R) 32 位 C/C++ 优化编译器 15.00.30729.01 版
+1>版权所有(C) Microsoft Corporation。保留所有权利。
+1>cl /Od /D "WIN32" /D "_WINDOWS" /D "_DEBUG" /D "CMAKE_INTDIR=\"Debug\"" /D "_MBCS" /FD /RTC1 /MDd /Fo"cmTryCompileExec179577165.dir\Debug\\" /Fd"cmTryCompileExec179577165.dir\Debug\vc90.pdb" /W3 /c /Zi /TC ".\testCCompiler.c"
+1>testCCompiler.c
+1>正在编译资源清单...
+1>Microsoft (R) Windows (R) Resource Compiler Version 6.1.6723.1
+1>Copyright (C) Microsoft Corporation.  All rights reserved.
+1>正在链接...
+1>正在嵌入清单...
+1>Microsoft (R) Windows (R) Resource Compiler Version 6.1.6723.1
+1>Copyright (C) Microsoft Corporation.  All rights reserved.
+1>生成日志保存在“file://d:\mysocks\libuv-1.11.0\build\mswin32\CMakeFiles\CMakeTmp\cmTryCompileExec179577165.dir\Debug\BuildLog.htm”
+1>cmTryCompileExec179577165 - 0 个错误，0 个警告
+========== 生成: 成功 1 个，失败 0 个，最新 0 个，跳过 0 个 ==========
+
+
+Detecting C compiler ABI info compiled with the following output:
+Change Dir: D:/mysocks/libuv-1.11.0/build/mswin32/CMakeFiles/CMakeTmp
+
+Run Build Command:"D:/Program Files/Microsoft Visual Studio 9.0/Common7/IDE/VCExpress.exe" "CMAKE_TRY_COMPILE.sln" "/build" "Debug" "/project" "cmTryCompileExec3274424000"
+
+Microsoft (R) Visual C++ 速成版 9.0.30729.1 版。
+版权所有 (C) Microsoft Corp 2007。保留所有权利。
+1>------ 已启动生成: 项目: cmTryCompileExec3274424000, 配置: Debug Win32 ------
+1>正在编译...
+1>用于 80x86 的 Microsoft (R) 32 位 C/C++ 优化编译器 15.00.30729.01 版
+1>版权所有(C) Microsoft Corporation。保留所有权利。
+1>cl /Od /D "WIN32" /D "_WINDOWS" /D "_DEBUG" /D "CMAKE_INTDIR=\"Debug\"" /D "_MBCS" /FD /RTC1 /MDd /Fo"cmTryCompileExec3274424000.dir\Debug\\" /Fd"cmTryCompileExec3274424000.dir\Debug\vc90.pdb" /W3 /c /Zi /TC "..\..\..\..\..\..\Program Files\CMake\share\cmake-3.0\Modules\CMakeCCompilerABI.c"
+1>CMakeCCompilerABI.c
+1>正在编译资源清单...
+1>Microsoft (R) Windows (R) Resource Compiler Version 6.1.6723.1
+1>Copyright (C) Microsoft Corporation.  All rights reserved.
+1>正在链接...
+1>正在嵌入清单...
+1>Microsoft (R) Windows (R) Resource Compiler Version 6.1.6723.1
+1>Copyright (C) Microsoft Corporation.  All rights reserved.
+1>生成日志保存在“file://d:\mysocks\libuv-1.11.0\build\mswin32\CMakeFiles\CMakeTmp\cmTryCompileExec3274424000.dir\Debug\BuildLog.htm”
+1>cmTryCompileExec3274424000 - 0 个错误，0 个警告
+========== 生成: 成功 1 个，失败 0 个，最新 0 个，跳过 0 个 ==========
+
+

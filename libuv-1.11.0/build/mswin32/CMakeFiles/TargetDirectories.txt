@@ -1,0 +1,3 @@
+D:/mysocks/libuv-1.11.0/build/mswin32/CMakeFiles/ALL_BUILD.dir
+D:/mysocks/libuv-1.11.0/build/mswin32/CMakeFiles/ZERO_CHECK.dir
+D:/mysocks/libuv-1.11.0/build/mswin32/CMakeFiles/uv.dir

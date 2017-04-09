@@ -4,9 +4,9 @@
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/make-project/1">
             <name>mysocks</name>
-            <c-extensions>c</c-extensions>
-            <cpp-extensions>cpp,cxx</cpp-extensions>
-            <header-extensions>h</header-extensions>
+            <c-extensions>c,i</c-extensions>
+            <cpp-extensions>cc,cpp,cxx</cpp-extensions>
+            <header-extensions>h,hpp</header-extensions>
             <sourceEncoding>UTF-8</sourceEncoding>
             <make-dep-projects/>
             <sourceRootList>
@@ -19,7 +19,10 @@
                 </confElem>
             </confList>
             <formatting>
-                <project-formatting-style>false</project-formatting-style>
+                <project-formatting-style>true</project-formatting-style>
+                <c-style>ANSI|ANSI</c-style>
+                <cpp-style>ANSI|ANSI</cpp-style>
+                <header-style>ANSI|ANSI</header-style>
             </formatting>
         </data>
     </configuration>
