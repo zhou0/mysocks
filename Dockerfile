@@ -23,7 +23,6 @@ RUN set -ex && \
                                 && \
     curl -sSL $LIBUV_URL | tar xz && cd libuv-1.11.0 && ./autogen.sh && ./configure --prefix=/usr --disable-static && make && make install && cd .. && \
     curl -sSL $MYSOCKS_URL | tar xz && cd mysocks-0.3.2 && mkdir -p build/release && cd build/release && \
-    rm CMakeCache.txt && \
     cmake -DCMAKE_BUILD_TYPE=Release ../.. && \
     make && make install && \ 
     
