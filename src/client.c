@@ -220,12 +220,30 @@ static void do_next(client_ctx *cx)
         {
             memset(cx, -1, sizeof (*cx));
         }
-        free(cx->sx);
-        free(cx->incoming.request.base);
-        free(cx->outgoing.request.base);
-        free(cx->incoming.cipher_text);
-        free(cx->outgoing.cipher_text);
-        free(cx);
+        if (!cx->sx)
+        {
+            free(cx->sx);
+        }
+        if (!cx->incoming.request.base)
+        {
+            free(cx->incoming.request.base);
+        }
+        if (!cx->outgoing.request.base)
+        {
+            free(cx->outgoing.request.base);
+        }
+        if (!cx->incoming.cipher_text)
+        {
+            free(cx->incoming.cipher_text);
+        }
+        if (!cx->outgoing.cipher_text)
+        {
+            free(cx->outgoing.cipher_text);
+        }
+        if (!cx)
+        {
+            free(cx);
+        }
     }
 }
 
