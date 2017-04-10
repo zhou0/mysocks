@@ -28,11 +28,13 @@ void initialize_cipher()
     pr_info("%s %s", __FUNCTION__, config.method);
     if (strcmp(config.method, "rc4-md5") == 0)
     {
-        config.method = "rc4";
         cipher.keyl = 16;
+        cipher.ivl = 16;
     }
     cipher.key = malloc(cipher.keyl);
     bytes_to_key((uint8_t *) config.password, (int) strlen(config.password), cipher.key, 0);
+    cipher.encrypt.iv = malloc(cipher.ivl);
+    cipher.decrypt.iv = malloc(cipher.ivl);
     //    return cipher;
 }
 /*
@@ -71,12 +73,9 @@ unsigned char * cipher_encrypt(conn* c, size_t * encryptl,
         //            int ivl;
         size_t prepend;
         uint8_t * src, * ptr;
-        if (strcmp(config.method, "rc4") == 0)
-        {
-            cipher.encrypt.iv.len = 16;
-        }
+
         //            uint8_t * iv = malloc(ivl);
-        cipher.encrypt.iv.base = malloc(cipher.encrypt.iv.len);
+//        cipher.encrypt.iv = malloc(cipher.ivl);
         //        RAND_bytes(cipher.encrypt.iv.base, cipher.encrypt.iv.len);
 
 #ifdef _MSC_VER 
@@ -90,11 +89,11 @@ unsigned char * cipher_encrypt(conn* c, size_t * encryptl,
 #else
         double d1 = drand48();
         double d2 = drand48();
-        memcpy(cipher.encrypt.iv.base, &d1, sizeof (d1));
-        memcpy(cipher.encrypt.iv.base + sizeof (d1), &d2, sizeof (d2));
+        memcpy(cipher.encrypt.iv, &d1, sizeof (d1));
+        memcpy(cipher.encrypt.iv + sizeof (d1), &d2, sizeof (d2));
 #endif
 #endif
-        arcfour_setkey(&cipher.encrypt.ctx, create_key(cipher.encrypt.iv.base, cipher.encrypt.iv.len), cipher.keyl);
+        arcfour_setkey(&cipher.encrypt.ctx, create_key(cipher.encrypt.iv, cipher.ivl), cipher.keyl);
         /*
 #if defined(NDEBUG)
 #else
@@ -130,10 +129,10 @@ unsigned char * cipher_encrypt(conn* c, size_t * encryptl,
         memcpy(src, c->request.base + 3, prepend);
         memcpy(ptr, plain, plainl);
         plainl += prepend;
-        *encryptl = cipher.encrypt.iv.len + plainl;
+        *encryptl = cipher.ivl + plainl;
         encrypt = malloc(*encryptl);
-        memcpy(encrypt, cipher.encrypt.iv.base, cipher.encrypt.iv.len);
-        dst = (uint8_t *) encrypt + cipher.encrypt.iv.len;
+        memcpy(encrypt, cipher.encrypt.iv, cipher.ivl);
+        dst = (uint8_t *) encrypt + cipher.ivl;
         //    printf("---iv---\n");
         //    for (i = 0; i < ivl; i++) printf("%02x ", iv[i]);
         //    printf("\n");
@@ -190,24 +189,20 @@ unsigned char * cipher_decrypt(conn *c, size_t * plainl, char * encrypt, size_t 
     if (!c->request.len)
     {
         //     int ivl;
-        if (strcmp(config.method, "rc4") == 0)
-        {
-            cipher.decrypt.iv.len = 16;
-        }
         //        uint8_t * iv = malloc(ivl);
-        cipher.decrypt.iv.base = malloc(cipher.decrypt.iv.len);
-        memcpy(cipher.decrypt.iv.base, encrypt, cipher.decrypt.iv.len);
+//        cipher.decrypt.iv.base = malloc(cipher.decrypt.iv.len);
+        memcpy(cipher.decrypt.iv, encrypt, cipher.ivl);
         if (strcmp(config.method, "rc4") == 0)
         {
             //           EVP_CipherInit_ex(&cipher.decrypt.ctx, cipher.type, 0, create_key(cipher.decrypt.iv.base, cipher.decrypt.iv.len), 0, 0);
-            arcfour_setkey(&cipher.decrypt.ctx, create_key(cipher.decrypt.iv.base, cipher.decrypt.iv.len), cipher.keyl);
+            arcfour_setkey(&cipher.decrypt.ctx, create_key(cipher.decrypt.iv, cipher.ivl), cipher.keyl);
         }
 
         //    if (c->request.base == 0) {
 
-        *plainl = encryptl - cipher.decrypt.iv.len;
+        *plainl = encryptl - cipher.ivl;
         plain = malloc(*plainl);
-        src = (uint8_t *) encrypt + cipher.decrypt.iv.len;
+        src = (uint8_t *) encrypt + cipher.ivl;
         //    printf("---iv---\n");
         //    for (i = 0; i < ivl; i++) printf("%02x ", iv[i]);
         //    printf("\n");
@@ -215,9 +210,9 @@ unsigned char * cipher_decrypt(conn *c, size_t * plainl, char * encrypt, size_t 
         //    printf("---key---\n");
         //    for (i = 0; i < cipher->keyl; i++) printf("%02x ", cipher->key[i]);
         //    printf("\n");
-        c->request.base = malloc(cipher.decrypt.iv.len);
-        memcpy(c->request.base, cipher.decrypt.iv.base, cipher.decrypt.iv.len);
-        c->request.len = cipher.decrypt.iv.len;
+        c->request.base = malloc(cipher.ivl);
+        memcpy(c->request.base, cipher.decrypt.iv, cipher.ivl);
+        c->request.len = cipher.ivl;
         //        free(iv);
         //    cipher.decrypt.init = 1;
         //        c->init = 1;
@@ -260,6 +255,18 @@ dump(unsigned char *tag, unsigned char *text, unsigned int len)
 
 void cleanup_cipher()
 {
+    if (!cipher.key)
+    {
+        free(cipher.key);
+    }
+    if (!cipher.decrypt.iv)
+    {
+        free(cipher.decrypt.iv);
+    }
+    if (!cipher.encrypt.iv)
+    {
+        free(cipher.encrypt.iv);
+    }
     //    EVP_CIPHER_CTX_cleanup(&cipher.encrypt.ctx);
     //    EVP_CIPHER_CTX_cleanup(&cipher.decrypt.ctx);
 }

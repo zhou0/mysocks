@@ -17,6 +17,7 @@ extern "C"
 typedef struct
 {
     size_t keyl;
+    size_t ivl;
     uint8_t * key;
     //        const EVP_CIPHER * type;
 
@@ -25,7 +26,8 @@ typedef struct
         //            int init;
         //            EVP_CIPHER_CTX ctx;
         arcfour_context ctx;
-        uv_buf_t iv;
+//        uv_buf_t iv;
+        uint8_t * iv;
     } encrypt, decrypt;
 } cipher_t;
 

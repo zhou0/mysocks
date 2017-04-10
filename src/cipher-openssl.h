@@ -15,13 +15,15 @@ extern "C" {
 
     typedef struct {
         size_t keyl;
+        size_t ivl;
         uint8_t * key;
         const EVP_CIPHER * type;
 
         struct {
             //            int init;
             EVP_CIPHER_CTX ctx;
-            uv_buf_t iv;
+//            uv_buf_t iv;
+            uint8_t * iv;   
         } encrypt, decrypt;
     } cipher_t;
 
