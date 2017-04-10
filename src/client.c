@@ -144,6 +144,7 @@ void client_finish_init(server_ctx *sx, client_ctx *cx)
     incoming->idle_timeout = sx->idle_timeout;
     incoming->request.base = 0;
     incoming->request.len = 0;
+    incoming->cipher_text = malloc(2048 + cipher.ivl);
     CHECK(0 == uv_timer_init(sx->loop, &incoming->timer_handle));
 
     outgoing = &cx->outgoing;
@@ -154,6 +155,7 @@ void client_finish_init(server_ctx *sx, client_ctx *cx)
     outgoing->idle_timeout = sx->idle_timeout;
     outgoing->request.base = 0;
     outgoing->request.len = 0;
+    outgoing->cipher_text = malloc(2048 + cipher.ivl);
     CHECK(0 == uv_tcp_init(cx->sx->loop, &outgoing->handle.tcp));
     CHECK(0 == uv_timer_init(cx->sx->loop, &outgoing->timer_handle));
 
@@ -218,6 +220,11 @@ static void do_next(client_ctx *cx)
         {
             memset(cx, -1, sizeof (*cx));
         }
+        free(cx->sx);
+        free(cx->incoming.request.base);
+        free(cx->outgoing.request.base);
+        free(cx->incoming.cipher_text);
+        free(cx->outgoing.cipher_text);
         free(cx);
     }
 }

@@ -192,7 +192,7 @@ unsigned char * cipher_decrypt(conn *c, size_t * plainl, char * encrypt, size_t 
         //        uint8_t * iv = malloc(ivl);
 //        cipher.decrypt.iv.base = malloc(cipher.decrypt.iv.len);
         memcpy(cipher.decrypt.iv, encrypt, cipher.ivl);
-        if (strcmp(config.method, "rc4") == 0)
+        if (strcmp(config.method, "rc4-md5") == 0)
         {
             //           EVP_CipherInit_ex(&cipher.decrypt.ctx, cipher.type, 0, create_key(cipher.decrypt.iv.base, cipher.decrypt.iv.len), 0, 0);
             arcfour_setkey(&cipher.decrypt.ctx, create_key(cipher.decrypt.iv, cipher.ivl), cipher.keyl);

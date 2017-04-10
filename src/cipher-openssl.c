@@ -37,9 +37,14 @@ void initialize_cipher()
     if (cipher.type)
     {
         cipher.keyl = EVP_CIPHER_key_length(cipher.type);
-
-        cipher.ivl = EVP_CIPHER_iv_length(cipher.type);
-       
+        if (strcmp(config.method, "rc4") == 0)
+        {
+            cipher.ivl = 16;
+        }
+        else
+        {
+            cipher.ivl = EVP_CIPHER_iv_length(cipher.type);
+        }
         cipher.key = malloc(cipher.keyl);
 
         EVP_CIPHER_CTX_init(&cipher.encrypt.ctx);
