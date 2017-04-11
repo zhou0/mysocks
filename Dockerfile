@@ -26,11 +26,11 @@ RUN set -ex && \
 make install && cd .. && \
     curl -sSL $WOLFSSL_URL | tar xz && cd wolfssl-3.2.0 && ./autogen.sh && \
 ./configure --prefix=/usr --disable-static --enable-ipv6 --enable-aesgcm \
---enable-aesccm --enable-psk --disable-coding --enable-hkdf --enable-poly1305 \ 
---enable-camellia --disable-des3 --enable-hc128 --enable-rabbit \
---enable-chacha --enable-examples --enable-iopool --disable-oldtls \
---disable-asn --disable-rsa --enable-fastmath --disable-sha && make && \
-make install && cd .. && \
+--enable-aesccm --enable-aesni --enable-psk --disable-coding \
+--enable-hkdf --enable-poly1305 --enable-camellia --disable-des3 \
+--enable-hc128 --enable-rabbit --enable-chacha --enable-examples \
+--enable-iopool --disable-oldtls --disable-asn --disable-rsa \
+--enable-fastmath --disable-sha && make && make install && cd .. && \
     curl -sSL $MYSOCKS_URL | tar xz && cd mysocks-0.3.5 && mkdir -p \
 build/release && cd build/release && \
     cmake -DCMAKE_BUILD_TYPE=Release ../.. && \
