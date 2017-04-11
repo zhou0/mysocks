@@ -1,4 +1,4 @@
-/* 
+﻿/* 
  * File:   cipher-wolfssl.h
  * Author: lizhou
  *
@@ -8,22 +8,43 @@
 #ifndef CIPHER_WOLFSSL_H
 #define	CIPHER_WOLFSSL_H
 
+
 #ifdef	__cplusplus
 extern "C"
 {
 #endif
 
+#include <stddef.h>
+#if defined(_MSC_VER) && (_MSC_VER<=1500)   
+#include "stdint-msvc2008.h" 
+#else 
+#include <stdint.h> 
+#endif
+#include <cyassl/ctaocrypt/arc4.h>
+#include <cyassl/ctaocrypt/chacha.h>
+#include <cyassl/ctaocrypt/hc128.h>
+#include <cyassl/ctaocrypt/rabbit.h>
+#include "defs.h"
+#define MD5_DIGEST_LENGTH 16
 typedef struct
 {
     size_t keyl;
+	size_t ivl;
     uint8_t * key;
-    const EVP_CIPHER * type;
+//    const EVP_CIPHER * type;
 
     struct
     {
         //            int init;
-        EVP_CIPHER_CTX ctx;
-        uv_buf_t iv;
+//        EVP_CIPHER_CTX ctx;
+		union
+		{
+            Arc4 arc4;
+			ChaCha chacha;
+			HC128 hc128;
+			Rabbit rabbit;
+		};
+        uint8_t * iv;
     } encrypt, decrypt;
 } cipher_t;
 
@@ -36,14 +57,23 @@ void initialize_cipher();
 //void destroy_cipher(cipher_t *);
 //void    cipher_encrypt(shadow_t   *, size_t,  uv_buf_t *, uv_buf_t *);
 //void      cipher_decrypt(shadow_t   *, size_t,  uv_buf_t *, uv_buf_t *);
-unsigned char* cipher_encrypt(conn*, size_t * encryptl,
-                              char * plain, size_t plainl);
-unsigned char * cipher_decrypt(conn *, size_t * plainl,
-                               char * encrypt, size_t encryptl);
+	#if defined(_WIN64)
+	/* Microsoft Windows (64-bit). ------------------------------ */
+
+#elif defined(_WIN32)
+	/* Microsoft Windows (32-bit). ------------------------------ */
+    void cipher_encrypt(conn*, ULONG * encryptl,
+            const char * plain, size_t plainl);
+    void cipher_decrypt(conn *, ULONG * plainl,
+            const char * encrypt, size_t encryptl);
+#else
+void cipher_encrypt(conn *, size_t * encryptl,const char * plain, size_t plainl);
+void cipher_decrypt(conn *, size_t * plainl,const char * encrypt, size_t encryptl);
+#endif
 void cleanup_cipher();
-unsigned char * create_key(char * iv, int);
-
-
+char * create_key(unsigned char * iv, int);
+int bytes_to_key(const uint8_t *pass, int datal, uint8_t *key, uint8_t *iv);
+void md5(const uint8_t *text, size_t, uint8_t *message);
 
 #ifdef	__cplusplus
 }

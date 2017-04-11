@@ -383,9 +383,9 @@ int bytes_to_key(const uint8_t *pass, int datal, uint8_t *key, uint8_t *iv)
     int rv;
     md5_state_t hash_state;
     //    nkey = cipher_key_size(cipher);
-    nkey = 16;
+	nkey = cipher.keyl;
     //    niv = cipher_iv_size(cipher);
-    niv = 16;
+	niv = cipher.ivl;
     rv = nkey;
     if (pass == NULL)
     {

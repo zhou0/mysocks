@@ -2,6 +2,136 @@
 <configurationDescriptor version="90">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <df root="." name="0">
+      <df name="build">
+        <df name="linux">
+        </df>
+        <df name="mingw32">
+          <df name="debug">
+            <df name="bin">
+            </df>
+            <df name="CMakeFiles">
+              <df name="3.6.2">
+                <df name="CompilerIdC">
+                  <in>CMakeCCompilerId.c</in>
+                </df>
+                <df name="CompilerIdCXX">
+                  <in>CMakeCXXCompilerId.cpp</in>
+                </df>
+              </df>
+              <df name="CMakeTmp">
+              </df>
+              <df name="ssclient-openssl.dir">
+                <df name="src">
+                </df>
+              </df>
+              <df name="ssclient.dir">
+                <df name="gnulib">
+                  <df name="lib">
+                  </df>
+                </df>
+                <df name="libmd5-rfc">
+                </df>
+                <df name="src">
+                </df>
+              </df>
+              <in>feature_tests.c</in>
+              <in>feature_tests.cxx</in>
+            </df>
+          </df>
+          <df name="release">
+            <df name="bin">
+            </df>
+            <df name="CMakeFiles">
+              <df name="3.6.2">
+                <df name="CompilerIdC">
+                  <in>CMakeCCompilerId.c</in>
+                </df>
+                <df name="CompilerIdCXX">
+                  <in>CMakeCXXCompilerId.cpp</in>
+                </df>
+              </df>
+              <df name="CMakeTmp">
+              </df>
+              <df name="ssclient-openssl.dir">
+                <df name="src">
+                </df>
+              </df>
+              <df name="ssclient.dir">
+                <df name="gnulib">
+                  <df name="lib">
+                  </df>
+                </df>
+                <df name="libmd5-rfc">
+                </df>
+                <df name="src">
+                </df>
+              </df>
+              <in>feature_tests.c</in>
+              <in>feature_tests.cxx</in>
+            </df>
+          </df>
+        </df>
+        <df name="mswin32">
+          <df name="ALL_BUILD.dir">
+            <df name="Debug">
+            </df>
+            <df name="Release">
+            </df>
+          </df>
+          <df name="bin">
+            <df name="Debug">
+            </df>
+            <df name="Release">
+            </df>
+          </df>
+          <df name="CMakeFiles">
+            <df name="3.0.2">
+              <df name="CompilerIdC">
+                <df name="Debug">
+                </df>
+                <in>CMakeCCompilerId.c</in>
+              </df>
+              <df name="CompilerIdCXX">
+                <df name="Debug">
+                </df>
+                <in>CMakeCXXCompilerId.cpp</in>
+              </df>
+            </df>
+            <df name="CMakeTmp">
+            </df>
+          </df>
+          <df name="lib">
+            <df name="Debug">
+            </df>
+            <df name="Release">
+            </df>
+          </df>
+          <df name="ssclient-openssl.dir">
+            <df name="Debug">
+            </df>
+            <df name="Release">
+            </df>
+          </df>
+          <df name="ssclient-wolfssl.dir">
+            <df name="Debug">
+            </df>
+            <df name="Release">
+            </df>
+          </df>
+          <df name="ssclient.dir">
+            <df name="Debug">
+            </df>
+            <df name="Release">
+            </df>
+          </df>
+          <df name="ZERO_CHECK.dir">
+            <df name="Debug">
+            </df>
+            <df name="Release">
+            </df>
+          </df>
+        </df>
+      </df>
       <df name="docs">
       </df>
       <df name="gnulib">
@@ -18,13 +148,35 @@
         <in>md5.h</in>
       </df>
       <df name="libuv-1.11.0">
+        <df name="autom4te.cache">
+        </df>
         <df name="build">
           <df name="mswin32">
             <df name="CMakeFiles">
               <df name="3.0.2">
                 <df name="CompilerIdC">
+                  <df name="Debug">
+                  </df>
                   <in>CMakeCCompilerId.c</in>
                 </df>
+              </df>
+              <df name="CMakeTmp">
+              </df>
+            </df>
+            <df name="Debug">
+            </df>
+            <df name="Release">
+            </df>
+            <df name="uv.dir">
+              <df name="Debug">
+              </df>
+              <df name="Release">
+              </df>
+            </df>
+            <df name="ZERO_CHECK.dir">
+              <df name="Debug">
+              </df>
+              <df name="Release">
               </df>
             </df>
           </df>
@@ -67,6 +219,8 @@
         </df>
         <df name="samples">
           <df name="socks5-proxy">
+            <df name="build">
+            </df>
             <in>client.c</in>
             <in>defs.h</in>
             <in>getopt.c</in>
@@ -1728,6 +1882,8 @@
         </df>
         <df name="out32dll.dbg">
         </df>
+        <df name="perl">
+        </df>
         <df name="shlib">
         </df>
         <df name="ssl">
@@ -2033,8 +2189,6 @@
       <df name="src">
         <in>aead.c</in>
         <in>aead.h</in>
-        <in>cipher-cyassl.c</in>
-        <in>cipher-cyassl.h</in>
         <in>cipher-openssl.c</in>
         <in>cipher-openssl.h</in>
         <in>cipher-wolfssl.c</in>
@@ -2051,6 +2205,10 @@
         <in>util.c</in>
       </df>
       <df name="wolfssl-3.2.0">
+        <df name="autom4te.cache">
+        </df>
+        <df name="build-aux">
+        </df>
         <df name="certs">
           <df name="1024">
           </df>
@@ -2065,7 +2223,15 @@
           <df name="_UpgradeReport_Files">
           </df>
           <df name="benchmark">
+            <df name="Debug">
+            </df>
+            <df name="Release">
+            </df>
             <in>benchmark.c</in>
+          </df>
+          <df name="Debug">
+          </df>
+          <df name="Release">
           </df>
           <df name="src">
             <df name="port">
@@ -2090,6 +2256,8 @@
             <in>ecc.c</in>
             <in>ecc_fp.c</in>
             <in>error.c</in>
+            <in>fips.c</in>
+            <in>fips_test.c</in>
             <in>fp_mont_small.i</in>
             <in>fp_mul_comba_12.i</in>
             <in>fp_mul_comba_17.i</in>
@@ -2146,6 +2314,10 @@
             <in>wolfcrypt_last.c</in>
           </df>
           <df name="test">
+            <df name="Debug">
+            </df>
+            <df name="Release">
+            </df>
             <in>test.c</in>
             <in>test.h</in>
           </df>
@@ -2241,6 +2413,7 @@
           <in>error-ssl.h</in>
           <in>internal.h</in>
           <in>ocsp.h</in>
+          <in>options.h</in>
           <in>sniffer.h</in>
           <in>sniffer_error.h</in>
           <in>ssl.h</in>
@@ -2251,22 +2424,40 @@
         </df>
         <df name="cyassl-iphone.xcodeproj">
         </df>
+        <df name="Debug">
+        </df>
         <df name="doc">
         </df>
         <df name="examples">
           <df name="client">
+            <df name="Debug">
+            </df>
+            <df name="Release">
+            </df>
             <in>client.c</in>
             <in>client.h</in>
           </df>
           <df name="echoclient">
+            <df name="Debug">
+            </df>
+            <df name="Release">
+            </df>
             <in>echoclient.c</in>
             <in>echoclient.h</in>
           </df>
           <df name="echoserver">
+            <df name="Debug">
+            </df>
+            <df name="Release">
+            </df>
             <in>echoserver.c</in>
             <in>echoserver.h</in>
           </df>
           <df name="server">
+            <df name="Debug">
+            </df>
+            <df name="Release">
+            </df>
             <in>server.c</in>
             <in>server.h</in>
           </df>
@@ -2289,6 +2480,10 @@
                 <in>Retarget.c</in>
                 <in>cert_data.c</in>
                 <in>cert_data.h</in>
+                <in>config-BARE-METAL.h</in>
+                <in>config-FS.h</in>
+                <in>config-RTX-TCP-FS.h</in>
+                <in>config.h</in>
                 <in>cyassl_MDK_ARM.c</in>
                 <in>cyassl_MDK_ARM.h</in>
                 <in>main.c</in>
@@ -2303,8 +2498,13 @@
             </df>
           </df>
           <df name="MDK5-ARM">
+            <df name="Conf">
+              <in>config-Crypt.h</in>
+              <in>config-CyaSSL.h</in>
+            </df>
             <df name="Inc">
               <in>cert_data.h</in>
+              <in>config.h</in>
               <in>cyassl_MDK_ARM.h</in>
             </df>
             <df name="Projects">
@@ -2354,6 +2554,7 @@
                     <in>settings.h</in>
                   </df>
                 </df>
+                <in>config-EchoClient.h</in>
                 <in>echoclient.c</in>
                 <in>main.c</in>
                 <in>time-dummy.c</in>
@@ -2375,6 +2576,7 @@
                   </df>
                 </df>
                 <in>client.c</in>
+                <in>config-SimpleClient.h</in>
                 <in>main.c</in>
                 <in>time-CortexM3-4.c</in>
                 <in>time-STM32F2xx.c</in>
@@ -2386,6 +2588,7 @@
                     <in>settings.h</in>
                   </df>
                 </df>
+                <in>config-SimpleServer.h</in>
                 <in>main.c</in>
                 <in>server.c</in>
                 <in>time-dummy.c</in>
@@ -2451,6 +2654,8 @@
             </df>
           </df>
         </df>
+        <df name="Release">
+        </df>
         <df name="rpm">
         </df>
         <df name="src">
@@ -2464,6 +2669,10 @@
           <in>tls.c</in>
         </df>
         <df name="sslSniffer">
+          <df name="Debug">
+          </df>
+          <df name="Release">
+          </df>
           <df name="sslSnifferTest">
             <in>snifftest.c</in>
           </df>
@@ -2482,6 +2691,10 @@
           <in>unit.h</in>
         </df>
         <df name="testsuite">
+          <df name="Debug">
+          </df>
+          <df name="Release">
+          </df>
           <in>testsuite.c</in>
         </df>
         <df name="tirtos">
@@ -2504,6 +2717,7 @@
             </df>
           </df>
         </df>
+        <in>config.h</in>
       </df>
     </df>
     <itemPath>CMakeLists.txt</itemPath>
