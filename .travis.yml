@@ -12,6 +12,10 @@ before_install:
     - ./autogen.sh && ./configure --prefix=/usr --disable-static && make
     - sudo make install
     - popd
+    - pushd wolfssl-3.2.0
+    - ./autogen.sh && ./configure --disable-static --enable-ipv6 --enable-aesgcm --enable-aesccm --enable-psk --disable-coding --enable-hkdf --enable-poly1305 --enable-camellia --disable-des3 --enable-hc128 --enable-rabbit --enable-chacha --enable-examples --enable-iopool --disable-oldtls --disable-asn --disable-rsa --enable-fastmath --disable-sha && make
+    - sudo make install
+    - popd  
     - pip install --user cpp-coveralls
 script: mkdir -p build/debug && cd build/debug && cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_GCOV=ON ../.. && make && make test 
 sudo: required
