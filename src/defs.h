@@ -29,18 +29,25 @@
 #define DEFS_H_
 
 #include <assert.h>
+#include <stddef.h>      /* size_t, ssize_t */
 #if !defined(_WIN32) && (defined(__unix__) || defined(__unix) || (defined(__APPLE__) && defined(__MACH__)))
 /* UNIX-style OS. ------------------------------------------- */
 #include <unistd.h>
 #include <netinet/in.h>  /* sockaddr_in, sockaddr_in6 */
 #include <sys/socket.h>  /* sockaddr */
 #endif
-#include <stddef.h>      /* size_t, ssize_t */
+#if defined(_WIN64)
+	/* Microsoft Windows (64-bit). ------------------------------ */
+
+#elif defined(_WIN32)
+	/* Microsoft Windows (32-bit). ------------------------------ */
+#include <winsock2.h>  
+#endif
 #if defined(_MSC_VER) && (_MSC_VER<=1500)   
 #include "stdint-msvc2008.h" 
 #else 
 #include <stdint.h> 
-#endif 
+#endif
 #include <uv.h>
 #include "s5.h"
 

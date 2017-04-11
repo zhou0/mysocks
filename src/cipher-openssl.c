@@ -88,8 +88,17 @@ void destroy_cipher(cipher_t * cipher) {
 }
  */
 
+	#if defined(_WIN64)
+	/* Microsoft Windows (64-bit). ------------------------------ */
+
+#elif defined(_WIN32)
+	/* Microsoft Windows (32-bit). ------------------------------ */
+void cipher_encrypt(conn* c, ULONG * encryptl,
+                               const char * plain, size_t plainl)
+#else
 void cipher_encrypt(conn* c, size_t * encryptl,
-                               char * plain, size_t plainl)
+                               const char * plain, size_t plainl)
+#endif
 {
     //    pr_info("%s %lu", __FUNCTION__, plainl);
     //    cipher_t * cipher = shadow->cipher;
@@ -196,7 +205,15 @@ void cipher_encrypt(conn* c, size_t * encryptl,
 //   return encrypt;
 }
 
-void cipher_decrypt(conn *c, size_t * plainl, char * encrypt, size_t encryptl)
+	#if defined(_WIN64)
+	/* Microsoft Windows (64-bit). ------------------------------ */
+
+#elif defined(_WIN32)
+	/* Microsoft Windows (32-bit). ------------------------------ */
+void cipher_decrypt(conn *c, ULONG * plainl, const char * encrypt, size_t encryptl)
+#else
+void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encryptl)
+#endif
 {
     //    pr_info("%s %lu", __FUNCTION__, encryptl);
     //    cipher_t * cipher = shadow->cipher;
@@ -311,7 +328,7 @@ void cleanup_cipher()
     EVP_CIPHER_CTX_cleanup(&cipher.decrypt.ctx);
 }
 
-unsigned char * create_key(char * iv, int ivl)
+unsigned char * create_key(unsigned char * iv, int ivl)
 {
 
     unsigned char *true_key = malloc(MD5_DIGEST_LENGTH);
