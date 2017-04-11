@@ -845,13 +845,13 @@ static void conn_read_done(uv_stream_t *handle,
             {
                 //                char * cipher_text;
                 //                cipher_text = cipher_encrypt(c, &buf->len, buf->base, nread);
-                c->cipher_text = cipher_encrypt(c, &buf->len, buf->base, nread);
+                cipher_encrypt(c, &buf->len, buf->base, nread);
                 //               conn_write(&c->client->outgoing, cipher_text, buf->len);
             }
             else
             {
                 //                char * plain_text = cipher_decrypt(&buf->len, buf->base, nread);
-                c->cipher_text = cipher_decrypt(c, &buf->len, buf->base, nread);
+                cipher_decrypt(c, &buf->len, buf->base, nread);
                 //                conn_write(&c->client->incoming, plain_text, buf->len);
             }
             c->cipher_len = buf->len;

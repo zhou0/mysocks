@@ -134,7 +134,7 @@ static void usage(void)
 {
 
     printf("\n"
-		   "This is MySocks project, the lightweight cross-platform shadowsocks client and server,version 0.3, subversion 1 (v0.3.1). Copyright 2017, Li ZHOU\n"
+		   "This is MySocks project, the lightweight multi-platform shadowsocks client and server,version 0.3, subversion 4 (v0.3.4). Copyright 2017, Li ZHOU\n"
 		   "\n"
            "Usage:%s [-b <local_host>] [-h] -k <password> -m <encrypt_method> [-l <port>] -p <remote_port> -s <remote_host>\n"
 		   "\n"
@@ -148,6 +148,14 @@ static void usage(void)
            "\t\t\tcamellia-128-cfb,camellia-128-ofb\n"
            "\t\t\tcamellia-192-cfb,camellia-192-ofb\n"
            "\t\t\tcamellia-256-cfb,camellia-256-ofb\n"
+#endif
+#ifdef WITH_WOLFSSL
+           "\t\t\taes-128-cbc,aes-128-ccm,ars-128-gcm\n"
+           "\t\t\taes-256-cbc,aes-256-ccm,ars-256-gcm\n"
+           "\t\t\tcamellia-128-cbc,camellia-256-cbc\n"
+           "\t\t\tchacha20-ietf,chacha2-ietf-poly1305\n"
+		   "\t\t\thc-128\n"
+		   "\t\t\trabbit\n"
 #endif
             "\t\t\trc4-md5\n"
            "  -p <remote_port>\tport number of your remote server\n"

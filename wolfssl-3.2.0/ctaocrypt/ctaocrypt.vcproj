@@ -39,8 +39,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;OPENSSL_EXTRA"
+				AdditionalIncludeDirectories="&quot;D:\mysocks\wolfssl-3.2.0&quot;;include"
+				PreprocessorDefinitions="HAVE_CHACHA;HAVE_HC128"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -100,8 +100,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;OPENSSL_EXTRA"
+				AdditionalIncludeDirectories="&quot;D:\mysocks\wolfssl-3.2.0&quot;;include"
+				PreprocessorDefinitions="HAVE_CHACHA;HAVE_HC128"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -262,27 +262,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\asn.c"
-				>
-			</File>
-			<File
 				RelativePath=".\src\chacha.c"
-				>
-			</File>
-			<File
-				RelativePath=".\src\coding.c"
-				>
-			</File>
-			<File
-				RelativePath=".\src\des3.c"
-				>
-			</File>
-			<File
-				RelativePath=".\src\dh.c"
-				>
-			</File>
-			<File
-				RelativePath=".\src\dsa.c"
 				>
 			</File>
 			<File
@@ -298,11 +278,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\md4.c"
+				RelativePath=".\src\md5.c"
 				>
 			</File>
 			<File
-				RelativePath=".\src\md5.c"
+				RelativePath=".\src\memory.c"
 				>
 			</File>
 			<File
@@ -311,18 +291,6 @@
 			</File>
 			<File
 				RelativePath=".\src\random.c"
-				>
-			</File>
-			<File
-				RelativePath=".\src\rsa.c"
-				>
-			</File>
-			<File
-				RelativePath=".\src\sha.c"
-				>
-			</File>
-			<File
-				RelativePath=".\src\sha256.c"
 				>
 			</File>
 			<File
