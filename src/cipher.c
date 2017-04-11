@@ -14,6 +14,9 @@
 #include <linux/random.h>
 #include <features.h>
 #endif
+#ifdef _MSC_VER
+#include <malloc.h>
+#endif
 #include "md5.h"
 #include "arcfour.h"
 #include "defs.h"
@@ -55,14 +58,14 @@ void destroy_cipher(cipher_t * cipher) {
 }
  */
 
-unsigned char * cipher_encrypt(conn* c, size_t * encryptl,
+void cipher_encrypt(conn* c, size_t * encryptl,
                                char * plain, size_t plainl)
 {
 
 
     //    pr_info("%s %lu", __FUNCTION__, plainl);
     //    cipher_t * cipher = shadow->cipher;
-    unsigned char * encrypt = 0;
+    //unsigned char * encrypt = 0;
 
     uint8_t * dst;
     //    int l;
@@ -72,7 +75,12 @@ unsigned char * cipher_encrypt(conn* c, size_t * encryptl,
 
         //            int ivl;
         size_t prepend;
+//#if defined (_MSC_VER)
         uint8_t * src, * ptr;
+//#else
+//		unsigned int srcl,ptrl;
+//		uint8_t src[srcl],ptr[ptrl];
+//#endif
 
         //            uint8_t * iv = malloc(ivl);
 //        cipher.encrypt.iv = malloc(cipher.ivl);
@@ -115,7 +123,12 @@ unsigned char * cipher_encrypt(conn* c, size_t * encryptl,
 
         prepend = c->request.len - 3;
 
+//        src = malloc(prepend + plainl);
+#if defined (_MSC_VER)
+        src = _malloca(prepend + plainl);
+#else
         src = malloc(prepend + plainl);
+#endif
         //        src = malloc(plainl);
         ptr = src + prepend;
         //memcpy(src, &shadow->socks5->data->atyp, prepend);
@@ -130,9 +143,11 @@ unsigned char * cipher_encrypt(conn* c, size_t * encryptl,
         memcpy(ptr, plain, plainl);
         plainl += prepend;
         *encryptl = cipher.ivl + plainl;
-        encrypt = malloc(*encryptl);
-        memcpy(encrypt, cipher.encrypt.iv, cipher.ivl);
-        dst = (uint8_t *) encrypt + cipher.ivl;
+//        encrypt = malloc(*encryptl);
+//        memcpy(encrypt, cipher.encrypt.iv, cipher.ivl);
+		memcpy(c->cipher_text, cipher.encrypt.iv, cipher.ivl);
+//        dst = (uint8_t *) encrypt + cipher.ivl;
+		dst = (uint8_t *) c->cipher_text + cipher.ivl;
         //    printf("---iv---\n");
         //    for (i = 0; i < ivl; i++) printf("%02x ", iv[i]);
         //    printf("\n");
@@ -153,8 +168,9 @@ unsigned char * cipher_encrypt(conn* c, size_t * encryptl,
         //        pr_info("%s",__FUNCTION__); 
 
         *encryptl = plainl;
-        encrypt = malloc(*encryptl);
-        dst = (uint8_t *) encrypt;
+//        encrypt = malloc(*encryptl);
+//        dst = (uint8_t *) encrypt;
+		dst = (uint8_t *) c->cipher_text;
     }
 
 
@@ -170,17 +186,21 @@ unsigned char * cipher_encrypt(conn* c, size_t * encryptl,
     //  printf("---encrypt---\n");
     //  for (i = 0; i < len; i++) printf("%02x ", dst[i]);
     //  printf("\n");
+#ifdef _MSC_VER
+	_freea(plain);
+#else
+	free(plain);
+#endif
+//        free(plain);
 
-    //    free(plain);
-
-    return encrypt;
+//    return encrypt;
 }
 
-unsigned char * cipher_decrypt(conn *c, size_t * plainl, char * encrypt, size_t encryptl)
+void cipher_decrypt(conn *c, size_t * plainl, char * encrypt, size_t encryptl)
 {
     //    pr_info("%s %lu", __FUNCTION__, encryptl);
     //    cipher_t * cipher = shadow->cipher;
-    unsigned char * plain = 0;
+//    unsigned char * plain = 0;
 
     uint8_t * src;
 
@@ -201,7 +221,7 @@ unsigned char * cipher_decrypt(conn *c, size_t * plainl, char * encrypt, size_t 
         //    if (c->request.base == 0) {
 
         *plainl = encryptl - cipher.ivl;
-        plain = malloc(*plainl);
+//        plain = malloc(*plainl);
         src = (uint8_t *) encrypt + cipher.ivl;
         //    printf("---iv---\n");
         //    for (i = 0; i < ivl; i++) printf("%02x ", iv[i]);
@@ -222,13 +242,14 @@ unsigned char * cipher_decrypt(conn *c, size_t * plainl, char * encrypt, size_t 
 
         *plainl = encryptl;
         src = (uint8_t *) encrypt;
-        plain = malloc(*plainl);
+//        plain = malloc(*plainl);
 
     }
 
     //    int _;
     //    EVP_CipherUpdate(&cipher.decrypt.ctx, (uint8_t *) plain, &_, src, (int) *plainl);
-    arcfour_stream(&cipher.decrypt.ctx, src, plain, *plainl);
+//    arcfour_stream(&cipher.decrypt.ctx, src, plain, *plainl);
+	arcfour_stream(&cipher.decrypt.ctx, src, c->cipher_text, *plainl);
 
     //  printf("---decrypt plain---\n");
     //  for (i = 0; i < 5; i++) printf("%02x ", (unsigned char)plain[i]);
@@ -236,7 +257,7 @@ unsigned char * cipher_decrypt(conn *c, size_t * plainl, char * encrypt, size_t 
 
     //free(encrypt);
 
-    return plain;
+//    return plain;
 }
 
 #if defined(NDEBUG)
