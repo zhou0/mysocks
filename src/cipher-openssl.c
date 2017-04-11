@@ -206,12 +206,28 @@ void cipher_decrypt(conn *c, size_t * plainl, char * encrypt, size_t encryptl)
     int outl;
     //if (!cipher.decrypt.init) {
     //if (!c->init) {
-    if (!c->request.len)
+//    if (!c->request.len)
+//    {
+	if (c->request.len < cipher.ivl)
     {
+		c->request.base = malloc(cipher.ivl);
+		if ( c->request.len + encryptl < cipher.ivl )
+		{
+            
+			memcpy(c->request.base + c->request.len, encrypt, encryptl);
+			c->request.len += encryptl;
+			c->cipher_text = 0;
+			c->cipher_len = 0;
+			return;
+		}
+		else
+		{
+			memcpy(cipher.decrypt.iv,c->request.base,c->request.len);
         //     int ivl;
         //        uint8_t * iv = malloc(ivl);
 //        cipher.decrypt.iv.base = malloc(cipher.decrypt.iv.len);
-        memcpy(cipher.decrypt.iv, encrypt, cipher.ivl);
+//        memcpy(cipher.decrypt.iv, encrypt, cipher.ivl);
+			memcpy(cipher.decrypt.iv + c->request.len, encrypt, cipher.ivl - c->request.len);
         if (strcmp(config.method, "rc4") == 0)
         {
 
@@ -224,9 +240,9 @@ void cipher_decrypt(conn *c, size_t * plainl, char * encrypt, size_t encryptl)
 
         //    if (c->request.base == 0) {
 
-        *plainl = encryptl - cipher.ivl;
+        *plainl = encryptl - cipher.ivl - c->request.len;;
 //       plain = malloc(*plainl);
-        src = (uint8_t *) encrypt + cipher.ivl;
+        src = (uint8_t *) encrypt + cipher.ivl - c->request.len;;
         //    printf("---iv---\n");
         //    for (i = 0; i < ivl; i++) printf("%02x ", iv[i]);
         //    printf("\n");
@@ -234,13 +250,14 @@ void cipher_decrypt(conn *c, size_t * plainl, char * encrypt, size_t encryptl)
         //    printf("---key---\n");
         //    for (i = 0; i < cipher->keyl; i++) printf("%02x ", cipher->key[i]);
         //    printf("\n");
-        c->request.base = malloc(cipher.ivl);
+//        c->request.base = malloc(cipher.ivl);
         memcpy(c->request.base, cipher.decrypt.iv, cipher.ivl);
         c->request.len = cipher.ivl;
         //        free(iv);
         //    cipher.decrypt.init = 1;
         //        c->init = 1;
     }
+		}
     else
     {
 
