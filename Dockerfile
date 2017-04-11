@@ -45,4 +45,4 @@ build/release && cd build/release && \
     cd ../../.. && \
     apk add --no-cache --virtual .run-deps $runDeps && \
     apk del .build-deps && \
-    rm -fr libuv-1.11.0 && rm -fr mysocks-0.3.5
+    rm -fr libuv-1.11.0 && rm -fr wolfssl-3.2.0 && rm -fr mysocks-0.3.5
