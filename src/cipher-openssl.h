@@ -21,7 +21,11 @@ typedef struct {
 
     struct {
         //            int init;
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
         EVP_CIPHER_CTX ctx;
+#else
+        EVP_CIPHER_CTX *ctx;
+#endif
 //            uv_buf_t iv;
         uint8_t * iv;
     } encrypt, decrypt;

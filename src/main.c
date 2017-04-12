@@ -30,6 +30,7 @@
 
 #include "defs.h"
 #ifdef WITH_OPENSSL
+#include <openssl/opensslv.h>
 #include "cipher-openssl.h"
 #else
 #include "cipher.h"
@@ -148,6 +149,9 @@ static void usage(void)
            "\t\t\tcamellia-128-cfb,camellia-128-ofb\n"
            "\t\t\tcamellia-192-cfb,camellia-192-ofb\n"
            "\t\t\tcamellia-256-cfb,camellia-256-ofb\n"
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L)
+	   "\t\t\tchacha20-ietf,chacha2-ietf-poly1305\n" 
+#endif
 #endif
 #ifdef WITH_WOLFSSL
            "\t\t\taes-128-cbc,aes-128-ccm,ars-128-gcm\n"

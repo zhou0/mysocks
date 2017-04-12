@@ -5,7 +5,7 @@
 //  Created by Cube on 14/11/9.
 //  Copyright (c) 2014年 Cube. All rights reserved.
 //
-/* 
+/*
  * File:   cipher-openssl.c
  * Author: lizhou
  *
@@ -13,6 +13,7 @@
  */
 
 #include <string.h>
+#include <openssl/err.h>
 #include <openssl/rand.h>
 #include <openssl/md5.h>
 #include "defs.h"
@@ -24,6 +25,7 @@ cipher_t cipher;
 void initialize_cipher()
 {
     OpenSSL_add_all_algorithms();
+    ERR_load_crypto_strings();
 
     //    cipher_t * cipher = calloc(1, sizeof (cipher_t));
     //cipher.encrypt.init = 0;
@@ -46,10 +48,13 @@ void initialize_cipher()
             cipher.ivl = EVP_CIPHER_iv_length(cipher.type);
         }
         cipher.key = malloc(cipher.keyl);
-
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
         EVP_CIPHER_CTX_init(&cipher.encrypt.ctx);
         EVP_CIPHER_CTX_init(&cipher.decrypt.ctx);
-
+#else
+        cipher.encrypt.ctx = EVP_CIPHER_CTX_new();
+        cipher.decrypt.ctx = EVP_CIPHER_CTX_new();
+#endif
         EVP_BytesToKey(cipher.type, EVP_md5(), 0,
                        (uint8_t *) config.password, (int) strlen(config.password), 1,
                        cipher.key, 0);
@@ -88,16 +93,16 @@ void destroy_cipher(cipher_t * cipher) {
 }
  */
 
-	#if defined(_WIN64)
-	/* Microsoft Windows (64-bit). ------------------------------ */
+#if defined(_WIN64)
+/* Microsoft Windows (64-bit). ------------------------------ */
 
 #elif defined(_WIN32)
-	/* Microsoft Windows (32-bit). ------------------------------ */
+/* Microsoft Windows (32-bit). ------------------------------ */
 void cipher_encrypt(conn* c, ULONG * encryptl,
-                               const char * plain, size_t plainl)
+                    const char * plain, size_t plainl)
 #else
 void cipher_encrypt(conn* c, size_t * encryptl,
-                               const char * plain, size_t plainl)
+                    const char * plain, size_t plainl)
 #endif
 {
     //    pr_info("%s %lu", __FUNCTION__, plainl);
@@ -116,24 +121,32 @@ void cipher_encrypt(conn* c, size_t * encryptl,
 //        cipher.encrypt.iv.base = malloc(cipher.encrypt.iv.len);
         RAND_bytes(cipher.encrypt.iv, cipher.ivl);
         /*
-#if defined(NDEBUG)
-#else
+        #if defined(NDEBUG)
+        #else
         dump("IV", cipher.encrypt.iv.base, cipher.encrypt.iv.len);
-#endif
+        #endif
          */
         //            cipher.encrypt.iv.base = malloc(ivl);
         //            memcpy(cipher.encrypt.iv.base,iv,ivl);
         //            cipher.encrypt.iv.len = ivl;
         if (strcmp(config.method, "rc4") == 0)
         {
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
             EVP_CipherInit_ex(&cipher.encrypt.ctx, cipher.type, 0, create_key(cipher.encrypt.iv, cipher.ivl), 0, 1);
+#else
+            EVP_CipherInit_ex(cipher.encrypt.ctx, cipher.type, 0, create_key(cipher.encrypt.iv, cipher.ivl), 0, 1);
+#endif
         }
         else
         {
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
             EVP_CipherInit_ex(&cipher.encrypt.ctx, cipher.type, 0, cipher.key, cipher.encrypt.iv, 1);
+#else
+            EVP_CipherInit_ex(cipher.encrypt.ctx, cipher.type, 0, cipher.key, cipher.encrypt.iv, 1);
+#endif
         }
         //        cipher.encrypt.init = 1;
-        //    c->init = 1;    
+        //    c->init = 1;
         //}
 
         //ASSERT(c->request.base != 0);
@@ -160,9 +173,9 @@ void cipher_encrypt(conn* c, size_t * encryptl,
         *encryptl = cipher.ivl + plainl;
 //       encrypt = malloc(*encryptl);
 //        memcpy(encrypt, cipher.encrypt.iv, cipher.ivl);
-		memcpy(c->cipher_text, cipher.encrypt.iv, cipher.ivl);
+        memcpy(c->cipher_text, cipher.encrypt.iv, cipher.ivl);
 //        dst = (uint8_t *) encrypt + cipher.ivl;
-		dst = (uint8_t *)c->cipher_text  + cipher.ivl;
+        dst = (uint8_t *)c->cipher_text  + cipher.ivl;
         //    printf("---iv---\n");
         //    for (i = 0; i < ivl; i++) printf("%02x ", iv[i]);
         //    printf("\n");
@@ -180,15 +193,18 @@ void cipher_encrypt(conn* c, size_t * encryptl,
     }
     else
     {
-        //        pr_info("%s",__FUNCTION__); 
+        //        pr_info("%s",__FUNCTION__);
 
         *encryptl = plainl;
 //        encrypt = malloc(*encryptl);
 //        dst = (uint8_t *) encrypt;
-		dst = (uint8_t *)c->cipher_text;
+        dst = (uint8_t *)c->cipher_text;
     }
-
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
     EVP_CipherUpdate(&cipher.encrypt.ctx, dst, &outl, (uint8_t *) plain, (int) plainl);
+#else
+    EVP_CipherUpdate(cipher.encrypt.ctx, dst, &outl, (uint8_t *) plain, (int) plainl);
+#endif
     //  printf("---encrypt count---\n");
     //  printf("%d %lu %lu\n", _, *encryptl, plainl);
 
@@ -205,11 +221,11 @@ void cipher_encrypt(conn* c, size_t * encryptl,
 //   return encrypt;
 }
 
-	#if defined(_WIN64)
-	/* Microsoft Windows (64-bit). ------------------------------ */
+#if defined(_WIN64)
+/* Microsoft Windows (64-bit). ------------------------------ */
 
 #elif defined(_WIN32)
-	/* Microsoft Windows (32-bit). ------------------------------ */
+/* Microsoft Windows (32-bit). ------------------------------ */
 void cipher_decrypt(conn *c, ULONG * plainl, const char * encrypt, size_t encryptl)
 #else
 void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encryptl)
@@ -225,56 +241,63 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
     //if (!c->init) {
 //    if (!c->request.len)
 //    {
-	if (c->request.len < cipher.ivl)
+    if (c->request.len < cipher.ivl)
     {
-		c->request.base = malloc(cipher.ivl);
-		if ( c->request.len + encryptl < cipher.ivl )
-		{
-            
-			memcpy(c->request.base + c->request.len, encrypt, encryptl);
-			c->request.len += encryptl;
-			c->cipher_text = 0;
-			c->cipher_len = 0;
-			return;
-		}
-		else
-		{
-			memcpy(cipher.decrypt.iv,c->request.base,c->request.len);
-        //     int ivl;
-        //        uint8_t * iv = malloc(ivl);
-//        cipher.decrypt.iv.base = malloc(cipher.decrypt.iv.len);
-//        memcpy(cipher.decrypt.iv, encrypt, cipher.ivl);
-			memcpy(cipher.decrypt.iv + c->request.len, encrypt, cipher.ivl - c->request.len);
-        if (strcmp(config.method, "rc4") == 0)
+        c->request.base = malloc(cipher.ivl);
+        if ( c->request.len + encryptl < cipher.ivl )
         {
 
-            EVP_CipherInit_ex(&cipher.decrypt.ctx, cipher.type, 0, create_key(cipher.decrypt.iv, cipher.ivl), 0, 0);
+            memcpy(c->request.base + c->request.len, encrypt, encryptl);
+            c->request.len += encryptl;
+            c->cipher_text = 0;
+            c->cipher_len = 0;
+            return;
         }
         else
         {
-            EVP_CipherInit_ex(&cipher.decrypt.ctx, cipher.type, 0, cipher.key, cipher.decrypt.iv, 0);
-        }
+            memcpy(cipher.decrypt.iv,c->request.base,c->request.len);
+            //     int ivl;
+            //        uint8_t * iv = malloc(ivl);
+//        cipher.decrypt.iv.base = malloc(cipher.decrypt.iv.len);
+//        memcpy(cipher.decrypt.iv, encrypt, cipher.ivl);
+            memcpy(cipher.decrypt.iv + c->request.len, encrypt, cipher.ivl - c->request.len);
+            if (strcmp(config.method, "rc4") == 0)
+            {
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+                EVP_CipherInit_ex(&cipher.decrypt.ctx, cipher.type, 0, create_key(cipher.decrypt.iv, cipher.ivl), 0, 0);
+#else
+                EVP_CipherInit_ex(cipher.decrypt.ctx, cipher.type, 0, create_key(cipher.decrypt.iv, cipher.ivl), 0, 0);
+#endif
+            }
+            else
+            {
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+                EVP_CipherInit_ex(&cipher.decrypt.ctx, cipher.type, 0, cipher.key, cipher.decrypt.iv, 0);
+#else
+                EVP_CipherInit_ex(cipher.decrypt.ctx, cipher.type, 0, cipher.key, cipher.decrypt.iv, 0);
+#endif
+            }
 
-        //    if (c->request.base == 0) {
+            //    if (c->request.base == 0) {
 
-        *plainl = encryptl - cipher.ivl - c->request.len;;
+            *plainl = encryptl - cipher.ivl - c->request.len;;
 //       plain = malloc(*plainl);
-        src = (uint8_t *) encrypt + cipher.ivl - c->request.len;;
-        //    printf("---iv---\n");
-        //    for (i = 0; i < ivl; i++) printf("%02x ", iv[i]);
-        //    printf("\n");
-        //
-        //    printf("---key---\n");
-        //    for (i = 0; i < cipher->keyl; i++) printf("%02x ", cipher->key[i]);
-        //    printf("\n");
+            src = (uint8_t *) encrypt + cipher.ivl - c->request.len;;
+            //    printf("---iv---\n");
+            //    for (i = 0; i < ivl; i++) printf("%02x ", iv[i]);
+            //    printf("\n");
+            //
+            //    printf("---key---\n");
+            //    for (i = 0; i < cipher->keyl; i++) printf("%02x ", cipher->key[i]);
+            //    printf("\n");
 //        c->request.base = malloc(cipher.ivl);
-        memcpy(c->request.base, cipher.decrypt.iv, cipher.ivl);
-        c->request.len = cipher.ivl;
-        //        free(iv);
-        //    cipher.decrypt.init = 1;
-        //        c->init = 1;
+            memcpy(c->request.base, cipher.decrypt.iv, cipher.ivl);
+            c->request.len = cipher.ivl;
+            //        free(iv);
+            //    cipher.decrypt.init = 1;
+            //        c->init = 1;
+        }
     }
-		}
     else
     {
 
@@ -284,8 +307,11 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
 
     }
 
-//   EVP_CipherUpdate(&cipher.decrypt.ctx, (uint8_t *) plain, &outl, src, (int) *plainl);
-	EVP_CipherUpdate(&cipher.decrypt.ctx, (uint8_t *)c->cipher_text , &outl, src, (int) *plainl);
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+    EVP_CipherUpdate(&cipher.decrypt.ctx, (uint8_t *)c->cipher_text , &outl, src, (int) *plainl);
+#else
+    EVP_CipherUpdate(cipher.decrypt.ctx, (uint8_t *)c->cipher_text , &outl, src, (int) *plainl);
+#endif
 
     //  printf("---decrypt plain---\n");
     //  for (i = 0; i < 5; i++) printf("%02x ", (unsigned char)plain[i]);
@@ -312,7 +338,7 @@ dump(unsigned char *tag, unsigned char *text, unsigned int len)
 
 void cleanup_cipher()
 {
-        if (!cipher.key)
+    if (!cipher.key)
     {
         free(cipher.key);
     }
@@ -324,8 +350,14 @@ void cleanup_cipher()
     {
         free(cipher.encrypt.iv);
     }
+# if OPENSSL_VERSION_NUMBER < 0x10100000L
     EVP_CIPHER_CTX_cleanup(&cipher.encrypt.ctx);
     EVP_CIPHER_CTX_cleanup(&cipher.decrypt.ctx);
+    EVP_cleanup();
+#else
+    EVP_CIPHER_CTX_free(cipher.encrypt.ctx);
+    EVP_CIPHER_CTX_free(cipher.decrypt.ctx);
+# endif
 }
 
 unsigned char * create_key(unsigned char * iv, int ivl)
@@ -337,10 +369,10 @@ unsigned char * create_key(unsigned char * iv, int ivl)
     memcpy(key_iv + 16, iv, ivl);
     MD5(key_iv, 32, true_key);
     /*
-#if defined(NDEBUG)
-#else
+    #if defined(NDEBUG)
+    #else
     dump("RC4 KEY", true_key, ivl);
-#endif
+    #endif
      */
     return true_key;
 }

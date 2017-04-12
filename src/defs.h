@@ -51,7 +51,9 @@
 #include <uv.h>
 #include "s5.h"
 #ifdef WITH_WOLFSSL
+#ifndef word32
 typedef unsigned int   word32;
+#endif
 #endif
 
 struct client_ctx;
