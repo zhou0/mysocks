@@ -1,4 +1,4 @@
-﻿/* 
+﻿/*
  * File:   defs.h
  * Author: lizhou
  *
@@ -37,19 +37,22 @@
 #include <sys/socket.h>  /* sockaddr */
 #endif
 #if defined(_WIN64)
-	/* Microsoft Windows (64-bit). ------------------------------ */
+/* Microsoft Windows (64-bit). ------------------------------ */
 
 #elif defined(_WIN32)
-	/* Microsoft Windows (32-bit). ------------------------------ */
-#include <winsock2.h>  
+/* Microsoft Windows (32-bit). ------------------------------ */
+#include <winsock2.h>
 #endif
-#if defined(_MSC_VER) && (_MSC_VER<=1500)   
-#include "stdint-msvc2008.h" 
-#else 
-#include <stdint.h> 
+#if defined(_MSC_VER) && (_MSC_VER<=1500)
+#include "stdint-msvc2008.h"
+#else
+#include <stdint.h>
 #endif
 #include <uv.h>
 #include "s5.h"
+#ifdef WITH_WOLFSSL
+typedef unsigned int   word32;
+#endif
 
 struct client_ctx;
 
@@ -104,6 +107,9 @@ typedef struct
     uv_buf_t request;
     unsigned char * cipher_text;
     size_t cipher_len;
+#ifdef WITH_WOLFSSL
+    word32 counter;
+#endif
     //    unsigned int init;
 } conn;
 

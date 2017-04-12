@@ -23,11 +23,11 @@
 #define S5_H_
 
 #include <stddef.h>
-#if defined(_MSC_VER) && (_MSC_VER<=1500)  
-#include "stdint-msvc2008.h" 
-#else 
-#include <stdint.h> 
-#endif 
+#if defined(_MSC_VER) && (_MSC_VER<=1500)
+#include "stdint-msvc2008.h"
+#else
+#include <stdint.h>
+#endif
 
 #define S5_ERR_MAP(V)                                                         \
   V(-1, bad_version, "Bad protocol version.")                                 \
@@ -37,7 +37,7 @@
   V(1, auth_select, "Select authentication method.")                          \
   V(2, auth_verify, "Verify authentication.")                                 \
   V(3, exec_cmd, "Execute command.")                                          \
-
+ 
 
 typedef enum
 {

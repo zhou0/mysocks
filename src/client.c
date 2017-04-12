@@ -145,6 +145,9 @@ void client_finish_init(server_ctx *sx, client_ctx *cx)
     incoming->request.base = 0;
     incoming->request.len = 0;
     incoming->cipher_text = malloc(2048 + cipher.ivl);
+#ifdef WITH_WOLFSSL
+    incoming->counter = 0;
+#endif
     CHECK(0 == uv_timer_init(sx->loop, &incoming->timer_handle));
 
     outgoing = &cx->outgoing;
@@ -156,6 +159,9 @@ void client_finish_init(server_ctx *sx, client_ctx *cx)
     outgoing->request.base = 0;
     outgoing->request.len = 0;
     outgoing->cipher_text = malloc(2048 + cipher.ivl);
+#ifdef WITH_WOLFSSL
+    outgoing->counter = 0;
+#endif
     CHECK(0 == uv_tcp_init(cx->sx->loop, &outgoing->handle.tcp));
     CHECK(0 == uv_timer_init(cx->sx->loop, &outgoing->timer_handle));
 
@@ -409,11 +415,11 @@ static int do_req_parse(client_ctx *cx)
     //incoming->request.len = size;
     //incoming->request = uv_buf_init(data,size);
     /*
-#if defined(NDEBUG)
-#else
+    #if defined(NDEBUG)
+    #else
     dump("REQUEST", incoming->request.base, incoming->request.len);
     pr_info("%s %lu", __FUNCTION__, incoming->request.len);
-#endif
+    #endif
      */
 
     conn_getaddrinfo(outgoing, (const char *) config.remote_host);
@@ -423,7 +429,7 @@ static int do_req_parse(client_ctx *cx)
     return s_req_lookup;
 
 
-    /*  
+    /*
     if (parser->atyp == s5_atyp_host) {
       conn_getaddrinfo(outgoing, (const char *) parser->daddr);
       return s_req_lookup;
@@ -827,7 +833,7 @@ static void conn_read_done(uv_stream_t *handle,
     c->result = nread;
     if (nread > 0)
     {
-        /*      
+        /*
                       if (c->client->state == s_req_parse && c == &c->client->incoming) {
                           c->request = malloc(c->result);
                           c->request = c->t.buf;

@@ -1,11 +1,11 @@
-﻿/* 
+﻿/*
  * File:   cipher.c
  * Author: lizhou
  *
  * Created on 2017年3月31日, 下午 9:55
  */
 
-#include <stddef.h> 
+#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -59,15 +59,15 @@ void destroy_cipher(cipher_t * cipher) {
  */
 
 #if defined(_WIN64)
-	/* Microsoft Windows (64-bit). ------------------------------ */
+/* Microsoft Windows (64-bit). ------------------------------ */
 
 #elif defined(_WIN32)
-	/* Microsoft Windows (32-bit). ------------------------------ */
+/* Microsoft Windows (32-bit). ------------------------------ */
 void cipher_encrypt(conn* c, ULONG * encryptl,
-                               const char * plain, size_t plainl)
+                    const char * plain, size_t plainl)
 #else
 void cipher_encrypt(conn* c, size_t * encryptl,
-                               const char * plain, size_t plainl)
+                    const char * plain, size_t plainl)
 #endif
 {
 
@@ -77,7 +77,7 @@ void cipher_encrypt(conn* c, size_t * encryptl,
     //unsigned char * encrypt = 0;
 
 //    uint8_t * plainptr;
-	uint8_t *dst;
+    uint8_t *dst;
     //    int l;
     // if (!cipher.encrypt.init) {
     if (c->request.len)
@@ -96,13 +96,13 @@ void cipher_encrypt(conn* c, size_t * encryptl,
 //        cipher.encrypt.iv = malloc(cipher.ivl);
         //        RAND_bytes(cipher.encrypt.iv.base, cipher.encrypt.iv.len);
 
-#ifdef _MSC_VER 
+#ifdef _MSC_VER
         msc_getentropy(cipher.encrypt.iv);
 #endif
 #if !defined(_WIN32) && (defined(__unix__) || defined(__unix) || (defined(__APPLE__) && defined(__MACH__)))
         /* UNIX-style OS. ------------------------------------------- */
 #include <unistd.h>
-#if defined (__GLIBC__) && (__GLIBC_MINOR__ >= 25) 
+#if defined (__GLIBC__) && (__GLIBC_MINOR__ >= 25)
         getentropy(cipher.encrypt.iv.base, cipher.encrypt.iv.len);
 #else
         double d1 = drand48();
@@ -113,16 +113,16 @@ void cipher_encrypt(conn* c, size_t * encryptl,
 #endif
         arcfour_setkey(&cipher.encrypt.ctx, create_key(cipher.encrypt.iv, cipher.ivl), cipher.keyl);
         /*
-#if defined(NDEBUG)
-#else
+        #if defined(NDEBUG)
+        #else
         dump("IV", cipher.encrypt.iv.base, cipher.encrypt.iv.len);
-#endif
+        #endif
          */
         //            cipher.encrypt.iv.base = malloc(ivl);
         //            memcpy(cipher.encrypt.iv.base,iv,ivl);
         //            cipher.encrypt.iv.len = ivl;
         //        cipher.encrypt.init = 1;
-        //    c->init = 1;    
+        //    c->init = 1;
         //}
 
         //ASSERT(c->request.base != 0);
@@ -155,9 +155,9 @@ void cipher_encrypt(conn* c, size_t * encryptl,
         *encryptl = cipher.ivl + plainl;
 //        encrypt = malloc(*encryptl);
 //        memcpy(encrypt, cipher.encrypt.iv, cipher.ivl);
-		memcpy(c->cipher_text, cipher.encrypt.iv, cipher.ivl);
+        memcpy(c->cipher_text, cipher.encrypt.iv, cipher.ivl);
 //        dst = (uint8_t *) encrypt + cipher.ivl;
-		dst = (uint8_t *) c->cipher_text + cipher.ivl;
+        dst = (uint8_t *) c->cipher_text + cipher.ivl;
         //    printf("---iv---\n");
         //    for (i = 0; i < ivl; i++) printf("%02x ", iv[i]);
         //    printf("\n");
@@ -168,25 +168,25 @@ void cipher_encrypt(conn* c, size_t * encryptl,
 
         //        free(iv);
         plain = (char *) src;
-//        plainptr = src; 
+//        plainptr = src;
         //cipher.encrypt.init = 1
         //        c->init = 1;
 //        c->request.base = 0;
-		if (c->request.base)
-		{
-			free(c->request.base);
-		}
+        if (c->request.base)
+        {
+            free(c->request.base);
+        }
         c->request.len = 0;
     }
     else
     {
-        //        pr_info("%s",__FUNCTION__); 
+        //        pr_info("%s",__FUNCTION__);
 
         *encryptl = plainl;
 //		plainptr = plain;
 //        encrypt = malloc(*encryptl);
 //        dst = (uint8_t *) encrypt;
-		dst = (uint8_t *) c->cipher_text;
+        dst = (uint8_t *) c->cipher_text;
     }
 
 
@@ -203,9 +203,9 @@ void cipher_encrypt(conn* c, size_t * encryptl,
     //  for (i = 0; i < len; i++) printf("%02x ", dst[i]);
     //  printf("\n");
 #ifdef _MSC_VER
-	_freea(plain);
+    _freea(plain);
 #else
-	free(plain);
+    free(plain);
 #endif
 //        free(plain);
 
@@ -213,10 +213,10 @@ void cipher_encrypt(conn* c, size_t * encryptl,
 }
 
 #if defined(_WIN64)
-	/* Microsoft Windows (64-bit). ------------------------------ */
+/* Microsoft Windows (64-bit). ------------------------------ */
 
 #elif defined(_WIN32)
-	/* Microsoft Windows (32-bit). ------------------------------ */
+/* Microsoft Windows (32-bit). ------------------------------ */
 void cipher_decrypt(conn *c, ULONG * plainl, const char * encrypt, size_t encryptl)
 #else
 void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encryptl)
@@ -232,49 +232,49 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
     //if (!c->init) {
     if (c->request.len < cipher.ivl)
     {
-		c->request.base = malloc(cipher.ivl);
-		if ( c->request.len + encryptl < cipher.ivl )
-		{
-            
-			memcpy(c->request.base + c->request.len, encrypt, encryptl);
-			c->request.len += encryptl;
-			c->cipher_text = 0;
-			c->cipher_len = 0;
-			return;
-		}
-		else
-		{
-			memcpy(cipher.decrypt.iv,c->request.base,c->request.len);
-        //     int ivl;
-        //        uint8_t * iv = malloc(ivl);
+        c->request.base = malloc(cipher.ivl);
+        if ( c->request.len + encryptl < cipher.ivl )
+        {
+
+            memcpy(c->request.base + c->request.len, encrypt, encryptl);
+            c->request.len += encryptl;
+            c->cipher_text = 0;
+            c->cipher_len = 0;
+            return;
+        }
+        else
+        {
+            memcpy(cipher.decrypt.iv,c->request.base,c->request.len);
+            //     int ivl;
+            //        uint8_t * iv = malloc(ivl);
 //        cipher.decrypt.iv.base = malloc(cipher.decrypt.iv.len);
-			memcpy(cipher.decrypt.iv + c->request.len, encrypt, cipher.ivl - c->request.len);
+            memcpy(cipher.decrypt.iv + c->request.len, encrypt, cipher.ivl - c->request.len);
             if (strcmp(config.method, "rc4-md5") == 0)
             {
 //              EVP_CipherInit_ex(&cipher.decrypt.ctx, cipher.type, 0, create_key(cipher.decrypt.iv.base, cipher.decrypt.iv.len), 0, 0);
                 arcfour_setkey(&cipher.decrypt.ctx, create_key(cipher.decrypt.iv, cipher.ivl), cipher.keyl);
             }
 
-			//    if (c->request.base == 0) {
+            //    if (c->request.base == 0) {
 
-			*plainl = encryptl - cipher.ivl - c->request.len;
+            *plainl = encryptl - cipher.ivl - c->request.len;
 //          plain = malloc(*plainl);
-			src = (uint8_t *) encrypt + cipher.ivl - c->request.len;
+            src = (uint8_t *) encrypt + cipher.ivl - c->request.len;
 //          printf("---iv---\n");
 //          for (i = 0; i < ivl; i++) printf("%02x ", iv[i]);
 //          printf("\n");
 //
 //          printf("---key---\n");
-        //    for (i = 0; i < cipher->keyl; i++) printf("%02x ", cipher->key[i]);
-        //    printf("\n");
+            //    for (i = 0; i < cipher->keyl; i++) printf("%02x ", cipher->key[i]);
+            //    printf("\n");
 //            c->request.base = malloc(cipher.ivl);
             memcpy(c->request.base, cipher.decrypt.iv, cipher.ivl);
             c->request.len = cipher.ivl;
-        //        free(iv);
-        //    cipher.decrypt.init = 1;
-        //        c->init = 1;
+            //        free(iv);
+            //    cipher.decrypt.init = 1;
+            //        c->init = 1;
         }
-	}
+    }
     else
     {
 
@@ -287,7 +287,7 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
     //    int _;
     //    EVP_CipherUpdate(&cipher.decrypt.ctx, (uint8_t *) plain, &_, src, (int) *plainl);
 //    arcfour_stream(&cipher.decrypt.ctx, src, plain, *plainl);
-	arcfour_stream(&cipher.decrypt.ctx, src, c->cipher_text, *plainl);
+    arcfour_stream(&cipher.decrypt.ctx, src, c->cipher_text, *plainl);
 
     //  printf("---decrypt plain---\n");
     //  for (i = 0; i < 5; i++) printf("%02x ", (unsigned char)plain[i]);
@@ -340,10 +340,10 @@ char * create_key(unsigned char * iv, int ivl)
     //    MD5(key_iv, 32, true_key);
     md5(key_iv, 32, true_key);
     /*
-#if defined(NDEBUG)
-#else
+    #if defined(NDEBUG)
+    #else
     dump("RC4 KEY", true_key, ivl);
-#endif
+    #endif
      */
     return (char *)true_key;
 }
@@ -383,9 +383,9 @@ int bytes_to_key(const uint8_t *pass, int datal, uint8_t *key, uint8_t *iv)
     int rv;
     md5_state_t hash_state;
     //    nkey = cipher_key_size(cipher);
-	nkey = cipher.keyl;
+    nkey = cipher.keyl;
     //    niv = cipher_iv_size(cipher);
-	niv = cipher.ivl;
+    niv = cipher.ivl;
     rv = nkey;
     if (pass == NULL)
     {

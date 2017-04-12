@@ -1,0 +1,20 @@
+[CMake]
+Build Directory Count=1
+Current Build Directory Index=0
+ProjectRootRelative=./
+
+[CMake][CMake Build Directory 0]
+Build Directory Path=file:///usr/home/lzhou/mysocks/build/kdevelop
+Build Type=Debug
+CMake Binary=file:///usr/local/bin/cmake
+Environment Profile=
+Extra Arguments=
+Install Directory=
+
+[Defines And Includes][Compiler]
+Name=GCC
+Path=gcc
+Type=GCC
+
+[Project]
+VersionControlSupport=kdevgit

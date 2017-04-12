@@ -1,4 +1,4 @@
-﻿/* 
+﻿/*
  * File:   cipher.h
  * Author: lizhou
  *
@@ -41,19 +41,19 @@ void initialize_cipher();
 //void    cipher_encrypt(shadow_t   *, size_t,  uv_buf_t *, uv_buf_t *);
 //void      cipher_decrypt(shadow_t   *, size_t,  uv_buf_t *, uv_buf_t *);
 #if defined(_WIN64)
-	/* Microsoft Windows (64-bit). ------------------------------ */
+/* Microsoft Windows (64-bit). ------------------------------ */
 
 #elif defined(_WIN32)
-	/* Microsoft Windows (32-bit). ------------------------------ */
+/* Microsoft Windows (32-bit). ------------------------------ */
 void cipher_encrypt(conn*, ULONG * encryptl,
-                              const char * plain, size_t plainl);
+                    const char * plain, size_t plainl);
 void cipher_decrypt(conn *, ULONG * plainl,
-                               const char * encrypt, size_t encryptl);
+                    const char * encrypt, size_t encryptl);
 #else
 void cipher_encrypt(conn*, size_t * encryptl,
-                              const char * plain, size_t plainl);
+                    const char * plain, size_t plainl);
 void cipher_decrypt(conn *, size_t * plainl,
-                               const char * encrypt, size_t encryptl);
+                    const char * encrypt, size_t encryptl);
 #endif
 void cleanup_cipher();
 char * create_key(unsigned char * iv, int);

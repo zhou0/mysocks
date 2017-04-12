@@ -1,4 +1,4 @@
-﻿/* 
+﻿/*
  * File:   cipher-wolfssl.h
  * Author: lizhou
  *
@@ -15,10 +15,10 @@ extern "C"
 #endif
 
 #include <stddef.h>
-#if defined(_MSC_VER) && (_MSC_VER<=1500)   
-#include "stdint-msvc2008.h" 
-#else 
-#include <stdint.h> 
+#if defined(_MSC_VER) && (_MSC_VER<=1500)
+#include "stdint-msvc2008.h"
+#else
+#include <stdint.h>
 #endif
 #include <cyassl/ctaocrypt/arc4.h>
 #include <cyassl/ctaocrypt/chacha.h>
@@ -26,10 +26,11 @@ extern "C"
 #include <cyassl/ctaocrypt/rabbit.h>
 #include "defs.h"
 #define MD5_DIGEST_LENGTH 16
+#define SODIUM_BLOCK_SIZE   64
 typedef struct
 {
     size_t keyl;
-	size_t ivl;
+    size_t ivl;
     uint8_t * key;
 //    const EVP_CIPHER * type;
 
@@ -37,13 +38,13 @@ typedef struct
     {
         //            int init;
 //        EVP_CIPHER_CTX ctx;
-		union
-		{
+        union
+        {
             Arc4 arc4;
-			ChaCha chacha;
-			HC128 hc128;
-			Rabbit rabbit;
-		};
+            ChaCha chacha;
+            HC128 hc128;
+            Rabbit rabbit;
+        };
         uint8_t * iv;
     } encrypt, decrypt;
 } cipher_t;
@@ -57,15 +58,15 @@ void initialize_cipher();
 //void destroy_cipher(cipher_t *);
 //void    cipher_encrypt(shadow_t   *, size_t,  uv_buf_t *, uv_buf_t *);
 //void      cipher_decrypt(shadow_t   *, size_t,  uv_buf_t *, uv_buf_t *);
-	#if defined(_WIN64)
-	/* Microsoft Windows (64-bit). ------------------------------ */
+#if defined(_WIN64)
+/* Microsoft Windows (64-bit). ------------------------------ */
 
 #elif defined(_WIN32)
-	/* Microsoft Windows (32-bit). ------------------------------ */
-    void cipher_encrypt(conn*, ULONG * encryptl,
-            const char * plain, size_t plainl);
-    void cipher_decrypt(conn *, ULONG * plainl,
-            const char * encrypt, size_t encryptl);
+/* Microsoft Windows (32-bit). ------------------------------ */
+void cipher_encrypt(conn*, ULONG * encryptl,
+                    const char * plain, size_t plainl);
+void cipher_decrypt(conn *, ULONG * plainl,
+                    const char * encrypt, size_t encryptl);
 #else
 void cipher_encrypt(conn *, size_t * encryptl,const char * plain, size_t plainl);
 void cipher_decrypt(conn *, size_t * plainl,const char * encrypt, size_t encryptl);

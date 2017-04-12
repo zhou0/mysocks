@@ -1,4 +1,4 @@
-﻿/* 
+﻿/*
  * File:   cipher-wolfssl.c
  * Author: lizhou
  *
@@ -6,7 +6,7 @@
  */
 
 
-#include <stddef.h> 
+#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -34,44 +34,50 @@ void initialize_cipher()
     {
         cipher.keyl = 16;
         cipher.ivl = 16;
-		    cipher.key = malloc(cipher.keyl);
-    bytes_to_key((uint8_t *) config.password, (int) strlen(config.password), cipher.key, 0);
-    cipher.encrypt.iv = malloc(cipher.ivl);
-    cipher.decrypt.iv = malloc(cipher.ivl);
+        cipher.key = malloc(cipher.keyl);
+        bytes_to_key((uint8_t *) config.password, (int) strlen(config.password), cipher.key, 0);
+        cipher.encrypt.iv = malloc(cipher.ivl);
+        cipher.decrypt.iv = malloc(cipher.ivl);
     }
-		else if (strcmp(config.method, "chacha20-ietf") == 0)
-	{
-		cipher.keyl = 32;
+    else if (strcmp(config.method, "chacha20-ietf") == 0)
+    {
+        cipher.keyl = 32;
         cipher.ivl = 12;
-		    cipher.key = malloc(cipher.keyl);
-    bytes_to_key((uint8_t *) config.password, (int) strlen(config.password), cipher.key, 0);
-	Chacha_SetKey(&cipher.encrypt.chacha, cipher.key, cipher.keyl);
-    Chacha_SetKey(&cipher.decrypt.chacha, cipher.key, cipher.keyl);
-    cipher.encrypt.iv = malloc(cipher.ivl);
-    cipher.decrypt.iv = malloc(cipher.ivl);
-	}
-	else if (strcmp(config.method, "hc-128") == 0)
-	{
-		cipher.keyl = 16;
+        cipher.key = malloc(cipher.keyl);
+        bytes_to_key((uint8_t *) config.password, (int) strlen(config.password), cipher.key, 0);
+#if defined(NDEBUG)
+#else
+        dump("KEY",cipher.key,cipher.keyl);
+#endif
+        Chacha_SetKey(&cipher.encrypt.chacha, cipher.key, cipher.keyl);
+        Chacha_SetKey(&cipher.decrypt.chacha, cipher.key, cipher.keyl);
+        cipher.encrypt.iv = malloc(cipher.ivl);
+        cipher.decrypt.iv = malloc(cipher.ivl);
+    }
+    else if (strcmp(config.method, "hc-128") == 0)
+    {
+        cipher.keyl = 16;
         cipher.ivl = 16;
-		    cipher.key = malloc(cipher.keyl);
-    bytes_to_key((uint8_t *) config.password, (int) strlen(config.password), cipher.key, 0);
-    cipher.encrypt.iv = malloc(cipher.ivl);
-    cipher.decrypt.iv = malloc(cipher.ivl);
-	}
-	else if (strcmp(config.method, "rabbit") == 0)
-	{
-		cipher.keyl = 16;
+        cipher.key = malloc(cipher.keyl);
+        bytes_to_key((uint8_t *) config.password, (int) strlen(config.password), cipher.key, 0);
+        cipher.encrypt.iv = malloc(cipher.ivl);
+        cipher.decrypt.iv = malloc(cipher.ivl);
+    }
+    else if (strcmp(config.method, "rabbit") == 0)
+    {
+        cipher.keyl = 16;
         cipher.ivl = 8;
-		    cipher.key = malloc(cipher.keyl);
-    bytes_to_key((uint8_t *) config.password, (int) strlen(config.password), cipher.key, 0);
-    cipher.encrypt.iv = malloc(cipher.ivl);
-    cipher.decrypt.iv = malloc(cipher.ivl);
-	}
-	else
-	{
-
-	}
+        cipher.key = malloc(cipher.keyl);
+        bytes_to_key((uint8_t *) config.password, (int) strlen(config.password), cipher.key, 0);
+        cipher.encrypt.iv = malloc(cipher.ivl);
+        cipher.decrypt.iv = malloc(cipher.ivl);
+    }
+    else
+    {
+        cleanup_cipher();
+        pr_err("wrong cipher name %s;", config.method);
+        exit(1);
+    }
     //    return cipher;
 }
 /*
@@ -93,15 +99,15 @@ void destroy_cipher(cipher_t * cipher) {
  */
 
 #if defined(_WIN64)
-	/* Microsoft Windows (64-bit). ------------------------------ */
+/* Microsoft Windows (64-bit). ------------------------------ */
 
 #elif defined(_WIN32)
-	/* Microsoft Windows (32-bit). ------------------------------ */
+/* Microsoft Windows (32-bit). ------------------------------ */
 void cipher_encrypt(conn* c, ULONG * encryptl,
-                               const char * plain, size_t plainl)
+                    const char * plain, size_t plainl)
 #else
 void cipher_encrypt(conn* c, size_t * encryptl,
-                               const char * plain, size_t plainl)
+                    const char * plain, size_t plainl)
 #endif
 {
 
@@ -111,7 +117,7 @@ void cipher_encrypt(conn* c, size_t * encryptl,
     //unsigned char * encrypt = 0;
 
 //    uint8_t * plainptr;
-	uint8_t *dst;
+    uint8_t *dst;
     //    int l;
     // if (!cipher.encrypt.init) {
     if (c->request.len)
@@ -129,51 +135,54 @@ void cipher_encrypt(conn* c, size_t * encryptl,
         //            uint8_t * iv = malloc(ivl);
 //        cipher.encrypt.iv = malloc(cipher.ivl);
         //        RAND_bytes(cipher.encrypt.iv.base, cipher.encrypt.iv.len);
-    RNG  rng;
+        RNG  rng;
 //    byte block[16];
 //    int ret;
 
 #ifdef HAVE_CAVIUM
-    ret = InitRngCavium(&rng, CAVIUM_DEV_ID);
-    if (ret != 0) return -2007;
+        ret = InitRngCavium(&rng, CAVIUM_DEV_ID);
+        if (ret != 0) return -2007;
 #endif
 //    ret = InitRng(&rng);
-      InitRng(&rng);
+        InitRng(&rng);
 //    if (ret != 0) return -39;
 
 //	ret = RNG_GenerateBlock(&rng, cipher.encrypt.iv, cipher.ivl);
-    RNG_GenerateBlock(&rng, cipher.encrypt.iv, cipher.ivl);
+        RNG_GenerateBlock(&rng, cipher.encrypt.iv, cipher.ivl);
 //    if (ret != 0) return -40;
-
-//        arcfour_setkey(&cipher.encrypt.ctx, create_key(cipher.encrypt.iv, cipher.ivl), cipher.keyl);
-    if (strcmp(config.method, "rc4-md5") == 0)
-    {
-	    Arc4SetKey(&cipher.encrypt.arc4, create_key(cipher.encrypt.iv, cipher.ivl), cipher.keyl);
-	}
-	else if (strcmp(config.method, "chacha") == 0)
-	{
-		Chacha_SetIV(&cipher.encrypt.chacha, cipher.encrypt.iv, 0);
-	}
-    else if (strcmp(config.method, "hc128") == 0)
-	{
-		Hc128_SetKey(&cipher.encrypt.hc128, cipher.key, cipher.encrypt.iv);
-	}
-	else if (strcmp(config.method, "rabbit") == 0)
-	{
-		RabbitSetKey(&cipher.encrypt.rabbit, cipher.key, cipher.encrypt.iv);
-	}
-
-        /*
 #if defined(NDEBUG)
 #else
-        dump("IV", cipher.encrypt.iv.base, cipher.encrypt.iv.len);
+        dump("Encryption IV",cipher.encrypt.iv,cipher.ivl);
 #endif
+//        arcfour_setkey(&cipher.encrypt.ctx, create_key(cipher.encrypt.iv, cipher.ivl), cipher.keyl);
+        if (strcmp(config.method, "rc4-md5") == 0)
+        {
+            Arc4SetKey(&cipher.encrypt.arc4, create_key(cipher.encrypt.iv, cipher.ivl), cipher.keyl);
+        }
+//        else if (strcmp(config.method, "chacha20-ietf") == 0)
+//        {
+//            Chacha_SetIV(&cipher.encrypt.chacha, cipher.encrypt.iv, c->counter / SODIUM_BLOCK_SIZE);
+//        }
+        else if (strcmp(config.method, "hc128") == 0)
+        {
+            Hc128_SetKey(&cipher.encrypt.hc128, cipher.key, cipher.encrypt.iv);
+        }
+        else if (strcmp(config.method, "rabbit") == 0)
+        {
+            RabbitSetKey(&cipher.encrypt.rabbit, cipher.key, cipher.encrypt.iv);
+        }
+
+        /*
+        #if defined(NDEBUG)
+        #else
+        dump("IV", cipher.encrypt.iv.base, cipher.encrypt.iv.len);
+        #endif
          */
         //            cipher.encrypt.iv.base = malloc(ivl);
         //            memcpy(cipher.encrypt.iv.base,iv,ivl);
         //            cipher.encrypt.iv.len = ivl;
         //        cipher.encrypt.init = 1;
-        //    c->init = 1;    
+        //    c->init = 1;
         //}
 
         //ASSERT(c->request.base != 0);
@@ -206,9 +215,9 @@ void cipher_encrypt(conn* c, size_t * encryptl,
         *encryptl = cipher.ivl + plainl;
 //        encrypt = malloc(*encryptl);
 //        memcpy(encrypt, cipher.encrypt.iv, cipher.ivl);
-		memcpy(c->cipher_text, cipher.encrypt.iv, cipher.ivl);
+        memcpy(c->cipher_text, cipher.encrypt.iv, cipher.ivl);
 //        dst = (uint8_t *) encrypt + cipher.ivl;
-		dst = (uint8_t *) c->cipher_text + cipher.ivl;
+        dst = (uint8_t *) c->cipher_text + cipher.ivl;
         //    printf("---iv---\n");
         //    for (i = 0; i < ivl; i++) printf("%02x ", iv[i]);
         //    printf("\n");
@@ -219,25 +228,25 @@ void cipher_encrypt(conn* c, size_t * encryptl,
 
         //        free(iv);
         plain = (char *) src;
-//        plainptr = src; 
+//        plainptr = src;
         //cipher.encrypt.init = 1
         //        c->init = 1;
 //        c->request.base = 0;
-		if (c->request.base)
-		{
-			free(c->request.base);
-		}
+        if (c->request.base)
+        {
+            free(c->request.base);
+        }
         c->request.len = 0;
     }
     else
     {
-        //        pr_info("%s",__FUNCTION__); 
+        //        pr_info("%s",__FUNCTION__);
 
         *encryptl = plainl;
 //		plainptr = plain;
 //        encrypt = malloc(*encryptl);
 //        dst = (uint8_t *) encrypt;
-		dst = (uint8_t *) c->cipher_text;
+        dst = (uint8_t *) c->cipher_text;
     }
 
 
@@ -246,19 +255,22 @@ void cipher_encrypt(conn* c, size_t * encryptl,
     if (strcmp(config.method, "rc4-md5") == 0)
     {
         Arc4Process(&cipher.encrypt.arc4, dst, plain, plainl);
-	}
-		else if (strcmp(config.method, "chacha") == 0)
-	{
-		Chacha_Process(&cipher.encrypt.chacha, dst, plain, plainl);
-	}
+    }
+    else if (strcmp(config.method, "chacha20-ietf") == 0)
+    {
+        Chacha_SetIV(&cipher.encrypt.chacha, cipher.encrypt.iv, c->counter / SODIUM_BLOCK_SIZE);
+        Chacha_Process(&cipher.encrypt.chacha, dst, plain, plainl);
+        c->counter += plainl;
+	pr_info("%s %u",__FUNCTION__,c->counter);
+    }
     else if (strcmp(config.method, "hc128") == 0)
-	{
-		Hc128_Process(&cipher.encrypt.hc128, dst, plain, plainl);
-	}
-	else if (strcmp(config.method, "rabbit") == 0)
-	{
-		RabbitProcess(&cipher.encrypt.rabbit, dst, plain, plainl);
-	}
+    {
+        Hc128_Process(&cipher.encrypt.hc128, dst, plain, plainl);
+    }
+    else if (strcmp(config.method, "rabbit") == 0)
+    {
+        RabbitProcess(&cipher.encrypt.rabbit, dst, plain, plainl);
+    }
     //  printf("---encrypt count---\n");
     //  printf("%d %lu %lu\n", _, *encryptl, plainl);
 
@@ -270,9 +282,9 @@ void cipher_encrypt(conn* c, size_t * encryptl,
     //  for (i = 0; i < len; i++) printf("%02x ", dst[i]);
     //  printf("\n");
 #ifdef _MSC_VER
-	_freea(plain);
+    _freea(plain);
 #else
-	free(plain);
+    free(plain);
 #endif
 //        free(plain);
 
@@ -280,10 +292,10 @@ void cipher_encrypt(conn* c, size_t * encryptl,
 }
 
 #if defined(_WIN64)
-	/* Microsoft Windows (64-bit). ------------------------------ */
+/* Microsoft Windows (64-bit). ------------------------------ */
 
 #elif defined(_WIN32)
-	/* Microsoft Windows (32-bit). ------------------------------ */
+/* Microsoft Windows (32-bit). ------------------------------ */
 void cipher_decrypt(conn *c, ULONG * plainl, const char * encrypt, size_t encryptl)
 #else
 void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encryptl)
@@ -299,62 +311,66 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
     //if (!c->init) {
     if (c->request.len < cipher.ivl)
     {
-		c->request.base = malloc(cipher.ivl);
-		if ( c->request.len + encryptl < cipher.ivl )
-		{
-            
-			memcpy(c->request.base + c->request.len, encrypt, encryptl);
-			c->request.len += encryptl;
-			c->cipher_text = 0;
-			c->cipher_len = 0;
-			return;
-		}
-		else
-		{
-			memcpy(cipher.decrypt.iv,c->request.base,c->request.len);
-        //     int ivl;
-        //        uint8_t * iv = malloc(ivl);
+        c->request.base = malloc(cipher.ivl);
+        if ( c->request.len + encryptl < cipher.ivl )
+        {
+
+            memcpy(c->request.base + c->request.len, encrypt, encryptl);
+            c->request.len += encryptl;
+            c->cipher_text = 0;
+            c->cipher_len = 0;
+            return;
+        }
+        else
+        {
+            memcpy(cipher.decrypt.iv,c->request.base,c->request.len);
+            //     int ivl;
+            //        uint8_t * iv = malloc(ivl);
 //        cipher.decrypt.iv.base = malloc(cipher.decrypt.iv.len);
-			memcpy(cipher.decrypt.iv + c->request.len, encrypt, cipher.ivl - c->request.len);
+            memcpy(cipher.decrypt.iv + c->request.len, encrypt, cipher.ivl - c->request.len);
+#if defined(NDEBUG)
+#else
+            dump("Decryption IV",cipher.decrypt.iv,cipher.ivl);
+#endif
             if (strcmp(config.method, "rc4-md5") == 0)
             {
 //              EVP_CipherInit_ex(&cipher.decrypt.ctx, cipher.type, 0, create_key(cipher.decrypt.iv.base, cipher.decrypt.iv.len), 0, 0);
 //                arcfour_setkey(&cipher.decrypt.ctx, create_key(cipher.decrypt.iv, cipher.ivl), cipher.keyl);
-				Arc4SetKey(&cipher.decrypt.arc4,create_key(cipher.decrypt.iv, cipher.ivl) , cipher.keyl);
+                Arc4SetKey(&cipher.decrypt.arc4,create_key(cipher.decrypt.iv, cipher.ivl) , cipher.keyl);
             }
-	else if (strcmp(config.method, "chacha") == 0)
-	{
-		Chacha_SetIV(&cipher.decrypt.chacha, cipher.decrypt.iv, 0);
-	}
-    else if (strcmp(config.method, "hc128") == 0)
-	{
-		Hc128_SetKey(&cipher.decrypt.hc128, cipher.key, cipher.decrypt.iv);
-	}
-	else if (strcmp(config.method, "rabbit") == 0)
-	{
-		RabbitSetKey(&cipher.decrypt.rabbit, cipher.key, cipher.decrypt.iv);
-	}
+//            else if (strcmp(config.method, "chacha20-ietf") == 0)
+//            {
+//                Chacha_SetIV(&cipher.decrypt.chacha, cipher.decrypt.iv, c->counter / SODIUM_BLOCK_SIZE);
+//            }
+            else if (strcmp(config.method, "hc128") == 0)
+            {
+                Hc128_SetKey(&cipher.decrypt.hc128, cipher.key, cipher.decrypt.iv);
+            }
+            else if (strcmp(config.method, "rabbit") == 0)
+            {
+                RabbitSetKey(&cipher.decrypt.rabbit, cipher.key, cipher.decrypt.iv);
+            }
 
-			//    if (c->request.base == 0) {
+            //    if (c->request.base == 0) {
 
-			*plainl = encryptl - cipher.ivl - c->request.len;
+            *plainl = encryptl - cipher.ivl - c->request.len;
 //          plain = malloc(*plainl);
-			src = (uint8_t *) encrypt + cipher.ivl - c->request.len;
+            src = (uint8_t *) encrypt + cipher.ivl - c->request.len;
 //          printf("---iv---\n");
 //          for (i = 0; i < ivl; i++) printf("%02x ", iv[i]);
 //          printf("\n");
 //
 //          printf("---key---\n");
-        //    for (i = 0; i < cipher->keyl; i++) printf("%02x ", cipher->key[i]);
-        //    printf("\n");
+            //    for (i = 0; i < cipher->keyl; i++) printf("%02x ", cipher->key[i]);
+            //    printf("\n");
 //            c->request.base = malloc(cipher.ivl);
             memcpy(c->request.base, cipher.decrypt.iv, cipher.ivl);
             c->request.len = cipher.ivl;
-        //        free(iv);
-        //    cipher.decrypt.init = 1;
-        //        c->init = 1;
+            //        free(iv);
+            //    cipher.decrypt.init = 1;
+            //        c->init = 1;
         }
-	}
+    }
     else
     {
 
@@ -369,22 +385,25 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
 //    arcfour_stream(&cipher.decrypt.ctx, src, plain, *plainl);
 //	arcfour_stream(&cipher.decrypt.ctx, src, c->cipher_text, *plainl);
 
-	    if (strcmp(config.method, "rc4-md5") == 0)
+    if (strcmp(config.method, "rc4-md5") == 0)
     {
-	Arc4Process(&cipher.decrypt.arc4, c->cipher_text, src, *plainl);
-		}
-		else if (strcmp(config.method, "chacha") == 0)
-	{
-		Chacha_Process(&cipher.decrypt.chacha, c->cipher_text, src, *plainl);
-	}
+        Arc4Process(&cipher.decrypt.arc4, c->cipher_text, src, *plainl);
+    }
+    else if (strcmp(config.method, "chacha20-ietf") == 0)
+    {
+        Chacha_SetIV(&cipher.decrypt.chacha, cipher.decrypt.iv, c->counter / SODIUM_BLOCK_SIZE);
+        Chacha_Process(&cipher.decrypt.chacha, c->cipher_text, src, *plainl);
+        c->counter += *plainl;
+	pr_info("%s %u",__FUNCTION__,c->counter);
+    }
     else if (strcmp(config.method, "hc128") == 0)
-	{
-		Hc128_Process(&cipher.encrypt.hc128, c->cipher_text, src, *plainl);
-	}
-	else if (strcmp(config.method, "rabbit") == 0)
-	{
-		RabbitProcess(&cipher.encrypt.rabbit, c->cipher_text, src, *plainl);
-	}
+    {
+        Hc128_Process(&cipher.decrypt.hc128, c->cipher_text, src, *plainl);
+    }
+    else if (strcmp(config.method, "rabbit") == 0)
+    {
+        RabbitProcess(&cipher.decrypt.rabbit, c->cipher_text, src, *plainl);
+    }
     //  printf("---decrypt plain---\n");
     //  for (i = 0; i < 5; i++) printf("%02x ", (unsigned char)plain[i]);
     //  printf("\n");
@@ -436,10 +455,10 @@ char * create_key(unsigned char * iv, int ivl)
     //    MD5(key_iv, 32, true_key);
     md5(key_iv, 32, true_key);
     /*
-#if defined(NDEBUG)
-#else
+    #if defined(NDEBUG)
+    #else
     dump("RC4 KEY", true_key, ivl);
-#endif
+    #endif
      */
     return (char *)true_key;
 }
@@ -452,7 +471,7 @@ void md5(const uint8_t *text, size_t len, uint8_t *digest)
     Md5 md5;
     InitMd5(&md5);
     Md5Update(&md5, text, len);  // can be called again and again
-    Md5Final(&md5, digest);         
+    Md5Final(&md5, digest);
 }
 
 int bytes_to_key(const uint8_t *pass, int datal, uint8_t *key, uint8_t *iv)
@@ -465,9 +484,9 @@ int bytes_to_key(const uint8_t *pass, int datal, uint8_t *key, uint8_t *iv)
     unsigned int i;
     int rv;
 //    md5_state_t hash_state;
-	Md5 md5;
+    Md5 md5;
     //    nkey = cipher_key_size(cipher);
-	nkey = cipher.keyl;
+    nkey = cipher.keyl;
     //    niv = cipher_iv_size(cipher);
     niv = cipher.ivl;
     rv = nkey;
@@ -499,7 +518,7 @@ int bytes_to_key(const uint8_t *pass, int datal, uint8_t *key, uint8_t *iv)
 //            md5_append(&hash_state, pass, datal);
             Md5Update(&md5,pass,datal);
 //            md5_finish(&hash_state, &(md_buf[0]));
-			Md5Final(&md5,&(md_buf[0]));
+            Md5Final(&md5,&(md_buf[0]));
             error = 0;
         }
         while (0);

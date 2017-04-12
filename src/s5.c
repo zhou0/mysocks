@@ -21,11 +21,11 @@
 
 
 #include <errno.h>
-#if defined(_MSC_VER) && (_MSC_VER<=1500)  
-#include "stdint-msvc2008.h" 
+#if defined(_MSC_VER) && (_MSC_VER<=1500)
+#include "stdint-msvc2008.h"
 #else
-#include <stdint.h> 
-#endif 
+#include <stdint.h>
+#endif
 #include <stdlib.h>  /* abort() */
 #include <string.h>  /* memset() */
 #include "s5.h"

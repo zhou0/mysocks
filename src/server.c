@@ -145,7 +145,7 @@ static void do_bind(uv_getaddrinfo_t *req, int status, struct addrinfo *addrs)
     }
 
     state->servers =
-            xmalloc((ipv4_naddrs + ipv6_naddrs) * sizeof (state->servers[0]));
+        xmalloc((ipv4_naddrs + ipv6_naddrs) * sizeof (state->servers[0]));
 
     n = 0;
     for (ai = addrs; ai != 0; ai = ai->ai_next)
@@ -226,11 +226,11 @@ static void on_connection(uv_stream_t *server, int status)
     char client_addr[INET6_ADDRSTRLEN + 1];
     uint16_t client_port;
     if (cx->incoming.t.addr.sa_family == AF_INET) {
-uv_ip4_name(&cx->incoming.t.addr4, client_addr, sizeof (client_addr));
-client_port = ntohs(cx->incoming.t.addr4.sin_port);
+    uv_ip4_name(&cx->incoming.t.addr4, client_addr, sizeof (client_addr));
+    client_port = ntohs(cx->incoming.t.addr4.sin_port);
     } else {
-uv_ip6_name(&cx->incoming.t.addr6, client_addr, sizeof (client_addr));
-client_port = ntohs(cx->incoming.t.addr6.sin6_port);
+    uv_ip6_name(&cx->incoming.t.addr6, client_addr, sizeof (client_addr));
+    client_port = ntohs(cx->incoming.t.addr6.sin6_port);
     }
     pr_info("%s:connected with %s:%u", __FUNCTION__, client_addr, client_port);
      */

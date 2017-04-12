@@ -174,14 +174,14 @@ static const int supported_aead_ciphers_tag_size[AEAD_CIPHER_NUM] = {
 
 static int
 aead_cipher_encrypt(cipher_ctx_t *cipher_ctx,
-        uint8_t *c,
-        size_t *clen,
-        uint8_t *m,
-        size_t mlen,
-        uint8_t *ad,
-        size_t adlen,
-        uint8_t *n,
-        uint8_t *k) {
+                    uint8_t *c,
+                    size_t *clen,
+                    uint8_t *m,
+                    size_t mlen,
+                    uint8_t *ad,
+                    size_t adlen,
+                    uint8_t *n,
+                    uint8_t *k) {
     int err = CRYPTO_OK;
     unsigned long long long_clen = 0;
 
@@ -189,27 +189,27 @@ aead_cipher_encrypt(cipher_ctx_t *cipher_ctx,
     size_t tlen = cipher_ctx->cipher->tag_len;
 
     switch (cipher_ctx->cipher->method) {
-        case AES128GCM:
-        case AES192GCM:
-        case AES256GCM:
-            err = mbedtls_cipher_auth_encrypt(cipher_ctx->evp, n, nlen, ad, adlen,
-                    m, mlen, c, clen, c + mlen, tlen);
-            *clen += tlen;
-            break;
-        case CHACHA20POLY1305IETF:
-            err = crypto_aead_chacha20poly1305_ietf_encrypt(c, &long_clen, m, mlen,
-                    ad, adlen, NULL, n, k);
-            *clen = (size_t) long_clen;
-            break;
+    case AES128GCM:
+    case AES192GCM:
+    case AES256GCM:
+        err = mbedtls_cipher_auth_encrypt(cipher_ctx->evp, n, nlen, ad, adlen,
+                                          m, mlen, c, clen, c + mlen, tlen);
+        *clen += tlen;
+        break;
+    case CHACHA20POLY1305IETF:
+        err = crypto_aead_chacha20poly1305_ietf_encrypt(c, &long_clen, m, mlen,
+                ad, adlen, NULL, n, k);
+        *clen = (size_t) long_clen;
+        break;
 #ifdef FS_HAVE_XCHACHA20IETF
-        case XCHACHA20POLY1305IETF:
-            err = crypto_aead_xchacha20poly1305_ietf_encrypt(c, &long_clen, m, mlen,
-                    ad, adlen, NULL, n, k);
-            *clen = (size_t) long_clen;
-            break;
+    case XCHACHA20POLY1305IETF:
+        err = crypto_aead_xchacha20poly1305_ietf_encrypt(c, &long_clen, m, mlen,
+                ad, adlen, NULL, n, k);
+        *clen = (size_t) long_clen;
+        break;
 #endif
-        default:
-            return CRYPTO_ERROR;
+    default:
+        return CRYPTO_ERROR;
     }
 
     return err;
@@ -217,10 +217,10 @@ aead_cipher_encrypt(cipher_ctx_t *cipher_ctx,
 
 static int
 aead_cipher_decrypt(cipher_ctx_t *cipher_ctx,
-        uint8_t *p, size_t *plen,
-        uint8_t *m, size_t mlen,
-        uint8_t *ad, size_t adlen,
-        uint8_t *n, uint8_t *k) {
+                    uint8_t *p, size_t *plen,
+                    uint8_t *m, size_t mlen,
+                    uint8_t *ad, size_t adlen,
+                    uint8_t *n, uint8_t *k) {
     int err = CRYPTO_ERROR;
     unsigned long long long_plen = 0;
 
@@ -228,26 +228,26 @@ aead_cipher_decrypt(cipher_ctx_t *cipher_ctx,
     size_t tlen = cipher_ctx->cipher->tag_len;
 
     switch (cipher_ctx->cipher->method) {
-        case AES128GCM:
-        case AES192GCM:
-        case AES256GCM:
-            err = mbedtls_cipher_auth_decrypt(cipher_ctx->evp, n, nlen, ad, adlen,
-                    m, mlen - tlen, p, plen, m + mlen - tlen, tlen);
-            break;
-        case CHACHA20POLY1305IETF:
-            err = crypto_aead_chacha20poly1305_ietf_decrypt(p, &long_plen, NULL, m, mlen,
-                    ad, adlen, n, k);
-            *plen = (size_t) long_plen; // it's safe to cast 64bit to 32bit length here
-            break;
+    case AES128GCM:
+    case AES192GCM:
+    case AES256GCM:
+        err = mbedtls_cipher_auth_decrypt(cipher_ctx->evp, n, nlen, ad, adlen,
+                                          m, mlen - tlen, p, plen, m + mlen - tlen, tlen);
+        break;
+    case CHACHA20POLY1305IETF:
+        err = crypto_aead_chacha20poly1305_ietf_decrypt(p, &long_plen, NULL, m, mlen,
+                ad, adlen, n, k);
+        *plen = (size_t) long_plen; // it's safe to cast 64bit to 32bit length here
+        break;
 #ifdef FS_HAVE_XCHACHA20IETF
-        case XCHACHA20POLY1305IETF:
-            err = crypto_aead_xchacha20poly1305_ietf_decrypt(p, &long_plen, NULL, m, mlen,
-                    ad, adlen, n, k);
-            *plen = (size_t) long_plen; // it's safe to cast 64bit to 32bit length here
-            break;
+    case XCHACHA20POLY1305IETF:
+        err = crypto_aead_xchacha20poly1305_ietf_decrypt(p, &long_plen, NULL, m, mlen,
+                ad, adlen, n, k);
+        *plen = (size_t) long_plen; // it's safe to cast 64bit to 32bit length here
+        break;
 #endif
-        default:
-            return CRYPTO_ERROR;
+    default:
+        return CRYPTO_ERROR;
     }
 
     return err;
@@ -273,7 +273,7 @@ aead_get_cipher_type(int method) {
     const char *mbedtlsname = supported_aead_ciphers_mbedtls[method];
     if (strcmp(mbedtlsname, CIPHER_UNSUPPORTED) == 0) {
         LOGE("Cipher %s currently is not supported by mbed TLS library",
-                ciphername);
+             ciphername);
         return NULL;
     }
     return mbedtls_cipher_info_from_string(mbedtlsname);
@@ -287,10 +287,10 @@ aead_cipher_ctx_set_key(cipher_ctx_t *cipher_ctx, int enc) {
     }
 
     int err = crypto_hkdf(md,
-            cipher_ctx->salt, cipher_ctx->cipher->key_len,
-            cipher_ctx->cipher->key, cipher_ctx->cipher->key_len,
-            (uint8_t *) SUBKEY_INFO, strlen(SUBKEY_INFO),
-            cipher_ctx->skey, cipher_ctx->cipher->key_len);
+                          cipher_ctx->salt, cipher_ctx->cipher->key_len,
+                          cipher_ctx->cipher->key, cipher_ctx->cipher->key_len,
+                          (uint8_t *) SUBKEY_INFO, strlen(SUBKEY_INFO),
+                          cipher_ctx->skey, cipher_ctx->cipher->key_len);
     if (err) {
         FATAL("Unable to generate subkey");
     }
@@ -303,7 +303,7 @@ aead_cipher_ctx_set_key(cipher_ctx_t *cipher_ctx, int enc) {
     }
 
     if (mbedtls_cipher_setkey(cipher_ctx->evp, cipher_ctx->skey,
-            cipher_ctx->cipher->key_len * 8, enc) != 0) {
+                              cipher_ctx->cipher->key_len * 8, enc) != 0) {
         FATAL("Cannot set mbed TLS cipher key");
     }
     if (mbedtls_cipher_reset(cipher_ctx->evp) != 0) {
@@ -393,9 +393,9 @@ aead_encrypt_all(buffer_t *plaintext, cipher_t *cipher, size_t capacity) {
 
     size_t clen = ciphertext->len;
     err = aead_cipher_encrypt(&cipher_ctx,
-            (uint8_t *) ciphertext->data + salt_len, &clen,
-            (uint8_t *) plaintext->data, plaintext->len,
-            NULL, 0, cipher_ctx.nonce, cipher_ctx.skey);
+                              (uint8_t *) ciphertext->data + salt_len, &clen,
+                              (uint8_t *) plaintext->data, plaintext->len,
+                              NULL, 0, cipher_ctx.nonce, cipher_ctx.skey);
 
     aead_ctx_release(&cipher_ctx);
 
@@ -442,10 +442,10 @@ aead_decrypt_all(buffer_t *ciphertext, cipher_t *cipher, size_t capacity) {
 
     size_t plen = plaintext->len;
     err = aead_cipher_decrypt(&cipher_ctx,
-            (uint8_t *) plaintext->data, &plen,
-            (uint8_t *) ciphertext->data + salt_len,
-            ciphertext->len - salt_len, NULL, 0,
-            cipher_ctx.nonce, cipher_ctx.skey);
+                              (uint8_t *) plaintext->data, &plen,
+                              (uint8_t *) ciphertext->data + salt_len,
+                              ciphertext->len - salt_len, NULL, 0,
+                              cipher_ctx.nonce, cipher_ctx.skey);
 
     aead_ctx_release(&cipher_ctx);
 
@@ -463,7 +463,7 @@ aead_decrypt_all(buffer_t *ciphertext, cipher_t *cipher, size_t capacity) {
 
 static int
 aead_chunk_encrypt(cipher_ctx_t *ctx, uint8_t *p, uint8_t *c,
-        uint8_t *n, uint16_t plen) {
+                   uint8_t *n, uint16_t plen) {
     size_t nlen = ctx->cipher->nonce_len;
     size_t tlen = ctx->cipher->tag_len;
 
@@ -477,7 +477,7 @@ aead_chunk_encrypt(cipher_ctx_t *ctx, uint8_t *p, uint8_t *c,
 
     clen = CHUNK_SIZE_LEN + tlen;
     err = aead_cipher_encrypt(ctx, c, &clen, len_buf, CHUNK_SIZE_LEN,
-            NULL, 0, n, ctx->skey);
+                              NULL, 0, n, ctx->skey);
     if (err)
         return CRYPTO_ERROR;
 
@@ -487,7 +487,7 @@ aead_chunk_encrypt(cipher_ctx_t *ctx, uint8_t *p, uint8_t *c,
 
     clen = plen + tlen;
     err = aead_cipher_encrypt(ctx, c + CHUNK_SIZE_LEN + tlen, &clen, p, plen,
-            NULL, 0, n, ctx->skey);
+                              NULL, 0, n, ctx->skey);
     if (err)
         return CRYPTO_ERROR;
 
@@ -533,9 +533,9 @@ aead_encrypt(buffer_t *plaintext, cipher_ctx_t *cipher_ctx, size_t capacity) {
     }
 
     err = aead_chunk_encrypt(cipher_ctx,
-            (uint8_t *) plaintext->data,
-            (uint8_t *) ciphertext->data + salt_ofst,
-            cipher_ctx->nonce, plaintext->len);
+                             (uint8_t *) plaintext->data,
+                             (uint8_t *) ciphertext->data + salt_ofst,
+                             cipher_ctx->nonce, plaintext->len);
     if (err)
         return err;
 
@@ -548,7 +548,7 @@ aead_encrypt(buffer_t *plaintext, cipher_ctx_t *cipher_ctx, size_t capacity) {
 
 static int
 aead_chunk_decrypt(cipher_ctx_t *ctx, uint8_t *p, uint8_t *c, uint8_t *n,
-        size_t *plen, size_t *clen) {
+                   size_t *plen, size_t *clen) {
     int err;
     size_t mlen;
     size_t nlen = ctx->cipher->nonce_len;
@@ -559,7 +559,7 @@ aead_chunk_decrypt(cipher_ctx_t *ctx, uint8_t *p, uint8_t *c, uint8_t *n,
 
     uint8_t len_buf[2];
     err = aead_cipher_decrypt(ctx, len_buf, plen, c, CHUNK_SIZE_LEN + tlen,
-            NULL, 0, n, ctx->skey);
+                              NULL, 0, n, ctx->skey);
     if (err)
         return CRYPTO_ERROR;
     assert(*plen == CHUNK_SIZE_LEN);
@@ -578,7 +578,7 @@ aead_chunk_decrypt(cipher_ctx_t *ctx, uint8_t *p, uint8_t *c, uint8_t *n,
     sodium_increment(n, nlen);
 
     err = aead_cipher_decrypt(ctx, p, plen, c + CHUNK_SIZE_LEN + tlen, mlen + tlen,
-            NULL, 0, n, ctx->skey);
+                              NULL, 0, n, ctx->skey);
     if (err)
         return CRYPTO_ERROR;
     assert(*plen == mlen);
@@ -609,9 +609,9 @@ aead_decrypt(buffer_t *ciphertext, cipher_ctx_t *cipher_ctx, size_t capacity) {
     }
 
     brealloc(cipher_ctx->chunk,
-            cipher_ctx->chunk->len + ciphertext->len, capacity);
+             cipher_ctx->chunk->len + ciphertext->len, capacity);
     memcpy(cipher_ctx->chunk->data + cipher_ctx->chunk->len,
-            ciphertext->data, ciphertext->len);
+           ciphertext->data, ciphertext->len);
     cipher_ctx->chunk->len += ciphertext->len;
 
     brealloc(&tmp, cipher_ctx->chunk->len, capacity);
@@ -646,9 +646,9 @@ aead_decrypt(buffer_t *ciphertext, cipher_ctx_t *cipher_ctx, size_t capacity) {
         size_t chunk_clen = cipher_ctx->chunk->len;
         size_t chunk_plen = 0;
         err = aead_chunk_decrypt(cipher_ctx,
-                (uint8_t *) plaintext->data + plen,
-                (uint8_t *) cipher_ctx->chunk->data,
-                cipher_ctx->nonce, &chunk_plen, &chunk_clen);
+                                 (uint8_t *) plaintext->data + plen,
+                                 (uint8_t *) cipher_ctx->chunk->data,
+                                 cipher_ctx->nonce, &chunk_plen, &chunk_clen);
         if (err == CRYPTO_ERROR) {
             return err;
         } else if (err == CRYPTO_NEED_MORE) {
@@ -696,10 +696,10 @@ aead_key_init(int method, const char *pass, const char *key) {
 
     if (key != NULL)
         cipher->key_len = crypto_parse_key(key, cipher->key,
-            supported_aead_ciphers_key_size[method]);
+                                           supported_aead_ciphers_key_size[method]);
     else
         cipher->key_len = crypto_derive_key(pass, cipher->key,
-            supported_aead_ciphers_key_size[method]);
+                                            supported_aead_ciphers_key_size[method]);
 
     if (cipher->key_len == 0) {
         FATAL("Cannot generate key and nonce");

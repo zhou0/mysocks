@@ -41,9 +41,9 @@ static char sccsid[] = "@(#)getopt.c	8.3 (Berkeley) 4/27/95";
 extern const char *_getprogname(void);
 
 int opterr = 1, /* if error message should be printed */
-        optind = 1, /* index into parent argv vector */
-        optopt, /* character checked for validity */
-        optreset; /* reset getopt */
+    optind = 1, /* index into parent argv vector */
+    optopt, /* character checked for validity */
+    optreset; /* reset getopt */
 char *optarg; /* argument associated with option */
 
 #define	BADCH	(int)'?'
@@ -64,7 +64,7 @@ const char *ostr;
     char *oli; /* option letter list index */
 
     if (optreset || *place == 0)
-    { /* update scanning pointer */
+    {   /* update scanning pointer */
         optreset = 0;
         place = nargv[optind];
         if (optind >= nargc || *place++ != '-')

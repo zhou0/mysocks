@@ -134,15 +134,15 @@ static void usage(void)
 {
 
     printf("\n"
-		   "This is MySocks project, the lightweight multi-platform shadowsocks client and server,version 0.3, subversion 4 (v0.3.4). Copyright 2017, Li ZHOU\n"
-		   "\n"
+           "This is MySocks project, the lightweight multi-platform shadowsocks client and server,version 0.3, subversion 4 (v0.3.4). Copyright 2017, Li ZHOU\n"
+           "\n"
            "Usage:%s [-b <local_host>] [-h] -k <password> -m <encrypt_method> [-l <port>] -p <remote_port> -s <remote_host>\n"
-		   "\n"
+           "\n"
            "Mandatory Options:\n"
            "  -k <password>\t\tpassword of your remote server\n"
            "  -m <encrypt_method>\tencrypt method,must be one of:\n"
 #ifdef WITH_OPENSSL
-            "\t\t\taes-128-cfb,aes-128-ctr,aes-128-ofb\n"
+           "\t\t\taes-128-cfb,aes-128-ctr,aes-128-ofb\n"
            "\t\t\taes-192-cfb,aes-192-ctr,aes-192-ofb\n"
            "\t\t\taes-256-cfb,aes-256-ctr,aes-256-ofb\n"
            "\t\t\tcamellia-128-cfb,camellia-128-ofb\n"
@@ -154,17 +154,17 @@ static void usage(void)
            "\t\t\taes-256-cbc,aes-256-ccm,ars-256-gcm\n"
            "\t\t\tcamellia-128-cbc,camellia-256-cbc\n"
            "\t\t\tchacha20-ietf,chacha2-ietf-poly1305\n"
-		   "\t\t\thc-128\n"
-		   "\t\t\trabbit\n"
+           "\t\t\thc-128\n"
+           "\t\t\trabbit\n"
 #endif
-            "\t\t\trc4-md5\n"
+           "\t\t\trc4-md5\n"
            "  -p <remote_port>\tport number of your remote server\n"
            "  -s <remote_host>\thostname or ip address of your remote server\n"
            "Optional Options:\n"
            "  -b <local_host>\tlocal hostname or ip address bind to,default localhost\n"
            "  -h\t\t\tshow this help message.\n"
            "  -l <local_port>\tlocal port number listen to,default 1491\n"
-		   "\n"
+           "\n"
            "MySocks is open source software. For more information, please visit MySocks project website at https://github.com/zhou0/mysocks \n",
            progname);
     exit(1);
