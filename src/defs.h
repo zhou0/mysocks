@@ -107,10 +107,12 @@ typedef struct
         char buf[2048]; /* Scratch space. Used to read data into. */
     } t;
     uv_buf_t request;
-    unsigned char * cipher_text;
+    unsigned char * process_text;
     size_t cipher_len;
 #ifdef WITH_WOLFSSL
     word32 counter;
+    char plain_buf[2112];
+    char cipher_buf[2112];
 #endif
     //    unsigned int init;
 } conn;

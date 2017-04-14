@@ -215,9 +215,9 @@ void cipher_encrypt(conn* c, size_t * encryptl,
         *encryptl = cipher.ivl + plainl;
 //        encrypt = malloc(*encryptl);
 //        memcpy(encrypt, cipher.encrypt.iv, cipher.ivl);
-        memcpy(c->cipher_text, cipher.encrypt.iv, cipher.ivl);
+        memcpy(c->process_text, cipher.encrypt.iv, cipher.ivl);
 //        dst = (uint8_t *) encrypt + cipher.ivl;
-        dst = (uint8_t *) c->cipher_text + cipher.ivl;
+        dst = (uint8_t *) c->process_text + cipher.ivl;
         //    printf("---iv---\n");
         //    for (i = 0; i < ivl; i++) printf("%02x ", iv[i]);
         //    printf("\n");
@@ -246,7 +246,7 @@ void cipher_encrypt(conn* c, size_t * encryptl,
 //		plainptr = plain;
 //        encrypt = malloc(*encryptl);
 //        dst = (uint8_t *) encrypt;
-        dst = (uint8_t *) c->cipher_text;
+        dst = (uint8_t *) c->process_text;
     }
 
 
@@ -258,8 +258,18 @@ void cipher_encrypt(conn* c, size_t * encryptl,
     }
     else if (strcmp(config.method, "chacha20-ietf") == 0)
     {
+        int padding = c->counter % SODIUM_BLOCK_SIZE;
         Chacha_SetIV(&cipher.encrypt.chacha, cipher.encrypt.iv, c->counter / SODIUM_BLOCK_SIZE);
-        Chacha_Process(&cipher.encrypt.chacha, dst, plain, plainl);
+	if (padding)
+	{
+	    memcpy(c->plain_buf + padding, plain,plainl);
+	    Chacha_Process(&cipher.encrypt.chacha, c->cipher_buf, c->plain_buf, plainl + padding);
+	    memcpy(dst,c->cipher_buf + padding, plainl);
+	}
+	else
+	{
+            Chacha_Process(&cipher.encrypt.chacha, dst, plain, plainl);
+	}
         c->counter += plainl;
 	pr_info("%s %u",__FUNCTION__,c->counter);
     }
@@ -317,7 +327,7 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
 
             memcpy(c->request.base + c->request.len, encrypt, encryptl);
             c->request.len += encryptl;
-            c->cipher_text = 0;
+            c->process_text = 0;
             c->cipher_len = 0;
             return;
         }
@@ -383,26 +393,36 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
     //    int _;
     //    EVP_CipherUpdate(&cipher.decrypt.ctx, (uint8_t *) plain, &_, src, (int) *plainl);
 //    arcfour_stream(&cipher.decrypt.ctx, src, plain, *plainl);
-//	arcfour_stream(&cipher.decrypt.ctx, src, c->cipher_text, *plainl);
+//	arcfour_stream(&cipher.decrypt.ctx, src, c->process_text, *plainl);
 
     if (strcmp(config.method, "rc4-md5") == 0)
     {
-        Arc4Process(&cipher.decrypt.arc4, c->cipher_text, src, *plainl);
+        Arc4Process(&cipher.decrypt.arc4, c->process_text, src, *plainl);
     }
     else if (strcmp(config.method, "chacha20-ietf") == 0)
     {
+        int padding = c->counter % SODIUM_BLOCK_SIZE;
         Chacha_SetIV(&cipher.decrypt.chacha, cipher.decrypt.iv, c->counter / SODIUM_BLOCK_SIZE);
-        Chacha_Process(&cipher.decrypt.chacha, c->cipher_text, src, *plainl);
+	if (padding)
+	{
+	    memcpy(c->cipher_buf + padding, src,*plainl);
+	    Chacha_Process(&cipher.decrypt.chacha, c->plain_buf, c->cipher_buf, padding + *plainl);
+	    memcpy(c->process_text,c->plain_buf + padding, *plainl);
+	}
+	else
+	{
+            Chacha_Process(&cipher.decrypt.chacha, c->process_text, src, *plainl);
+	}
         c->counter += *plainl;
 	pr_info("%s %u",__FUNCTION__,c->counter);
     }
     else if (strcmp(config.method, "hc128") == 0)
     {
-        Hc128_Process(&cipher.decrypt.hc128, c->cipher_text, src, *plainl);
+        Hc128_Process(&cipher.decrypt.hc128, c->process_text, src, *plainl);
     }
     else if (strcmp(config.method, "rabbit") == 0)
     {
-        RabbitProcess(&cipher.decrypt.rabbit, c->cipher_text, src, *plainl);
+        RabbitProcess(&cipher.decrypt.rabbit, c->process_text, src, *plainl);
     }
     //  printf("---decrypt plain---\n");
     //  for (i = 0; i < 5; i++) printf("%02x ", (unsigned char)plain[i]);

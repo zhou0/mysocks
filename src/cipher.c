@@ -158,9 +158,9 @@ void cipher_encrypt(conn* c, size_t * encryptl,
         *encryptl = cipher.ivl + plainl;
 //        encrypt = malloc(*encryptl);
 //        memcpy(encrypt, cipher.encrypt.iv, cipher.ivl);
-        memcpy(c->cipher_text, cipher.encrypt.iv, cipher.ivl);
+        memcpy(c->process_text, cipher.encrypt.iv, cipher.ivl);
 //        dst = (uint8_t *) encrypt + cipher.ivl;
-        dst = (uint8_t *) c->cipher_text + cipher.ivl;
+        dst = (uint8_t *) c->process_text + cipher.ivl;
         //    printf("---iv---\n");
         //    for (i = 0; i < ivl; i++) printf("%02x ", iv[i]);
         //    printf("\n");
@@ -189,7 +189,7 @@ void cipher_encrypt(conn* c, size_t * encryptl,
 //		plainptr = plain;
 //        encrypt = malloc(*encryptl);
 //        dst = (uint8_t *) encrypt;
-        dst = (uint8_t *) c->cipher_text;
+        dst = (uint8_t *) c->process_text;
     }
 
 
@@ -241,7 +241,7 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
 
             memcpy(c->request.base + c->request.len, encrypt, encryptl);
             c->request.len += encryptl;
-            c->cipher_text = 0;
+            c->process_text = 0;
             c->cipher_len = 0;
             return;
         }
@@ -290,7 +290,7 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
     //    int _;
     //    EVP_CipherUpdate(&cipher.decrypt.ctx, (uint8_t *) plain, &_, src, (int) *plainl);
 //    arcfour_stream(&cipher.decrypt.ctx, src, plain, *plainl);
-    arcfour_stream(&cipher.decrypt.ctx, src, c->cipher_text, *plainl);
+    arcfour_stream(&cipher.decrypt.ctx, src, c->process_text, *plainl);
 
     //  printf("---decrypt plain---\n");
     //  for (i = 0; i < 5; i++) printf("%02x ", (unsigned char)plain[i]);

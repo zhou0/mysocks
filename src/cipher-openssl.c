@@ -173,9 +173,9 @@ void cipher_encrypt(conn* c, size_t * encryptl,
         *encryptl = cipher.ivl + plainl;
 //       encrypt = malloc(*encryptl);
 //        memcpy(encrypt, cipher.encrypt.iv, cipher.ivl);
-        memcpy(c->cipher_text, cipher.encrypt.iv, cipher.ivl);
+        memcpy(c->process_text, cipher.encrypt.iv, cipher.ivl);
 //        dst = (uint8_t *) encrypt + cipher.ivl;
-        dst = (uint8_t *)c->cipher_text  + cipher.ivl;
+        dst = (uint8_t *)c->process_text  + cipher.ivl;
         //    printf("---iv---\n");
         //    for (i = 0; i < ivl; i++) printf("%02x ", iv[i]);
         //    printf("\n");
@@ -198,7 +198,7 @@ void cipher_encrypt(conn* c, size_t * encryptl,
         *encryptl = plainl;
 //        encrypt = malloc(*encryptl);
 //        dst = (uint8_t *) encrypt;
-        dst = (uint8_t *)c->cipher_text;
+        dst = (uint8_t *)c->process_text;
     }
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
     EVP_CipherUpdate(&cipher.encrypt.ctx, dst, &outl, (uint8_t *) plain, (int) plainl);
@@ -249,7 +249,7 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
 
             memcpy(c->request.base + c->request.len, encrypt, encryptl);
             c->request.len += encryptl;
-            c->cipher_text = 0;
+            c->process_text = 0;
             c->cipher_len = 0;
             return;
         }
@@ -308,9 +308,9 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
     }
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
-    EVP_CipherUpdate(&cipher.decrypt.ctx, (uint8_t *)c->cipher_text , &outl, src, (int) *plainl);
+    EVP_CipherUpdate(&cipher.decrypt.ctx, (uint8_t *)c->process_text , &outl, src, (int) *plainl);
 #else
-    EVP_CipherUpdate(cipher.decrypt.ctx, (uint8_t *)c->cipher_text , &outl, src, (int) *plainl);
+    EVP_CipherUpdate(cipher.decrypt.ctx, (uint8_t *)c->process_text , &outl, src, (int) *plainl);
 #endif
 
     //  printf("---decrypt plain---\n");

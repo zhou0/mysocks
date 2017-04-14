@@ -144,7 +144,7 @@ void client_finish_init(server_ctx *sx, client_ctx *cx)
     incoming->idle_timeout = sx->idle_timeout;
     incoming->request.base = 0;
     incoming->request.len = 0;
-    incoming->cipher_text = malloc(2048 + cipher.ivl);
+    incoming->process_text = malloc(2048 + cipher.ivl);
 #ifdef WITH_WOLFSSL
     incoming->counter = 0;
 #endif
@@ -158,7 +158,7 @@ void client_finish_init(server_ctx *sx, client_ctx *cx)
     outgoing->idle_timeout = sx->idle_timeout;
     outgoing->request.base = 0;
     outgoing->request.len = 0;
-    outgoing->cipher_text = malloc(2048 + cipher.ivl);
+    outgoing->process_text = malloc(2048 + cipher.ivl);
 #ifdef WITH_WOLFSSL
     outgoing->counter = 0;
 #endif
@@ -238,13 +238,13 @@ static void do_next(client_ctx *cx)
         {
             free(cx->outgoing.request.base);
         }
-        if (!cx->incoming.cipher_text)
+        if (!cx->incoming.process_text)
         {
-            free(cx->incoming.cipher_text);
+            free(cx->incoming.process_text);
         }
-        if (!cx->outgoing.cipher_text)
+        if (!cx->outgoing.process_text)
         {
-            free(cx->outgoing.cipher_text);
+            free(cx->outgoing.process_text);
         }
         if (!cx)
         {
@@ -706,7 +706,7 @@ static int conn_cycle(const char *who, conn *a, conn *b)
         else if (b->rdstate == c_done)
         {
             //      conn_write(a, b->t.buf, b->result);
-            conn_write(a, b->cipher_text, b->cipher_len);
+            conn_write(a, b->process_text, b->cipher_len);
             b->rdstate = c_stop; /* Triggers the call to conn_read() above. */
         }
     }
@@ -849,10 +849,10 @@ static void conn_read_done(uv_stream_t *handle,
         {
             if (c == &c->client->incoming)
             {
-                //                char * cipher_text;
-                //                cipher_text = cipher_encrypt(c, &buf->len, buf->base, nread);
+                //                char * process_text;
+                //                process_text = cipher_encrypt(c, &buf->len, buf->base, nread);
                 cipher_encrypt(c, &buf->len, buf->base, nread);
-                //               conn_write(&c->client->outgoing, cipher_text, buf->len);
+                //               conn_write(&c->client->outgoing, process_text, buf->len);
             }
             else
             {
