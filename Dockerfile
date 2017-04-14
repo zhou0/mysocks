@@ -7,7 +7,7 @@ MAINTAINER lzh <lzh@cpan.org>
 
 ARG MYSOCKS_URL=https://github.com/zhou0/mysocks/archive/0.4.0.tar.gz
 ARG LIBUV_URL=https://github.com/libuv/libuv/archive/v1.11.0.tar.gz 
-ARG WOLFSSL_URL=https://github.com/wolfSSL/wolfssl/archive/v3.2.0.tar.gz
+ARG WOLFSSL_URL=https://github.com/wolfSSL/wolfssl/archive/v3.6.0.tar.gz
 RUN set -ex && \
     apk add --no-cache --virtual .build-deps \
                                 autoconf \
@@ -24,13 +24,14 @@ RUN set -ex && \
     curl -sSL $LIBUV_URL | tar xz && cd libuv-1.11.0 && \
 ./autogen.sh && ./configure --prefix=/usr --disable-static && make && \
 make install && cd .. && \
-    curl -sSL $WOLFSSL_URL | tar xz && cd wolfssl-3.2.0 && ./autogen.sh && \
+    curl -sSL $WOLFSSL_URL | tar xz && cd wolfssl-3.6.0 && ./autogen.sh && \
 ./configure --prefix=/usr --disable-static --enable-ipv6 --enable-aesgcm \
 --enable-aesccm --enable-aesni --enable-psk --disable-coding \
 --enable-hkdf --enable-poly1305 --enable-camellia --disable-des3 \
 --enable-hc128 --enable-rabbit --enable-chacha --enable-examples \
 --enable-iopool --disable-oldtls --disable-asn --disable-rsa \
---enable-fastmath --disable-sha && make && make install && cd .. && \
+--enable-fastmath --disable-sha  --disable-dh --enable-arc4 \
+--disable-hashdrbg && make && make install && cd .. && \
     curl -sSL $MYSOCKS_URL | tar xz && cd mysocks-0.4.0 && mkdir -p \
 build/release && cd build/release && \
     cmake -DCMAKE_BUILD_TYPE=Release ../.. && \
@@ -45,4 +46,4 @@ build/release && cd build/release && \
     cd ../../.. && \
     apk add --no-cache --virtual .run-deps $runDeps && \
     apk del .build-deps && \
-    rm -fr libuv-1.11.0 && rm -fr wolfssl-3.2.0 && rm -fr mysocks-0.4.0
+    rm -fr libuv-1.11.0 && rm -fr wolfssl-3.6.0 && rm -fr mysocks-0.4.0

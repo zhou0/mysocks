@@ -18,8 +18,8 @@
 #ifdef _MSC_VER
 #include <malloc.h>
 #endif
-#include <cyassl/ctaocrypt/random.h>
-#include <cyassl/ctaocrypt/md5.h>
+#include <wolfssl/wolfcrypt/random.h>
+#include <wolfssl/wolfcrypt/md5.h>
 #include "defs.h"
 #include "cipher-wolfssl.h"
 
@@ -49,8 +49,8 @@ void initialize_cipher()
 #else
         dump("KEY",cipher.key,cipher.keyl);
 #endif
-        Chacha_SetKey(&cipher.encrypt.chacha, cipher.key, cipher.keyl);
-        Chacha_SetKey(&cipher.decrypt.chacha, cipher.key, cipher.keyl);
+        wc_Chacha_SetKey(&cipher.encrypt.chacha, cipher.key, cipher.keyl);
+        wc_Chacha_SetKey(&cipher.decrypt.chacha, cipher.key, cipher.keyl);
         cipher.encrypt.iv = malloc(cipher.ivl);
         cipher.decrypt.iv = malloc(cipher.ivl);
     }
@@ -140,15 +140,15 @@ void cipher_encrypt(conn* c, size_t * encryptl,
 //    int ret;
 
 #ifdef HAVE_CAVIUM
-        ret = InitRngCavium(&rng, CAVIUM_DEV_ID);
+        ret = wc_InitRngCavium(&rng, CAVIUM_DEV_ID);
         if (ret != 0) return -2007;
 #endif
 //    ret = InitRng(&rng);
-        InitRng(&rng);
+        wc_InitRng(&rng);
 //    if (ret != 0) return -39;
 
 //	ret = RNG_GenerateBlock(&rng, cipher.encrypt.iv, cipher.ivl);
-        RNG_GenerateBlock(&rng, cipher.encrypt.iv, cipher.ivl);
+        wc_RNG_GenerateBlock(&rng, cipher.encrypt.iv, cipher.ivl);
 //    if (ret != 0) return -40;
 #if defined(NDEBUG)
 #else
@@ -157,7 +157,7 @@ void cipher_encrypt(conn* c, size_t * encryptl,
 //        arcfour_setkey(&cipher.encrypt.ctx, create_key(cipher.encrypt.iv, cipher.ivl), cipher.keyl);
         if (strcmp(config.method, "rc4-md5") == 0)
         {
-            Arc4SetKey(&cipher.encrypt.arc4, create_key(cipher.encrypt.iv, cipher.ivl), cipher.keyl);
+            wc_Arc4SetKey(&cipher.encrypt.arc4, create_key(cipher.encrypt.iv, cipher.ivl), cipher.keyl);
         }
 //        else if (strcmp(config.method, "chacha20-ietf") == 0)
 //        {
@@ -165,11 +165,11 @@ void cipher_encrypt(conn* c, size_t * encryptl,
 //        }
         else if (strcmp(config.method, "hc128") == 0)
         {
-            Hc128_SetKey(&cipher.encrypt.hc128, cipher.key, cipher.encrypt.iv);
+            wc_Hc128_SetKey(&cipher.encrypt.hc128, cipher.key, cipher.encrypt.iv);
         }
         else if (strcmp(config.method, "rabbit") == 0)
         {
-            RabbitSetKey(&cipher.encrypt.rabbit, cipher.key, cipher.encrypt.iv);
+            wc_RabbitSetKey(&cipher.encrypt.rabbit, cipher.key, cipher.encrypt.iv);
         }
 
         /*
@@ -254,32 +254,32 @@ void cipher_encrypt(conn* c, size_t * encryptl,
 //    arcfour_stream(&cipher.encrypt.ctx, plain, dst, plainl);
     if (strcmp(config.method, "rc4-md5") == 0)
     {
-        Arc4Process(&cipher.encrypt.arc4, dst, plain, plainl);
+        wc_Arc4Process(&cipher.encrypt.arc4, dst, plain, plainl);
     }
     else if (strcmp(config.method, "chacha20-ietf") == 0)
     {
         int padding = c->counter % SODIUM_BLOCK_SIZE;
-        Chacha_SetIV(&cipher.encrypt.chacha, cipher.encrypt.iv, c->counter / SODIUM_BLOCK_SIZE);
+        wc_Chacha_SetIV(&cipher.encrypt.chacha, cipher.encrypt.iv, c->counter / SODIUM_BLOCK_SIZE);
 	if (padding)
 	{
 	    memcpy(c->plain_buf + padding, plain,plainl);
-	    Chacha_Process(&cipher.encrypt.chacha, c->cipher_buf, c->plain_buf, plainl + padding);
+	    wc_Chacha_Process(&cipher.encrypt.chacha, c->cipher_buf, c->plain_buf, plainl + padding);
 	    memcpy(dst,c->cipher_buf + padding, plainl);
 	}
 	else
 	{
-            Chacha_Process(&cipher.encrypt.chacha, dst, plain, plainl);
+            wc_Chacha_Process(&cipher.encrypt.chacha, dst, plain, plainl);
 	}
         c->counter += plainl;
 	pr_info("%s %u",__FUNCTION__,c->counter);
     }
     else if (strcmp(config.method, "hc128") == 0)
     {
-        Hc128_Process(&cipher.encrypt.hc128, dst, plain, plainl);
+        wc_Hc128_Process(&cipher.encrypt.hc128, dst, plain, plainl);
     }
     else if (strcmp(config.method, "rabbit") == 0)
     {
-        RabbitProcess(&cipher.encrypt.rabbit, dst, plain, plainl);
+        wc_RabbitProcess(&cipher.encrypt.rabbit, dst, plain, plainl);
     }
     //  printf("---encrypt count---\n");
     //  printf("%d %lu %lu\n", _, *encryptl, plainl);
@@ -346,19 +346,19 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
             {
 //              EVP_CipherInit_ex(&cipher.decrypt.ctx, cipher.type, 0, create_key(cipher.decrypt.iv.base, cipher.decrypt.iv.len), 0, 0);
 //                arcfour_setkey(&cipher.decrypt.ctx, create_key(cipher.decrypt.iv, cipher.ivl), cipher.keyl);
-                Arc4SetKey(&cipher.decrypt.arc4,create_key(cipher.decrypt.iv, cipher.ivl) , cipher.keyl);
+                wc_Arc4SetKey(&cipher.decrypt.arc4,create_key(cipher.decrypt.iv, cipher.ivl) , cipher.keyl);
             }
 //            else if (strcmp(config.method, "chacha20-ietf") == 0)
 //            {
-//                Chacha_SetIV(&cipher.decrypt.chacha, cipher.decrypt.iv, c->counter / SODIUM_BLOCK_SIZE);
+//               wc_ Chacha_SetIV(&cipher.decrypt.chacha, cipher.decrypt.iv, c->counter / SODIUM_BLOCK_SIZE);
 //            }
             else if (strcmp(config.method, "hc128") == 0)
             {
-                Hc128_SetKey(&cipher.decrypt.hc128, cipher.key, cipher.decrypt.iv);
+                wc_Hc128_SetKey(&cipher.decrypt.hc128, cipher.key, cipher.decrypt.iv);
             }
             else if (strcmp(config.method, "rabbit") == 0)
             {
-                RabbitSetKey(&cipher.decrypt.rabbit, cipher.key, cipher.decrypt.iv);
+                wc_RabbitSetKey(&cipher.decrypt.rabbit, cipher.key, cipher.decrypt.iv);
             }
 
             //    if (c->request.base == 0) {
@@ -397,32 +397,32 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
 
     if (strcmp(config.method, "rc4-md5") == 0)
     {
-        Arc4Process(&cipher.decrypt.arc4, c->process_text, src, *plainl);
+        wc_Arc4Process(&cipher.decrypt.arc4, c->process_text, src, *plainl);
     }
     else if (strcmp(config.method, "chacha20-ietf") == 0)
     {
         int padding = c->counter % SODIUM_BLOCK_SIZE;
-        Chacha_SetIV(&cipher.decrypt.chacha, cipher.decrypt.iv, c->counter / SODIUM_BLOCK_SIZE);
+        wc_Chacha_SetIV(&cipher.decrypt.chacha, cipher.decrypt.iv, c->counter / SODIUM_BLOCK_SIZE);
 	if (padding)
 	{
 	    memcpy(c->cipher_buf + padding, src,*plainl);
-	    Chacha_Process(&cipher.decrypt.chacha, c->plain_buf, c->cipher_buf, padding + *plainl);
+	    wc_Chacha_Process(&cipher.decrypt.chacha, c->plain_buf, c->cipher_buf, padding + *plainl);
 	    memcpy(c->process_text,c->plain_buf + padding, *plainl);
 	}
 	else
 	{
-            Chacha_Process(&cipher.decrypt.chacha, c->process_text, src, *plainl);
+            wc_Chacha_Process(&cipher.decrypt.chacha, c->process_text, src, *plainl);
 	}
         c->counter += *plainl;
 	pr_info("%s %u",__FUNCTION__,c->counter);
     }
     else if (strcmp(config.method, "hc128") == 0)
     {
-        Hc128_Process(&cipher.decrypt.hc128, c->process_text, src, *plainl);
+        wc_Hc128_Process(&cipher.decrypt.hc128, c->process_text, src, *plainl);
     }
     else if (strcmp(config.method, "rabbit") == 0)
     {
-        RabbitProcess(&cipher.decrypt.rabbit, c->process_text, src, *plainl);
+        wc_RabbitProcess(&cipher.decrypt.rabbit, c->process_text, src, *plainl);
     }
     //  printf("---decrypt plain---\n");
     //  for (i = 0; i < 5; i++) printf("%02x ", (unsigned char)plain[i]);
@@ -489,9 +489,9 @@ char * create_key(unsigned char * iv, int ivl)
 void md5(const uint8_t *text, size_t len, uint8_t *digest)
 {
     Md5 md5;
-    InitMd5(&md5);
-    Md5Update(&md5, text, len);  // can be called again and again
-    Md5Final(&md5, digest);
+    wc_InitMd5(&md5);
+    wc_Md5Update(&md5, text, len);  // can be called again and again
+    wc_Md5Final(&md5, digest);
 }
 
 int bytes_to_key(const uint8_t *pass, int datal, uint8_t *key, uint8_t *iv)
@@ -525,20 +525,20 @@ int bytes_to_key(const uint8_t *pass, int datal, uint8_t *key, uint8_t *iv)
         {
             error = 1;
 //            md5_init(&hash_state);
-            InitMd5(&md5);
+            wc_InitMd5(&md5);
             if (addmd)
             {
 //                md5_append(&hash_state, &(md_buf[0]), mds);
-                Md5Update(&md5, &(md_buf[0]), mds);
+                wc_Md5Update(&md5, &(md_buf[0]), mds);
             }
             else
             {
                 addmd = 1;
             }
 //            md5_append(&hash_state, pass, datal);
-            Md5Update(&md5,pass,datal);
+            wc_Md5Update(&md5,pass,datal);
 //            md5_finish(&hash_state, &(md_buf[0]));
-            Md5Final(&md5,&(md_buf[0]));
+            wc_Md5Final(&md5,&(md_buf[0]));
             error = 0;
         }
         while (0);

@@ -1,0 +1,19 @@
+# vim:ft=automake
+# included from Top Level Makefile.am
+# All paths should be given relative to the root
+
+
+
+if BUILD_SNIFFTEST
+dist_noinst_SCRIPTS+= scripts/sniffer-testsuite.test
+endif
+
+if BUILD_EXAMPLES
+dist_noinst_SCRIPTS+= scripts/resume.test
+if !BUILD_IPV6
+dist_noinst_SCRIPTS+= scripts/external.test
+dist_noinst_SCRIPTS+= scripts/google.test
+endif
+endif
+
+EXTRA_DIST +=  scripts/testsuite.pcap

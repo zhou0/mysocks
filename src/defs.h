@@ -49,12 +49,10 @@
 #include <stdint.h>
 #endif
 #include <uv.h>
-#include "s5.h"
 #ifdef WITH_WOLFSSL
-#ifndef word32
-typedef unsigned int   word32;
+#include <wolfssl/wolfcrypt/types.h>
 #endif
-#endif
+#include "s5.h"
 
 struct client_ctx;
 

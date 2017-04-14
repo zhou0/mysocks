@@ -20,10 +20,11 @@ extern "C"
 #else
 #include <stdint.h>
 #endif
-#include <cyassl/ctaocrypt/arc4.h>
-#include <cyassl/ctaocrypt/chacha.h>
-#include <cyassl/ctaocrypt/hc128.h>
-#include <cyassl/ctaocrypt/rabbit.h>
+#define	HAVE_CHACHA
+#include <wolfssl/wolfcrypt/arc4.h>
+#include <wolfssl/wolfcrypt/chacha.h>
+#include <wolfssl/wolfcrypt/hc128.h>
+#include <wolfssl/wolfcrypt/rabbit.h>
 #include "defs.h"
 #define MD5_DIGEST_LENGTH 16
 #define SODIUM_BLOCK_SIZE   64
