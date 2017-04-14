@@ -58,7 +58,9 @@ void cipher_decrypt(conn *, size_t * plainl,
 void cleanup_cipher();
 char * create_key(unsigned char * iv, int);
 void md5(const uint8_t *text, size_t, uint8_t *message);
+#ifdef _MSC_VER 
 int msc_getentropy(void *buf);
+#endif
 int bytes_to_key(const uint8_t *pass, int datal, uint8_t *key, uint8_t *iv);
 
 #ifdef	__cplusplus
