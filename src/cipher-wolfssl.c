@@ -20,6 +20,7 @@
 #endif
 #include <wolfssl/wolfcrypt/random.h>
 #include <wolfssl/wolfcrypt/md5.h>
+#include <wolfssl/wolfcrypt/chacha20_poly1305.h>
 #include "defs.h"
 #include "cipher-wolfssl.h"
 
@@ -39,7 +40,7 @@ void initialize_cipher()
         cipher.encrypt.iv = malloc(cipher.ivl);
         cipher.decrypt.iv = malloc(cipher.ivl);
     }
-    else if (strcmp(config.method, "chacha20-ietf") == 0)
+    else if (strcmp(config.method, "chacha20-ietf") == 0 || strcmp(config.method, "chacha20-ietf-poly1305") == 0)
     {
         cipher.keyl = 32;
         cipher.ivl = 12;
@@ -75,7 +76,7 @@ void initialize_cipher()
     else
     {
         cleanup_cipher();
-        pr_err("wrong cipher name %s;", config.method);
+        pr_err("%s is not supported.", config.method);
         exit(1);
     }
     //    return cipher;
@@ -272,6 +273,11 @@ void cipher_encrypt(conn* c, size_t * encryptl,
 	}
         c->counter += plainl;
 	pr_info("%s %u",__FUNCTION__,c->counter);
+    }
+    else if (strcmp(config.method, "chacha20-ietf-poly1305") == 0)
+    {
+      byte authTag[16];
+      int ret = wc_ChaCha20Poly1305_Encrypt(cipher.key, cipher.encrypt.iv, 0, 0,plain, plainl, dst, authTag);
     }
     else if (strcmp(config.method, "hc128") == 0)
     {

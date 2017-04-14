@@ -28,7 +28,7 @@ make install && cd .. && \
 ./configure --prefix=/usr --disable-static --enable-ipv6 --enable-aesgcm \
 --enable-aesccm --enable-aesni --enable-psk --disable-coding \
 --enable-hkdf --enable-poly1305 --enable-camellia --disable-des3 \
---enable-hc128 --enable-rabbit --enable-chacha --enable-examples \
+--enable-hc128 --enable-rabbit --enable-chacha --disable-examples \
 --enable-iopool --disable-oldtls --disable-asn --disable-rsa \
 --enable-fastmath --disable-sha  --disable-dh --enable-arc4 \
 --disable-hashdrbg --disable-ecc --disable-sha512 && \
