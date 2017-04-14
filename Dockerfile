@@ -31,7 +31,7 @@ make install && cd .. && \
 --enable-hc128 --enable-rabbit --enable-chacha --enable-examples \
 --enable-iopool --disable-oldtls --disable-asn --disable-rsa \
 --enable-fastmath --disable-sha  --disable-dh --enable-arc4 \
---disable-hashdrbg && make && make install && cd .. && \
+--disable-hashdrbg --disable-ecc && make && make install && cd .. && \
     curl -sSL $MYSOCKS_URL | tar xz && cd mysocks-0.4.0 && mkdir -p \
 build/release && cd build/release && \
     cmake -DCMAKE_BUILD_TYPE=Release ../.. && \
