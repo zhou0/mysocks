@@ -6,7 +6,6 @@
  */
 
 #include <stddef.h>
-#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #if defined(__linux__)
@@ -16,6 +15,10 @@
 #endif
 #ifdef _MSC_VER
 #include <malloc.h>
+#define _CRT_RAND_S
+#include <stdlib.h>
+#else
+#include <stdlib.h>
 #endif
 #include "md5.h"
 #include "arcfour.h"
@@ -359,18 +362,21 @@ void md5(const uint8_t *text, size_t len, uint8_t *digest)
     md5_finish(&state, digest);
 }
 
+#ifdef _MSC_VER 
 int msc_getentropy(void *buf)
 {
     unsigned int i;
-    srand((unsigned) time(NULL));
+    unsigned int j;
+//    srand((unsigned) time(NULL));
+    errno_t         err;
     for (i = 0; i < 4; i++)
     {
-        unsigned int j;
-        j = rand();
+        err = rand_s( &j );
         memcpy((char *) buf + i * sizeof (j), &j, sizeof (j));
     }
     return 0;
 }
+#endif
 
 int bytes_to_key(const uint8_t *pass, int datal, uint8_t *key, uint8_t *iv)
 {
