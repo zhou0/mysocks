@@ -105,4 +105,5 @@ endif()
 enable_testing()
 install(TARGETS ssclient RUNTIME DESTINATION bin)
 install(TARGETS ssclient-openssl RUNTIME DESTINATION bin)
+install(TARGETS ssclient-wolfssl RUNTIME DESTINATION bin)
 
