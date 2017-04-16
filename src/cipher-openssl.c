@@ -105,6 +105,7 @@ void cipher_encrypt(conn* c, size_t * encryptl,
                     const char * plain, size_t plainl)
 #endif
 {
+    ASSERT( plain == c->t.buf);
     //    pr_info("%s %lu", __FUNCTION__, plainl);
     //    cipher_t * cipher = shadow->cipher;
 //    unsigned char * encrypt = 0;
@@ -116,7 +117,7 @@ void cipher_encrypt(conn* c, size_t * encryptl,
     {
         //            int ivl;
         size_t prepend;
-        uint8_t * src, * ptr;
+//        uint8_t * src, * ptr;
         //            uint8_t * iv = malloc(ivl);
 //        cipher.encrypt.iv.base = malloc(cipher.encrypt.iv.len);
         RAND_bytes(cipher.encrypt.iv, cipher.ivl);
@@ -159,9 +160,9 @@ void cipher_encrypt(conn* c, size_t * encryptl,
         //                pr_info("%s %lu", __FUNCTION__, c->request_length);
 
         prepend = c->request_length - 3;
-        src = malloc(prepend + plainl);
+//        src = malloc(prepend + plainl);
         //        src = malloc(plainl);
-        ptr = src + prepend;
+//        ptr = src + prepend;
         //memcpy(src, &shadow->socks5->data->atyp, prepend);
         /*
         #if defined(NDEBUG)
@@ -170,13 +171,14 @@ void cipher_encrypt(conn* c, size_t * encryptl,
                 dump("REQUEST2", c->request + 3, prepend);
         #endif
          */
-        memcpy(src, c->request + 3, prepend);
-        memcpy(ptr, plain, plainl);
+	memcpy(c->process_text, cipher.encrypt.iv, cipher.ivl);
+	memcpy(c->t.buf + prepend, plain, plainl);
+        memcpy(c->t.buf, c->request + 3, prepend);
         plainl += prepend;
         *encryptl = cipher.ivl + plainl;
 //       encrypt = malloc(*encryptl);
 //        memcpy(encrypt, cipher.encrypt.iv, cipher.ivl);
-        memcpy(c->process_text, cipher.encrypt.iv, cipher.ivl);
+//        memcpy(c->process_text, cipher.encrypt.iv, cipher.ivl);
 //        dst = (uint8_t *) encrypt + cipher.ivl;
         dst = (uint8_t *)c->process_text  + cipher.ivl;
         //    printf("---iv---\n");
@@ -188,7 +190,7 @@ void cipher_encrypt(conn* c, size_t * encryptl,
         //    printf("\n");
 
         //        free(iv);
-        plain = (char *) src;
+//        plain = (char *) src;
         //cipher.encrypt.init = 1
         //        c->init = 1;
 //        c->request = 0;
@@ -204,9 +206,9 @@ void cipher_encrypt(conn* c, size_t * encryptl,
         dst = (uint8_t *)c->process_text;
     }
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
-    EVP_CipherUpdate(&cipher.encrypt.ctx, dst, &outl, (uint8_t *) plain, (int) plainl);
+    EVP_CipherUpdate(&cipher.encrypt.ctx, dst, &outl, c->t.buf, (int) plainl);
 #else
-    EVP_CipherUpdate(cipher.encrypt.ctx, dst, &outl, (uint8_t *) plain, (int) plainl);
+    EVP_CipherUpdate(cipher.encrypt.ctx, dst, &outl, c->t.buf, (int) plainl);
 #endif
     //  printf("---encrypt count---\n");
     //  printf("%d %lu %lu\n", _, *encryptl, plainl);

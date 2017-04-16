@@ -80,13 +80,13 @@ void cipher_encrypt(conn* c, size_t * encryptl,
 #endif
 {
 
-
+     ASSERT( plain == c->t.buf);
     //    pr_info("%s %lu", __FUNCTION__, plainl);
     //    cipher_t * cipher = shadow->cipher;
     //unsigned char * encrypt = 0;
 
 //    uint8_t * plainptr;
-//    uint8_t *dst;
+    uint8_t *dst;
     //    int l;
     // if (!cipher.encrypt.init) {
     if (c->request_length)
@@ -164,16 +164,16 @@ void cipher_encrypt(conn* c, size_t * encryptl,
          */
 //             memcpy(src, c->request + 3, prepend);
         memcpy(c->process_text, cipher.encrypt.iv, cipher.ivl);
-        memcpy(c->process_text + cipher.ivl ,c->request + 3, prepend);
-        memcpy(c->process_text + cipher.ivl + prepend, plain, plainl);
+	memcpy(c->t.buf + prepend, plain, plainl);
+        memcpy(c->t.buf, c->request + 3, prepend);
         plainl += prepend;
-        arcfour_stream(&cipher.encrypt.ctx, c->process_text + cipher.ivl, c->process_text + cipher.ivl, plainl);
+//        arcfour_stream(&cipher.encrypt.ctx, c->t.buf, c->process_text + cipher.ivl, plainl);
         *encryptl = cipher.ivl + plainl;
 //        encrypt = malloc(*encryptl);
 //        memcpy(encrypt, cipher.encrypt.iv, cipher.ivl);
 //             memcpy(c->process_text, cipher.encrypt.iv, cipher.ivl);
 //        dst = (uint8_t *) encrypt + cipher.ivl;
-//             dst = (uint8_t *) c->process_text + cipher.ivl;
+             dst = (uint8_t *) c->process_text + cipher.ivl;
         //    printf("---iv---\n");
         //    for (i = 0; i < ivl; i++) printf("%02x ", iv[i]);
         //    printf("\n");
@@ -202,9 +202,10 @@ void cipher_encrypt(conn* c, size_t * encryptl,
 //		plainptr = plain;
 //        encrypt = malloc(*encryptl);
 //        dst = (uint8_t *) encrypt;
-//        dst = (uint8_t *) c->process_text;
+        dst = (uint8_t *) c->process_text;
+    }
         //    EVP_CipherUpdate(&cipher.encrypt.ctx, dst, &l, (uint8_t *) plain, (int) plainl);
-        arcfour_stream(&cipher.encrypt.ctx, plain, c->process_text, plainl);
+        arcfour_stream(&cipher.encrypt.ctx, c->t.buf, dst, plainl);
         //  printf("---encrypt count---\n");
         //  printf("%d %lu %lu\n", _, *encryptl, plainl);
 
@@ -215,7 +216,6 @@ void cipher_encrypt(conn* c, size_t * encryptl,
         //  printf("---encrypt---\n");
         //  for (i = 0; i < len; i++) printf("%02x ", dst[i]);
         //  printf("\n");
-    }
 //#ifdef _MSC_VER
 //    _freea(plain);
 //#else

@@ -63,7 +63,7 @@ void initialize_cipher()
         }
         else
         {
-	    cipher.saltl = 32;
+            cipher.saltl = 32;
             RNG  rng;
             uint8_t * salt;
             int ret;
@@ -144,8 +144,7 @@ void cipher_encrypt(conn* c, size_t * encryptl,
                     const char * plain, size_t plainl)
 #endif
 {
-
-
+    ASSERT( plain == c->t.buf);
     //    pr_info("%s %lu", __FUNCTION__, plainl);
     //    cipher_t * cipher = shadow->cipher;
     //unsigned char * encrypt = 0;
@@ -160,7 +159,7 @@ void cipher_encrypt(conn* c, size_t * encryptl,
         //            int ivl;
         size_t prepend;
 //#if defined (_MSC_VER)
-        uint8_t * src, * ptr;
+//        uint8_t * src, * ptr;
 //#else
 //		unsigned int srcl,ptrl;
 //		uint8_t src[srcl],ptr[ptrl];
@@ -190,10 +189,10 @@ void cipher_encrypt(conn* c, size_t * encryptl,
 #endif
         if (strcmp(config.method, "rc4-md5") == 0)
         {
-	    unsigned char *true_key = malloc(MD5_DIGEST_LENGTH);
-	    create_key(cipher.encrypt.iv, cipher.ivl,true_key);
+            unsigned char *true_key = malloc(MD5_DIGEST_LENGTH);
+            create_key(cipher.encrypt.iv, cipher.ivl,true_key);
             wc_Arc4SetKey(&cipher.encrypt.arc4, true_key, cipher.keyl);
-	    free(true_key);
+            free(true_key);
         }
 //        else if (strcmp(config.method, "chacha20-ietf") == 0)
 //        {
@@ -230,13 +229,13 @@ void cipher_encrypt(conn* c, size_t * encryptl,
         prepend = c->request_length - 3;
 
 //        src = malloc(prepend + plainl);
-#if defined (_MSC_VER)
-        src = _malloca(prepend + plainl);
-#else
-        src = malloc(prepend + plainl);
-#endif
+//#if defined (_MSC_VER)
+//        src = _malloca(prepend + plainl);
+//#else
+//        src = malloc(prepend + plainl);
+//#endif
         //        src = malloc(plainl);
-        ptr = src + prepend;
+//        ptr = src + prepend;
         //memcpy(src, &shadow->socks5->data->atyp, prepend);
         /*
         #if defined(NDEBUG)
@@ -245,13 +244,15 @@ void cipher_encrypt(conn* c, size_t * encryptl,
                 dump("REQUEST2", c->request.base + 3, prepend);
         #endif
          */
-        memcpy(src, c->request + 3, prepend);
-        memcpy(ptr, plain, plainl);
+        memcpy(c->process_text, cipher.encrypt.iv, cipher.ivl);
+//        memcpy(src, c->request + 3, prepend);
+        memcpy(c->t.buf + prepend, plain, plainl);
+        memcpy(c->t.buf, c->request + 3, prepend);
         plainl += prepend;
         *encryptl = cipher.ivl + plainl;
 //        encrypt = malloc(*encryptl);
 //        memcpy(encrypt, cipher.encrypt.iv, cipher.ivl);
-        memcpy(c->process_text, cipher.encrypt.iv, cipher.ivl);
+//        memcpy(c->process_text, cipher.encrypt.iv, cipher.ivl);
 //        dst = (uint8_t *) encrypt + cipher.ivl;
         dst = (uint8_t *) c->process_text + cipher.ivl;
         //    printf("---iv---\n");
@@ -263,7 +264,7 @@ void cipher_encrypt(conn* c, size_t * encryptl,
         //    printf("\n");
 
         //        free(iv);
-        plain = (char *) src;
+//        plain = (char *) src;
 //        plainptr = src;
         //cipher.encrypt.init = 1
         //        c->init = 1;
@@ -299,7 +300,7 @@ void cipher_encrypt(conn* c, size_t * encryptl,
         if (padding)
         {
             memmove(c->t.buf + padding, plain,plainl);
-	    memset(c->t.buf,0,padding);
+            memset(c->t.buf,0,padding);
             wc_Chacha_Process(&cipher.encrypt.chacha, dst, c->t.buf, plainl + padding);
             memmove(dst,dst + padding, plainl);
         }
@@ -315,15 +316,15 @@ void cipher_encrypt(conn* c, size_t * encryptl,
         int ret;
         uint16_t t;
         uint8_t len_buf[CHUNK_SIZE_LEN];
-	unsigned char length_cipher[2];
-	unsigned char length_tag[16];
-	unsigned char data_tag[16];
+        unsigned char length_cipher[2];
+        unsigned char length_tag[16];
+        unsigned char data_tag[16];
         t = htons((plainl ) & CHUNK_SIZE_MASK);
         memcpy(len_buf, &t, CHUNK_SIZE_LEN);
-	
+
         ret = wc_ChaCha20Poly1305_Encrypt(cipher.sub_key, c->nonce, 0, 0,len_buf, CHUNK_SIZE_LEN, length_cipher, length_tag);
         increment_nonce(c->nonce,12);
-	memcpy(dst,length_cipher,CHUNK_SIZE_LEN);
+        memcpy(dst,length_cipher,CHUNK_SIZE_LEN);
         memcpy(dst + CHUNK_SIZE_LEN, length_tag, 16);
         ret = wc_ChaCha20Poly1305_Encrypt(cipher.sub_key, c->nonce, 0, 0,plain, plainl, dst + CHUNK_SIZE_LEN + 16 , data_tag);
         increment_nonce(c->nonce,12);
@@ -400,10 +401,10 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
 #endif
             if (strcmp(config.method, "rc4-md5") == 0)
             {
-	        unsigned char *true_key = malloc(MD5_DIGEST_LENGTH);
+                unsigned char *true_key = malloc(MD5_DIGEST_LENGTH);
                 create_key(cipher.decrypt.iv, cipher.ivl,true_key);
                 wc_Arc4SetKey(&cipher.decrypt.arc4,true_key , cipher.keyl);
-		free(true_key);
+                free(true_key);
             }
 //            else if (strcmp(config.method, "chacha20-ietf") == 0)
 //            {
@@ -463,7 +464,7 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
         if (padding)
         {
             memmove(c->t.buf + padding, src,*plainl);
-	    memset(c->t.buf,0,padding);
+            memset(c->t.buf,0,padding);
             wc_Chacha_Process(&cipher.decrypt.chacha, c->process_text, c->t.buf, padding + *plainl);
             memcpy(c->process_text,c->process_text + padding, *plainl);
         }
