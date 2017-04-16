@@ -102,15 +102,20 @@ typedef struct
         struct sockaddr_in6 addr6;
         struct sockaddr_in addr4;
         struct sockaddr addr;
-        char buf[2048]; /* Scratch space. Used to read data into. */
+        char buf[2310]; /* Scratch space. Used to read data into. */
     } t;
-    uv_buf_t request;
-    unsigned char * process_text;
+    unsigned char request[262];
+    unsigned int request_length;
+    unsigned char process_text[2342];
     size_t cipher_len;
 #ifdef WITH_WOLFSSL
-    word32 counter;
-    char plain_buf[2112];
-    char cipher_buf[2112];
+    unsigned int counter;
+//    unsigned char plain_buf[2112];
+//    unsigned char cipher_buf[2112];
+    unsigned char nonce[12];
+//    unsigned char length_cipher[2];
+//    unsigned char length_tag[16];
+//    unsigned char data_tag[16];
 #endif
     //    unsigned int init;
 } conn;

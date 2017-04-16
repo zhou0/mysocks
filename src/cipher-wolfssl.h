@@ -28,11 +28,15 @@ extern "C"
 #include "defs.h"
 #define MD5_DIGEST_LENGTH 16
 #define SODIUM_BLOCK_SIZE   64
+#define CHUNK_SIZE_LEN          2
+#define CHUNK_SIZE_MASK         0x3FFF
 typedef struct
 {
     size_t keyl;
     size_t ivl;
+    size_t saltl;
     uint8_t * key;
+    uint8_t * sub_key;
 //    const EVP_CIPHER * type;
 
     struct
@@ -46,7 +50,11 @@ typedef struct
             HC128 hc128;
             Rabbit rabbit;
         };
-        uint8_t * iv;
+        union
+        {
+            uint8_t * iv;
+//	uint8_t nonce[12];
+        };
     } encrypt, decrypt;
 } cipher_t;
 
@@ -73,10 +81,10 @@ void cipher_encrypt(conn *, size_t * encryptl,const char * plain, size_t plainl)
 void cipher_decrypt(conn *, size_t * plainl,const char * encrypt, size_t encryptl);
 #endif
 void cleanup_cipher();
-char * create_key(unsigned char * iv, int);
+void create_key(unsigned char * iv, int,unsigned char *);
 int bytes_to_key(const uint8_t *pass, int datal, uint8_t *key, uint8_t *iv);
 void md5(const uint8_t *text, size_t, uint8_t *message);
-
+void increment_nonce(unsigned char *,unsigned int);
 #ifdef	__cplusplus
 }
 #endif

@@ -70,7 +70,7 @@ void initialize_cipher()
     else
     {
         cleanup_cipher();
-        pr_err("wrong cipher name %s;", config.method);
+        pr_err("%s is not supported.", config.method);
         exit(1);
     }
     //    return cipher;
@@ -112,7 +112,7 @@ void cipher_encrypt(conn* c, size_t * encryptl,
     uint8_t * dst;
     int outl;
     // if (!cipher.encrypt.init) {
-    if (c->request.len)
+    if (c->request_length)
     {
         //            int ivl;
         size_t prepend;
@@ -131,11 +131,14 @@ void cipher_encrypt(conn* c, size_t * encryptl,
         //            cipher.encrypt.iv.len = ivl;
         if (strcmp(config.method, "rc4") == 0)
         {
+            unsigned char *true_key = malloc(MD5_DIGEST_LENGTH);
+            create_key(cipher.encrypt.iv, cipher.ivl,true_key);
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
-            EVP_CipherInit_ex(&cipher.encrypt.ctx, cipher.type, 0, create_key(cipher.encrypt.iv, cipher.ivl), 0, 1);
+            EVP_CipherInit_ex(&cipher.encrypt.ctx, cipher.type, 0,true_key, 0, 1);
 #else
-            EVP_CipherInit_ex(cipher.encrypt.ctx, cipher.type, 0, create_key(cipher.encrypt.iv, cipher.ivl), 0, 1);
+            EVP_CipherInit_ex(cipher.encrypt.ctx, cipher.type, 0, true_key, 0, 1);
 #endif
+            free(true_key);
         }
         else
         {
@@ -149,13 +152,13 @@ void cipher_encrypt(conn* c, size_t * encryptl,
         //    c->init = 1;
         //}
 
-        //ASSERT(c->request.base != 0);
-        //if( c->request.len )
+        //ASSERT(c->request != 0);
+        //if( c->request_length )
         // {
         //        size_t prepend = shadow->socks5->len - 3
-        //                pr_info("%s %lu", __FUNCTION__, c->request.len);
+        //                pr_info("%s %lu", __FUNCTION__, c->request_length);
 
-        prepend = c->request.len - 3;
+        prepend = c->request_length - 3;
         src = malloc(prepend + plainl);
         //        src = malloc(plainl);
         ptr = src + prepend;
@@ -163,11 +166,11 @@ void cipher_encrypt(conn* c, size_t * encryptl,
         /*
         #if defined(NDEBUG)
         #else
-                dump("REQUEST", c->request.base, c->request.len);
-                dump("REQUEST2", c->request.base + 3, prepend);
+                dump("REQUEST", c->request, c->request_length);
+                dump("REQUEST2", c->request + 3, prepend);
         #endif
          */
-        memcpy(src, c->request.base + 3, prepend);
+        memcpy(src, c->request + 3, prepend);
         memcpy(ptr, plain, plainl);
         plainl += prepend;
         *encryptl = cipher.ivl + plainl;
@@ -188,8 +191,8 @@ void cipher_encrypt(conn* c, size_t * encryptl,
         plain = (char *) src;
         //cipher.encrypt.init = 1
         //        c->init = 1;
-        c->request.base = 0;
-        c->request.len = 0;
+//        c->request = 0;
+        c->request_length = 0;
     }
     else
     {
@@ -239,35 +242,38 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
     int outl;
     //if (!cipher.decrypt.init) {
     //if (!c->init) {
-//    if (!c->request.len)
+//    if (!c->request_length)
 //    {
-    if (c->request.len < cipher.ivl)
+    if (c->request_length < cipher.ivl)
     {
-        c->request.base = malloc(cipher.ivl);
-        if ( c->request.len + encryptl < cipher.ivl )
+//        c->request = malloc(cipher.ivl);
+        if ( c->request_length + encryptl < cipher.ivl )
         {
 
-            memcpy(c->request.base + c->request.len, encrypt, encryptl);
-            c->request.len += encryptl;
-            c->process_text = 0;
+            memcpy(c->request + c->request_length, encrypt, encryptl);
+            c->request_length += encryptl;
+//            c->process_text = 0;
             c->cipher_len = 0;
             return;
         }
         else
         {
-            memcpy(cipher.decrypt.iv,c->request.base,c->request.len);
+            memcpy(cipher.decrypt.iv,c->request,c->request_length);
             //     int ivl;
             //        uint8_t * iv = malloc(ivl);
 //        cipher.decrypt.iv.base = malloc(cipher.decrypt.iv.len);
 //        memcpy(cipher.decrypt.iv, encrypt, cipher.ivl);
-            memcpy(cipher.decrypt.iv + c->request.len, encrypt, cipher.ivl - c->request.len);
+            memcpy(cipher.decrypt.iv + c->request_length, encrypt, cipher.ivl - c->request_length);
             if (strcmp(config.method, "rc4") == 0)
             {
+                unsigned char *true_key = malloc(MD5_DIGEST_LENGTH);
+                create_key(cipher.decrypt.iv, cipher.ivl,true_key);
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
-                EVP_CipherInit_ex(&cipher.decrypt.ctx, cipher.type, 0, create_key(cipher.decrypt.iv, cipher.ivl), 0, 0);
+                EVP_CipherInit_ex(&cipher.decrypt.ctx, cipher.type, 0, true_key, 0, 0);
 #else
-                EVP_CipherInit_ex(cipher.decrypt.ctx, cipher.type, 0, create_key(cipher.decrypt.iv, cipher.ivl), 0, 0);
+                EVP_CipherInit_ex(cipher.decrypt.ctx, cipher.type, 0, true_key, 0, 0);
 #endif
+                free(true_key);
             }
             else
             {
@@ -278,11 +284,11 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
 #endif
             }
 
-            //    if (c->request.base == 0) {
+            //    if (c->request == 0) {
 
-            *plainl = encryptl - cipher.ivl - c->request.len;;
+            *plainl = encryptl - cipher.ivl + c->request_length;;
 //       plain = malloc(*plainl);
-            src = (uint8_t *) encrypt + cipher.ivl - c->request.len;;
+            src = (uint8_t *) encrypt + cipher.ivl - c->request_length;;
             //    printf("---iv---\n");
             //    for (i = 0; i < ivl; i++) printf("%02x ", iv[i]);
             //    printf("\n");
@@ -290,9 +296,9 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
             //    printf("---key---\n");
             //    for (i = 0; i < cipher->keyl; i++) printf("%02x ", cipher->key[i]);
             //    printf("\n");
-//        c->request.base = malloc(cipher.ivl);
-            memcpy(c->request.base, cipher.decrypt.iv, cipher.ivl);
-            c->request.len = cipher.ivl;
+//        c->request = malloc(cipher.ivl);
+            memcpy(c->request, cipher.decrypt.iv, cipher.ivl);
+            c->request_length = cipher.ivl;
             //        free(iv);
             //    cipher.decrypt.init = 1;
             //        c->init = 1;
@@ -360,10 +366,9 @@ void cleanup_cipher()
 # endif
 }
 
-unsigned char * create_key(unsigned char * iv, int ivl)
+void create_key(unsigned char * iv, int ivl,unsigned char * true_key)
 {
-
-    unsigned char *true_key = malloc(MD5_DIGEST_LENGTH);
+//    unsigned char *true_key = malloc(MD5_DIGEST_LENGTH);
     unsigned char key_iv[32];
     memcpy(key_iv, cipher.key, ivl);
     memcpy(key_iv + 16, iv, ivl);
@@ -374,5 +379,5 @@ unsigned char * create_key(unsigned char * iv, int ivl)
     dump("RC4 KEY", true_key, ivl);
     #endif
      */
-    return true_key;
+//    return true_key;
 }

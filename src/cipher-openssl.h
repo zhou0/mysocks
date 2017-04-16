@@ -56,7 +56,7 @@ void cipher_decrypt(conn *, size_t * plainl,
                     const char * encrypt, size_t encryptl);
 #endif
 void cleanup_cipher();
-unsigned char * create_key(unsigned char * iv, int);
+void create_key(unsigned char * iv, int,unsigned char *);
 #ifdef	__cplusplus
 }
 #endif

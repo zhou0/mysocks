@@ -46,18 +46,18 @@ void initialize_cipher();
 #elif defined(_WIN32)
 /* Microsoft Windows (32-bit). ------------------------------ */
 void cipher_encrypt(conn*, ULONG * encryptl,
-                    const char * plain, size_t plainl);
+                    const unsigned char * plain, size_t plainl);
 void cipher_decrypt(conn *, ULONG * plainl,
-                    const char * encrypt, size_t encryptl);
+                    const unsigned char * encrypt, size_t encryptl);
 #else
 void cipher_encrypt(conn*, size_t * encryptl,
-                    const char * plain, size_t plainl);
+                    const unsigned char * plain, size_t plainl);
 void cipher_decrypt(conn *, size_t * plainl,
-                    const char * encrypt, size_t encryptl);
+                    const unsigned char * encrypt, size_t encryptl);
 #endif
 void cleanup_cipher();
-char * create_key(unsigned char * iv, int);
-void md5(const uint8_t *text, size_t, uint8_t *message);
+void create_key(unsigned char * iv, int,char *);
+void md5(const uint8_t *text, size_t, char *message);
 #ifdef _MSC_VER 
 int msc_getentropy(void *buf);
 #endif

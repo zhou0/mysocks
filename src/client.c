@@ -142,9 +142,9 @@ void client_finish_init(server_ctx *sx, client_ctx *cx)
     incoming->rdstate = c_stop;
     incoming->wrstate = c_stop;
     incoming->idle_timeout = sx->idle_timeout;
-    incoming->request.base = 0;
-    incoming->request.len = 0;
-    incoming->process_text = malloc(2048 + cipher.ivl);
+//    incoming->request.base = 0;
+    incoming->request_length = 0;
+//    incoming->process_text = malloc(2048 + cipher.ivl);
 #ifdef WITH_WOLFSSL
     incoming->counter = 0;
 #endif
@@ -156,9 +156,9 @@ void client_finish_init(server_ctx *sx, client_ctx *cx)
     outgoing->rdstate = c_stop;
     outgoing->wrstate = c_stop;
     outgoing->idle_timeout = sx->idle_timeout;
-    outgoing->request.base = 0;
-    outgoing->request.len = 0;
-    outgoing->process_text = malloc(2048 + cipher.ivl);
+//    outgoing->request.base = 0;
+    outgoing->request_length = 0;
+//    outgoing->process_text = malloc(2048 + cipher.ivl);
 #ifdef WITH_WOLFSSL
     outgoing->counter = 0;
 #endif
@@ -230,22 +230,22 @@ static void do_next(client_ctx *cx)
         {
             free(cx->sx);
         }
-        if (!cx->incoming.request.base)
-        {
-            free(cx->incoming.request.base);
-        }
-        if (!cx->outgoing.request.base)
-        {
-            free(cx->outgoing.request.base);
-        }
-        if (!cx->incoming.process_text)
-        {
-            free(cx->incoming.process_text);
-        }
-        if (!cx->outgoing.process_text)
-        {
-            free(cx->outgoing.process_text);
-        }
+//        if (!cx->incoming.request.base)
+//        {
+//            free(cx->incoming.request.base);
+//        }
+//        if (!cx->outgoing.request.base)
+//        {
+//            free(cx->outgoing.request.base);
+//        }
+//        if (!cx->incoming.process_text)
+//        {
+//            free(cx->incoming.process_text);
+//        }
+//        if (!cx->outgoing.process_text)
+//        {
+//            free(cx->outgoing.process_text);
+//        }
         if (!cx)
         {
             free(cx);
@@ -406,11 +406,11 @@ static int do_req_parse(client_ctx *cx)
         return do_kill(cx);
     }
     ASSERT(parser->cmd == s5_cmd_tcp_connect);
-    if (!incoming->request.len)
+    if (!incoming->request_length)
     {
-        incoming->request.base = malloc(size);
-        memcpy(incoming->request.base, data, size);
-        incoming->request.len = size;
+//        incoming->request.base = malloc(size);
+        memcpy(incoming->request, data, size);
+        incoming->request_length = size;
     }
     //incoming->request.len = size;
     //incoming->request = uv_buf_init(data,size);
@@ -876,7 +876,8 @@ static void conn_alloc(uv_handle_t *handle, size_t size, uv_buf_t *buf)
     c = CONTAINER_OF(handle, conn, handle);
     //    ASSERT(c->rdstate == c_busy);
     buf->base = c->t.buf;
-    buf->len = sizeof (c->t.buf);
+//    buf->len = sizeof (c->t.buf);
+    buf->len = 2048;
     //    buf->base = xmalloc(size);
     //    buf->len = size;
     //    c->buf.base = buf->base;
