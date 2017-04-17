@@ -21,19 +21,22 @@
 #define HAVE_CHACHA
 #define HAVE_POLY1305
 #include <wolfssl/wolfcrypt/chacha20_poly1305.h>
+#include <wolfssl/wolfcrypt/error-crypt.h>
 #define HAVE_HKDF
 #include <wolfssl/wolfcrypt/hmac.h>
 #include <wolfssl/wolfcrypt/md5.h>
+//#define HAVE_HASHDRBG
 #include <wolfssl/wolfcrypt/random.h>
 #include "defs.h"
 #include "cipher-wolfssl.h"
+#include "client.h"
 
 extern server_config config;
 cipher_t cipher;
 
 void initialize_cipher()
 {
-
+    int ret;
     pr_info("%s %s", __FUNCTION__, config.method);
     if (strcmp(config.method, "rc4-md5") == 0)
     {
@@ -49,13 +52,13 @@ void initialize_cipher()
         cipher.keyl = 32;
         cipher.ivl = 12;
         cipher.key = malloc(cipher.keyl);
-        if (strcmp(config.method, "chacha20-ietf") == 0)
-        {
-            bytes_to_key((uint8_t *) config.password, (int) strlen(config.password), cipher.key, 0);
+        bytes_to_key((uint8_t *) config.password, (int) strlen(config.password), cipher.key, 0);
 #if defined(NDEBUG)
 #else
-            dump("KEY",cipher.key,cipher.keyl);
+        dump("KEY",cipher.key,cipher.keyl);
 #endif
+        if (strcmp(config.method, "chacha20-ietf") == 0)
+        {
             wc_Chacha_SetKey(&cipher.encrypt.chacha, cipher.key, cipher.keyl);
             wc_Chacha_SetKey(&cipher.decrypt.chacha, cipher.key, cipher.keyl);
             cipher.encrypt.iv = malloc(cipher.ivl);
@@ -63,29 +66,12 @@ void initialize_cipher()
         }
         else
         {
-            cipher.saltl = 32;
-            RNG  rng;
-            uint8_t * salt;
-            int ret;
-#ifdef HAVE_CAVIUM
-            ret = wc_InitRngCavium(&rng, CAVIUM_DEV_ID);
-            if (ret != 0) return -2007;
-#endif
-//    ret = InitRng(&rng);
-            wc_InitRng(&rng);
-//    if (ret != 0) return -39;
-
-//	ret = RNG_GenerateBlock(&rng, cipher.encrypt.iv, cipher.ivl);
-            wc_RNG_GenerateBlock(&rng, salt, cipher.keyl);
-            ret = wc_HKDF(SHA, cipher.key, cipher.keyl, salt, cipher.keyl,"ss-subkey", 9, cipher.sub_key, cipher.keyl);
-
-            if ( ret != 0 ) {
-
-// error generating derived key
-
-            }
-//          memset(cipher.encrypt.nonce,0,12);
-//	    memset(cipher.decrypt.nonce,0,12);
+//            cipher.saltl = 32;
+            cipher.ivl = 32;
+            cipher.encrypt.iv = malloc(cipher.ivl);
+            cipher.decrypt.iv = malloc(cipher.ivl);
+            cipher.encrypt.sub_key = malloc(cipher.keyl);
+            cipher.decrypt.sub_key = malloc(cipher.keyl);
         }
     }
     else if (strcmp(config.method, "hc-128") == 0)
@@ -108,11 +94,10 @@ void initialize_cipher()
     }
     else
     {
-        cleanup_cipher();
         pr_err("%s is not supported.", config.method);
+        cleanup_cipher();
         exit(1);
     }
-    //    return cipher;
 }
 /*
 cipher_t * create_cipher()
@@ -144,20 +129,42 @@ void cipher_encrypt(conn* c, size_t * encryptl,
                     const char * plain, size_t plainl)
 #endif
 {
+    uint8_t *dst;
     ASSERT( plain == c->t.buf);
     //    pr_info("%s %lu", __FUNCTION__, plainl);
     //    cipher_t * cipher = shadow->cipher;
     //unsigned char * encrypt = 0;
 
 //    uint8_t * plainptr;
-    uint8_t *dst;
-    //    int l;
     // if (!cipher.encrypt.init) {
     if (c->request_length)
     {
-
-        //            int ivl;
+        int ret;
         size_t prepend;
+        RNG  rng;
+
+#ifdef HAVE_CAVIUM
+        wc_InitRngCavium(&rng, CAVIUM_DEV_ID);
+#endif
+        ret = wc_InitRng(&rng);
+        if (ret != 0) {
+            pr_err("%s:RNG init failed",__FUNCTION__);
+            return;
+        }
+        else
+        {
+            ret = wc_RNG_GenerateBlock(&rng, cipher.encrypt.iv, cipher.ivl);
+            if (ret != 0)
+            {
+                pr_err("%s: generating block failed!",__FUNCTION__);
+                return; //generating block failed!
+            }
+            else
+            {
+#if defined(NDEBUG)
+#else
+                dump("Encryption IV",cipher.encrypt.iv,cipher.ivl);
+#endif
 //#if defined (_MSC_VER)
 //        uint8_t * src, * ptr;
 //#else
@@ -165,68 +172,66 @@ void cipher_encrypt(conn* c, size_t * encryptl,
 //		uint8_t src[srcl],ptr[ptrl];
 //#endif
 
-        //            uint8_t * iv = malloc(ivl);
-//        cipher.encrypt.iv = malloc(cipher.ivl);
-        //        RAND_bytes(cipher.encrypt.iv.base, cipher.encrypt.iv.len);
-        RNG  rng;
-//    byte block[16];
-//    int ret;
+                if (strcmp(config.method, "rc4-md5") == 0)
+                {
+                    unsigned char *true_key = malloc(MD5_DIGEST_LENGTH);
+                    create_key(cipher.encrypt.iv, cipher.ivl,true_key);
+                    wc_Arc4SetKey(&cipher.encrypt.arc4, true_key, cipher.keyl);
+                    free(true_key);
+                }
+                else if (strcmp(config.method, "chacha20-ietf-poly1305") == 0)
+                {
+                    int ret;
+                    ret = wc_HKDF(SHA, cipher.key, cipher.keyl, cipher.encrypt.iv, cipher.keyl,"ss-subkey", strlen("ss-subkey"), cipher.encrypt.sub_key, cipher.keyl);
 
-#ifdef HAVE_CAVIUM
-        ret = wc_InitRngCavium(&rng, CAVIUM_DEV_ID);
-        if (ret != 0) return -2007;
-#endif
-//    ret = InitRng(&rng);
-        wc_InitRng(&rng);
-//    if (ret != 0) return -39;
-
-//	ret = RNG_GenerateBlock(&rng, cipher.encrypt.iv, cipher.ivl);
-        wc_RNG_GenerateBlock(&rng, cipher.encrypt.iv, cipher.ivl);
-//    if (ret != 0) return -40;
+                    if ( ret != 0 ) {
+                        pr_err("%s: error generating derived key",__FUNCTION__);
+                        cleanup_cipher();
+                        exit(1);
+                    }
+                    else
+                    {
 #if defined(NDEBUG)
 #else
-        dump("Encryption IV",cipher.encrypt.iv,cipher.ivl);
+                        dump("ENCRYPTION SUBKEY",cipher.encrypt.sub_key,cipher.keyl);
 #endif
-        if (strcmp(config.method, "rc4-md5") == 0)
-        {
-            unsigned char *true_key = malloc(MD5_DIGEST_LENGTH);
-            create_key(cipher.encrypt.iv, cipher.ivl,true_key);
-            wc_Arc4SetKey(&cipher.encrypt.arc4, true_key, cipher.keyl);
-            free(true_key);
-        }
-//        else if (strcmp(config.method, "chacha20-ietf") == 0)
-//        {
-//            Chacha_SetIV(&cipher.encrypt.chacha, cipher.encrypt.iv, c->counter / SODIUM_BLOCK_SIZE);
-//        }
-        else if (strcmp(config.method, "hc128") == 0)
-        {
-            wc_Hc128_SetKey(&cipher.encrypt.hc128, cipher.key, cipher.encrypt.iv);
-        }
-        else if (strcmp(config.method, "rabbit") == 0)
-        {
-            wc_RabbitSetKey(&cipher.encrypt.rabbit, cipher.key, cipher.encrypt.iv);
-        }
+                    }
+                }
+                else if (strcmp(config.method, "hc128") == 0)
+                {
+                    wc_Hc128_SetKey(&cipher.encrypt.hc128, cipher.key, cipher.encrypt.iv);
+                }
+                else if (strcmp(config.method, "rabbit") == 0)
+                {
+                    wc_RabbitSetKey(&cipher.encrypt.rabbit, cipher.key, cipher.encrypt.iv);
+                }
 
-        /*
-        #if defined(NDEBUG)
-        #else
-        dump("IV", cipher.encrypt.iv.base, cipher.encrypt.iv.len);
-        #endif
-         */
-        //            cipher.encrypt.iv.base = malloc(ivl);
-        //            memcpy(cipher.encrypt.iv.base,iv,ivl);
-        //            cipher.encrypt.iv.len = ivl;
-        //        cipher.encrypt.init = 1;
-        //    c->init = 1;
-        //}
+                /*
+                #if defined(NDEBUG)
+                #else
+                dump("IV", cipher.encrypt.iv.base, cipher.encrypt.iv.len);
+                #endif
+                 */
+                //            cipher.encrypt.iv.base = malloc(ivl);
+                //            memcpy(cipher.encrypt.iv.base,iv,ivl);
+                //            cipher.encrypt.iv.len = ivl;
+                //        cipher.encrypt.init = 1;
+                //    c->init = 1;
+                //}
 
-        //ASSERT(c->request.base != 0);
-        //if( c->request.len )
-        // {
-        //        size_t prepend = shadow->socks5->len - 3
-        //                pr_info("%s %lu", __FUNCTION__, c->request.len);
-
-        prepend = c->request_length - 3;
+                //ASSERT(c->request.base != 0);
+                //if( c->request.len )
+                // {
+                //        size_t prepend = shadow->socks5->len - 3
+                //                pr_info("%s %lu", __FUNCTION__, c->request.len);
+            }
+            ret = wc_FreeRng(&rng);
+            if (ret != 0)
+            {
+                pr_err("%s:free of rng failed!",__FUNCTION__ );
+//	       return ;
+            }
+            prepend = c->request_length - 3;
 
 //        src = malloc(prepend + plainl);
 //#if defined (_MSC_VER)
@@ -234,46 +239,47 @@ void cipher_encrypt(conn* c, size_t * encryptl,
 //#else
 //        src = malloc(prepend + plainl);
 //#endif
-        //        src = malloc(plainl);
+            //        src = malloc(plainl);
 //        ptr = src + prepend;
-        //memcpy(src, &shadow->socks5->data->atyp, prepend);
-        /*
-        #if defined(NDEBUG)
-        #else
-                dump("REQUEST", c->request.base, c->request.len);
-                dump("REQUEST2", c->request.base + 3, prepend);
-        #endif
-         */
-        memcpy(c->process_text, cipher.encrypt.iv, cipher.ivl);
+            //memcpy(src, &shadow->socks5->data->atyp, prepend);
+            /*
+            #if defined(NDEBUG)
+            #else
+                    dump("REQUEST", c->request.base, c->request.len);
+                    dump("REQUEST2", c->request.base + 3, prepend);
+            #endif
+             */
+            memcpy(c->process_text, cipher.encrypt.iv, cipher.ivl);
 //        memcpy(src, c->request + 3, prepend);
-        memcpy(c->t.buf + prepend, plain, plainl);
-        memcpy(c->t.buf, c->request + 3, prepend);
-        plainl += prepend;
-        *encryptl = cipher.ivl + plainl;
+            memcpy(c->t.buf + prepend, plain, plainl);
+            memcpy(c->t.buf, c->request + 3, prepend);
+            plainl += prepend;
+            *encryptl = cipher.ivl + plainl;
 //        encrypt = malloc(*encryptl);
 //        memcpy(encrypt, cipher.encrypt.iv, cipher.ivl);
 //        memcpy(c->process_text, cipher.encrypt.iv, cipher.ivl);
 //        dst = (uint8_t *) encrypt + cipher.ivl;
-        dst = (uint8_t *) c->process_text + cipher.ivl;
-        //    printf("---iv---\n");
-        //    for (i = 0; i < ivl; i++) printf("%02x ", iv[i]);
-        //    printf("\n");
-        //
-        //    printf("---key---\n");
-        //    for (i = 0; i < cipher->keyl; i++) printf("%02x ", cipher->key[i]);
-        //    printf("\n");
+            dst = (uint8_t *) c->process_text + cipher.ivl;
+            //    printf("---iv---\n");
+            //    for (i = 0; i < ivl; i++) printf("%02x ", iv[i]);
+            //    printf("\n");
+            //
+            //    printf("---key---\n");
+            //    for (i = 0; i < cipher->keyl; i++) printf("%02x ", cipher->key[i]);
+            //    printf("\n");
 
-        //        free(iv);
+            //        free(iv);
 //        plain = (char *) src;
 //        plainptr = src;
-        //cipher.encrypt.init = 1
-        //        c->init = 1;
+            //cipher.encrypt.init = 1
+            //        c->init = 1;
 //        c->request.base = 0;
 //        if (c->request.base)
 //        {
 //            free(c->request.base);
 //        }
-        c->request_length = 0;
+            c->request_length = 0;
+        }
     }
     else
     {
@@ -285,7 +291,7 @@ void cipher_encrypt(conn* c, size_t * encryptl,
 //        dst = (uint8_t *) encrypt;
         dst = (uint8_t *) c->process_text;
     }
-
+    c->process_len = *encryptl;
 
     //    EVP_CipherUpdate(&cipher.encrypt.ctx, dst, &l, (uint8_t *) plain, (int) plainl);
 //    arcfour_stream(&cipher.encrypt.ctx, plain, dst, plainl);
@@ -313,6 +319,11 @@ void cipher_encrypt(conn* c, size_t * encryptl,
     }
     else if (strcmp(config.method, "chacha20-ietf-poly1305") == 0)
     {
+//#if defined(NDEBUG)
+//#else
+//        dump("NONCE",c->nonce,12);
+//#endif
+        pr_info("%s %lu",__FUNCTION__,plainl);
         int ret;
         uint16_t t;
         uint8_t len_buf[CHUNK_SIZE_LEN];
@@ -322,13 +333,26 @@ void cipher_encrypt(conn* c, size_t * encryptl,
         t = htons((plainl ) & CHUNK_SIZE_MASK);
         memcpy(len_buf, &t, CHUNK_SIZE_LEN);
 
-        ret = wc_ChaCha20Poly1305_Encrypt(cipher.sub_key, c->nonce, 0, 0,len_buf, CHUNK_SIZE_LEN, length_cipher, length_tag);
-        increment_nonce(c->nonce,12);
+        ret = wc_ChaCha20Poly1305_Encrypt(cipher.encrypt.sub_key, c->nonce, 0, 0,len_buf, CHUNK_SIZE_LEN, length_cipher, length_tag);
+        increment_nonce(c->nonce);
+//#if defined(NDEBUG)
+//#else
+//        dump("NONCE",c->nonce,12);
+//#endif
         memcpy(dst,length_cipher,CHUNK_SIZE_LEN);
         memcpy(dst + CHUNK_SIZE_LEN, length_tag, 16);
-        ret = wc_ChaCha20Poly1305_Encrypt(cipher.sub_key, c->nonce, 0, 0,plain, plainl, dst + CHUNK_SIZE_LEN + 16 , data_tag);
-        increment_nonce(c->nonce,12);
+        ret = wc_ChaCha20Poly1305_Encrypt(cipher.encrypt.sub_key, c->nonce, 0, 0,plain, plainl, dst + CHUNK_SIZE_LEN + 16 , data_tag);
+        increment_nonce(c->nonce);
+//#if defined(NDEBUG)
+//#else
+//        dump("NONCE",c->nonce,12);
+//#endif
         memcpy(dst + CHUNK_SIZE_LEN + 16 + plainl, data_tag,16);
+//#if defined(NDEBUG)
+//#else
+//        dump("FIRST CHUNK",c->process_text,plainl + 34);
+//#endif
+        c->process_len = *encryptl + 34;
     }
     else if (strcmp(config.method, "hc128") == 0)
     {
@@ -368,14 +392,15 @@ void cipher_decrypt(conn *c, ULONG * plainl, const char * encrypt, size_t encryp
 void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encryptl)
 #endif
 {
-    //    pr_info("%s %lu", __FUNCTION__, encryptl);
-    //    cipher_t * cipher = shadow->cipher;
-//    unsigned char * plain = 0;
+    ASSERT(encrypt == c->t.buf);
+    pr_info("%s %u %lu", __FUNCTION__, __LINE__,encryptl);
+
 
     uint8_t * src;
 
     //if (!cipher.decrypt.init) {
     //if (!c->init) {
+
     if (c->request_length < cipher.ivl)
     {
 //        c->request.base = malloc(cipher.ivl);
@@ -385,7 +410,7 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
             memcpy(c->request + c->request_length, encrypt, encryptl);
             c->request_length += encryptl;
 //            c->process_text = {0};
-            c->cipher_len = 0;
+//            c->process_len = 0;
             return;
         }
         else
@@ -406,10 +431,22 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
                 wc_Arc4SetKey(&cipher.decrypt.arc4,true_key , cipher.keyl);
                 free(true_key);
             }
-//            else if (strcmp(config.method, "chacha20-ietf") == 0)
-//            {
-//               wc_ Chacha_SetIV(&cipher.decrypt.chacha, cipher.decrypt.iv, c->counter / SODIUM_BLOCK_SIZE);
-//            }
+            else if (strcmp(config.method, "chacha20-ietf-poly1305") == 0)
+            {
+                int ret;
+                ret = wc_HKDF(SHA, cipher.key, cipher.keyl, cipher.decrypt.iv, cipher.keyl,"ss-subkey", 9, cipher.decrypt.sub_key, cipher.keyl);
+                if ( ret != 0 ) {
+                    pr_err("%s: error generating derived key",__FUNCTION__);
+                    do_kill(c->client);
+                }
+                else
+                {
+#if defined(NDEBUG)
+#else
+                    dump("DECRYPTION SUBKEY",cipher.decrypt.sub_key,cipher.keyl);
+#endif
+                }
+            }
             else if (strcmp(config.method, "hc128") == 0)
             {
                 wc_Hc128_SetKey(&cipher.decrypt.hc128, cipher.key, cipher.decrypt.iv);
@@ -447,7 +484,7 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
 //        plain = malloc(*plainl);
 
     }
-
+    c->process_len = *plainl;
     //    int _;
     //    EVP_CipherUpdate(&cipher.decrypt.ctx, (uint8_t *) plain, &_, src, (int) *plainl);
 //    arcfour_stream(&cipher.decrypt.ctx, src, plain, *plainl);
@@ -474,6 +511,151 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
         }
         c->counter += *plainl;
         pr_info("%s %u",__FUNCTION__,c->counter);
+    }
+    else if (strcmp(config.method, "chacha20-ietf-poly1305") == 0)
+    {
+        unsigned int process_total = 0;
+        pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->half_done);
+        pr_info("%s %u %lu",__FUNCTION__,__LINE__,*plainl);
+        pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->partial_cipherl);
+        memcpy(c->partial_cipher + c->partial_cipherl, src,*plainl);
+        c->partial_cipherl += *plainl;
+	pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->partial_cipherl);
+        while ( c->partial_cipherl >0)
+        {
+	    pr_info("%s %u %lu",__FUNCTION__,__LINE__,process_total);
+//            c->partial_cipher = realloc(c->partial_cipher,c->partial_cipherl + *plainl);
+            if (c->partial_cipherl   < 35)
+            {
+	        c->process_len = 0;
+                return;
+            }
+            else
+            {
+//#if defined(NDEBUG)
+//#else
+//                dump("CHUNK RECEIVED",c->partial_cipher,c->partial_cipherl);
+//#endif
+                if(!c->half_done)
+                {
+                    int ret;
+                    unsigned char length_plain[2];
+                    ret = wc_ChaCha20Poly1305_Decrypt(cipher.decrypt.sub_key, c->nonce, 0, 0,c->partial_cipher, CHUNK_SIZE_LEN, c->partial_cipher + CHUNK_SIZE_LEN, length_plain);
+
+                    if(ret == MAC_CMP_FAILED_E) {
+                        pr_err("%s:error during authentication",__FUNCTION__);
+                        do_kill(c->client);
+                    } else if( ret != 0) {
+                        pr_err("%s:error with function arguments",__FUNCTION__);
+                        do_kill(c->client);
+                    }
+                    else
+                    {
+                        unsigned int cipher_length;
+                        increment_nonce(c->nonce);
+//#if defined(NDEBUG)
+//#else
+//                        dump("NONCE",c->nonce,12);
+//#endif
+                        cipher_length = ntohs(*(uint16_t *)length_plain);
+                        pr_info("%s %u %u",__FUNCTION__,__LINE__,cipher_length);
+                        cipher_length = cipher_length & CHUNK_SIZE_MASK;
+                        if (c->partial_cipherl < cipher_length + 34 )
+                        {
+                            c->half_done = 1;
+                            c->payload_length = cipher_length;
+		            pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->payload_length);
+			    c->process_len = 0;
+                            return;
+                        }
+                        else
+                        {
+                            ret = wc_ChaCha20Poly1305_Decrypt(cipher.decrypt.sub_key, c->nonce, 0, 0,c->partial_cipher + 18, cipher_length, c->partial_cipher + 18 + cipher_length , c->process_text + process_total);
+                            if(ret == MAC_CMP_FAILED_E) {
+                                pr_err("%s:error during authentication",__FUNCTION__);
+                                do_kill(c->client);
+                            } else if( ret != 0) {
+                                pr_err("%s:error with function arguments",__FUNCTION__);
+                                do_kill(c->client);
+                            }
+                            else
+                            {
+                                increment_nonce(c->nonce);
+//#if defined(NDEBUG)
+//#else
+//                                dump("NONCE",c->nonce,12);
+//#endif
+                                process_total += cipher_length;
+//                                c->half_done = 0;
+//                                c->payload_length = 0;
+				ASSERT(c->partial_cipherl >= cipher_length + 34);
+                                c->partial_cipherl -= (cipher_length + 34);
+				pr_info("%s %u %u",__FUNCTION__,__LINE__,c->partial_cipherl);
+//                                c->partial_cipher = realloc(c->partial_cipher + cipher_length + 34, c->partial_cipherl);
+				if (c->partial_cipherl !=0)
+				{
+                                    memmove(c->partial_cipher,c->partial_cipher + cipher_length + 34, c->partial_cipherl);
+//				    memset(c->partial_cipher + c->partial_cipherl,0, 2048 - c->partial_cipherl );
+				}
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (c->partial_cipherl < c->payload_length + 34 )
+                    {
+//                        c->half_done = 1;
+//                        c->payload_length = cipher_length;
+		        c->process_len = 0;
+                        return;
+                    }
+                    else
+                    {
+//#if defined(NDEBUG)
+//#else
+//                        dump("NONCE",c->nonce,12);
+//#endif        
+			pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->payload_length);
+			pr_info("%s %u %lu",__FUNCTION__,__LINE__,process_total);
+                        int ret;
+                        ret = wc_ChaCha20Poly1305_Decrypt(cipher.decrypt.sub_key, c->nonce, 0, 0,c->partial_cipher + 18, c->payload_length, c->partial_cipher + 18 + c->payload_length , c->process_text + process_total);
+                        if(ret == MAC_CMP_FAILED_E)
+                        {
+                            pr_err("%s:error during authentication",__FUNCTION__);
+                            do_kill(c->client);
+                        }
+                        else if( ret != 0)
+                        {
+                            pr_err("%s:error with function arguments",__FUNCTION__);
+                            do_kill(c->client);
+                        }
+                        else
+                        {
+                            increment_nonce(c->nonce);
+//#if defined(NDEBUG)
+//#else
+//                            dump("NONCE",c->nonce,12);
+//#endif
+                            process_total += c->payload_length;
+                       
+			    ASSERT(c->partial_cipherl >= c->payload_length + 34);
+                            c->partial_cipherl -= (c->payload_length + 34);
+			    if (c->partial_cipherl !=0)
+			    {
+//                            c->partial_cipher = realloc(c->partial_cipher + c->payload_length + 34, c->partial_cipherl);
+                              memmove(c->partial_cipher,c->partial_cipher + c->payload_length + 34, c->partial_cipherl);
+			    }
+			    c->payload_length = 0;
+			    c->half_done = 0;
+//			    c->process_len = process_total;
+                        }
+                    }
+                }
+            }
+        }
+        c->process_len = process_total;
+	pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->process_len);
     }
     else if (strcmp(config.method, "hc128") == 0)
     {
@@ -638,21 +820,18 @@ int bytes_to_key(const uint8_t *pass, int datal, uint8_t *key, uint8_t *iv)
 }
 
 /* This assumes a 12-byte nonce! */
-void increment_nonce(unsigned char *nonce,unsigned int d) {
-    for (int i=d-1; i>=0; i--)
-    {
-//    if (!++nonce[11]) if (!++nonce[10]) if (!++nonce[9]) if (!++nonce[8])
-//                    if (!++nonce[7]) if (!++nonce[6]) if (!++nonce[5]) if (!++nonce[4])
-//                                    if (!++nonce[3]) if (!++nonce[2]) if (!++nonce[1]) if (!++nonce[0])
-        if (!++nonce[i])
-        {
-            /* If you get here, you're out of nonces.  This really shouldn't happen
-             * with an 12-byte nonce;
-             */
-        }
-    }
+void increment_nonce(unsigned char *nonce) {
+    if (!++nonce[0]) if (!++nonce[1]) if (!++nonce[2]) if (!++nonce[3])
+                    if (!++nonce[4]) if (!++nonce[5]) if (!++nonce[6]) if (!++nonce[7])
+                                    if (!++nonce[8]) if (!++nonce[9]) if (!++nonce[10]) if (!++nonce[11])
+                                                {
+                                                    /* If you get here, you're out of nonces.  This really shouldn't happen
+                                                     * with an 12-byte nonce;
+                                                     */
+                                                    return;
+                                                }
 #if defined(NDEBUG)
-    dump("NONCE",nonce,d);
 #else
+    dump("NONCE",nonce,12);
 #endif
 }

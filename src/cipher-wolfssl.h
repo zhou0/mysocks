@@ -34,9 +34,9 @@ typedef struct
 {
     size_t keyl;
     size_t ivl;
-    size_t saltl;
+//    size_t saltl;
     uint8_t * key;
-    uint8_t * sub_key;
+//    uint8_t * sub_key;
 //    const EVP_CIPHER * type;
 
     struct
@@ -50,11 +50,9 @@ typedef struct
             HC128 hc128;
             Rabbit rabbit;
         };
-        union
-        {
-            uint8_t * iv;
+        uint8_t * iv;
+        uint8_t * sub_key;
 //	uint8_t nonce[12];
-        };
     } encrypt, decrypt;
 } cipher_t;
 
@@ -84,7 +82,7 @@ void cleanup_cipher();
 void create_key(unsigned char * iv, int,unsigned char *);
 int bytes_to_key(const uint8_t *pass, int datal, uint8_t *key, uint8_t *iv);
 void md5(const uint8_t *text, size_t, uint8_t *message);
-void increment_nonce(unsigned char *,unsigned int);
+void increment_nonce(unsigned char *);
 #ifdef	__cplusplus
 }
 #endif

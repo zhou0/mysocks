@@ -69,8 +69,8 @@ void initialize_cipher()
     }
     else
     {
-        cleanup_cipher();
         pr_err("%s is not supported.", config.method);
+	cleanup_cipher();
         exit(1);
     }
     //    return cipher;
@@ -205,6 +205,7 @@ void cipher_encrypt(conn* c, size_t * encryptl,
 //        dst = (uint8_t *) encrypt;
         dst = (uint8_t *)c->process_text;
     }
+    c->process_len = *encryptl;
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
     EVP_CipherUpdate(&cipher.encrypt.ctx, dst, &outl, c->t.buf, (int) plainl);
 #else
@@ -255,7 +256,7 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
             memcpy(c->request + c->request_length, encrypt, encryptl);
             c->request_length += encryptl;
 //            c->process_text = 0;
-            c->cipher_len = 0;
+//            c->process_len = 0;
             return;
         }
         else
@@ -314,7 +315,7 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
 //       plain = malloc(*plainl);
 
     }
-
+    c->process_len = *plainl;
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
     EVP_CipherUpdate(&cipher.decrypt.ctx, (uint8_t *)c->process_text , &outl, src, (int) *plainl);
 #else

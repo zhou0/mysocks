@@ -5,7 +5,7 @@
 FROM alpine:3.3
 MAINTAINER lzh <lzh@cpan.org>
 
-ARG MYSOCKS_URL=https://github.com/zhou0/mysocks/archive/0.4.1.tar.gz
+ARG MYSOCKS_URL=https://github.com/zhou0/mysocks/archive/0.4.2.tar.gz
 ARG LIBUV_URL=https://github.com/libuv/libuv/archive/v1.11.0.tar.gz 
 ARG WOLFSSL_URL=https://github.com/wolfSSL/wolfssl/archive/v3.6.0.tar.gz
 RUN set -ex && \
@@ -29,11 +29,11 @@ make install && cd .. && \
 --enable-aesccm --enable-aesni --enable-psk --disable-coding \
 --enable-hkdf --enable-poly1305 --enable-camellia --disable-des3 \
 --enable-hc128 --enable-rabbit --enable-chacha --disable-examples \
---enable-iopool --disable-oldtls --disable-asn --disable-rsa \
---enable-fastmath --disable-sha  --disable-dh --enable-arc4 \
+--disable-iopool --disable-oldtls --disable-asn --disable-rsa \
+--enable-fastmath --enable-sha  --disable-dh --enable-arc4 \
 --disable-hashdrbg --disable-ecc --disable-sha512 && \
 make && make install && cd .. && \
-    curl -sSL $MYSOCKS_URL | tar xz && cd mysocks-0.4.1 && mkdir -p \
+    curl -sSL $MYSOCKS_URL | tar xz && cd mysocks-0.4.2 && mkdir -p \
 build/release && cd build/release && \
     cmake -DCMAKE_BUILD_TYPE=Release ../.. && \
     make && make install && \ 
@@ -47,4 +47,4 @@ build/release && cd build/release && \
     cd ../../.. && \
     apk add --no-cache --virtual .run-deps $runDeps && \
     apk del .build-deps && \
-    rm -fr libuv-1.11.0 && rm -fr wolfssl-3.6.0 && rm -fr mysocks-0.4.1
+    rm -fr libuv-1.11.0 && rm -fr wolfssl-3.6.0 && rm -fr mysocks-0.4.2

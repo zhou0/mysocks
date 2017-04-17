@@ -106,8 +106,8 @@ typedef struct
     } t;
     unsigned char request[262];
     unsigned int request_length;
-    unsigned char process_text[2342];
-    size_t cipher_len;
+    unsigned char process_text[4096];
+    size_t process_len;
 #ifdef WITH_WOLFSSL
     unsigned int counter;
 //    unsigned char plain_buf[2112];
@@ -116,6 +116,12 @@ typedef struct
 //    unsigned char length_cipher[2];
 //    unsigned char length_tag[16];
 //    unsigned char data_tag[16];
+    unsigned char partial_cipher[4130];
+    unsigned int partial_cipherl;
+//    unsigned char * partial_plain;
+//    unsigned int partial_plainl;
+    unsigned int half_done;
+    unsigned int payload_length;
 #endif
     //    unsigned int init;
 } conn;
