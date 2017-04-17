@@ -158,6 +158,7 @@ static void usage(void)
            "\t\t\taes-256-cbc,aes-256-ccm,aes-256-gcm\n"
            "\t\t\tcamellia-128-cbc,camellia-256-cbc\n"
            "\t\t\tchacha20-ietf,hc-128,rabbit\n"
+	   "\t\t\tchacha2-ietf-poly1305\n" 
 #endif
            "\t\t\trc4-md5\n"
            "  -p <remote_port>\tport number of your remote server\n"
