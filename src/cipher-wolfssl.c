@@ -315,7 +315,10 @@ void cipher_encrypt(conn* c, size_t * encryptl,
             wc_Chacha_Process(&cipher.encrypt.chacha, dst, plain, plainl);
         }
         c->counter += plainl;
+#if defined(NDEBUG)
+#else
         pr_info("%s %u",__FUNCTION__,c->counter);
+#endif
     }
     else if (strcmp(config.method, "chacha20-ietf-poly1305") == 0)
     {
@@ -323,7 +326,7 @@ void cipher_encrypt(conn* c, size_t * encryptl,
 //#else
 //        dump("NONCE",c->nonce,12);
 //#endif
-        pr_info("%s %lu",__FUNCTION__,plainl);
+        //pr_info("%s %lu",__FUNCTION__,plainl);
         int ret;
         uint16_t t;
         uint8_t len_buf[CHUNK_SIZE_LEN];
@@ -393,7 +396,7 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
 #endif
 {
     ASSERT(encrypt == c->t.buf);
-    pr_info("%s %u %lu", __FUNCTION__, __LINE__,encryptl);
+    //pr_info("%s %u %lu", __FUNCTION__, __LINE__,encryptl);
 
 
     uint8_t * src;
@@ -510,25 +513,28 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
             wc_Chacha_Process(&cipher.decrypt.chacha, c->process_text, src, *plainl);
         }
         c->counter += *plainl;
+#if defined(NDEBUG)
+#else
         pr_info("%s %u",__FUNCTION__,c->counter);
+#endif
     }
     else if (strcmp(config.method, "chacha20-ietf-poly1305") == 0)
     {
         unsigned int process_total = 0;
-        pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->half_done);
-        pr_info("%s %u %lu",__FUNCTION__,__LINE__,*plainl);
-        pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->partial_cipherl);
+        //pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->half_done);
+        //pr_info("%s %u %lu",__FUNCTION__,__LINE__,*plainl);
+        //pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->partial_cipherl);
         memcpy(c->partial_cipher + c->partial_cipherl, src,*plainl);
         c->partial_cipherl += *plainl;
-	pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->partial_cipherl);
+        //pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->partial_cipherl);
         while ( c->partial_cipherl >0)
         {
-	    pr_info("%s %u %lu",__FUNCTION__,__LINE__,process_total);
+//	    pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->partial_cipherl);
 //            c->partial_cipher = realloc(c->partial_cipher,c->partial_cipherl + *plainl);
             if (c->partial_cipherl   < 35)
             {
-	        c->process_len = 0;
-                return;
+                c->process_len = 0;
+                break;
             }
             else
             {
@@ -558,15 +564,18 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
 //                        dump("NONCE",c->nonce,12);
 //#endif
                         cipher_length = ntohs(*(uint16_t *)length_plain);
+#if defined(NDEBUG)
+#else
                         pr_info("%s %u %u",__FUNCTION__,__LINE__,cipher_length);
+#endif
                         cipher_length = cipher_length & CHUNK_SIZE_MASK;
                         if (c->partial_cipherl < cipher_length + 34 )
                         {
                             c->half_done = 1;
                             c->payload_length = cipher_length;
-		            pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->payload_length);
-			    c->process_len = 0;
-                            return;
+                            //pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->payload_length);
+                            //c->process_len = 0;
+                            break;
                         }
                         else
                         {
@@ -588,36 +597,40 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
                                 process_total += cipher_length;
 //                                c->half_done = 0;
 //                                c->payload_length = 0;
-				ASSERT(c->partial_cipherl >= cipher_length + 34);
+                                ASSERT(c->partial_cipherl >= cipher_length + 34);
                                 c->partial_cipherl -= (cipher_length + 34);
-				pr_info("%s %u %u",__FUNCTION__,__LINE__,c->partial_cipherl);
+                                //pr_info("%s %u %u",__FUNCTION__,__LINE__,c->partial_cipherl);
 //                                c->partial_cipher = realloc(c->partial_cipher + cipher_length + 34, c->partial_cipherl);
-				if (c->partial_cipherl !=0)
-				{
+                                if (c->partial_cipherl !=0)
+                                {
                                     memmove(c->partial_cipher,c->partial_cipher + cipher_length + 34, c->partial_cipherl);
 //				    memset(c->partial_cipher + c->partial_cipherl,0, 2048 - c->partial_cipherl );
-				}
+                                }
                             }
                         }
                     }
                 }
                 else
                 {
+//#if defined(NDEBUG)
+//#else
+//                    pr_info("%s %u %u",__FUNCTION__,__LINE__,c->partial_cipherl);
+//#endif
                     if (c->partial_cipherl < c->payload_length + 34 )
                     {
 //                        c->half_done = 1;
 //                        c->payload_length = cipher_length;
-		        c->process_len = 0;
-                        return;
+                        //c->process_len = 0;
+                        break;
                     }
                     else
                     {
 //#if defined(NDEBUG)
 //#else
 //                        dump("NONCE",c->nonce,12);
-//#endif        
-			pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->payload_length);
-			pr_info("%s %u %lu",__FUNCTION__,__LINE__,process_total);
+//#endif
+                        //pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->payload_length);
+                        //pr_info("%s %u %lu",__FUNCTION__,__LINE__,process_total);
                         int ret;
                         ret = wc_ChaCha20Poly1305_Decrypt(cipher.decrypt.sub_key, c->nonce, 0, 0,c->partial_cipher + 18, c->payload_length, c->partial_cipher + 18 + c->payload_length , c->process_text + process_total);
                         if(ret == MAC_CMP_FAILED_E)
@@ -638,16 +651,16 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
 //                            dump("NONCE",c->nonce,12);
 //#endif
                             process_total += c->payload_length;
-                       
-			    ASSERT(c->partial_cipherl >= c->payload_length + 34);
+
+                            ASSERT(c->partial_cipherl >= c->payload_length + 34);
                             c->partial_cipherl -= (c->payload_length + 34);
-			    if (c->partial_cipherl !=0)
-			    {
+                            if (c->partial_cipherl !=0)
+                            {
 //                            c->partial_cipher = realloc(c->partial_cipher + c->payload_length + 34, c->partial_cipherl);
-                              memmove(c->partial_cipher,c->partial_cipher + c->payload_length + 34, c->partial_cipherl);
-			    }
-			    c->payload_length = 0;
-			    c->half_done = 0;
+                                memmove(c->partial_cipher,c->partial_cipher + c->payload_length + 34, c->partial_cipherl);
+                            }
+                            c->payload_length = 0;
+                            c->half_done = 0;
 //			    c->process_len = process_total;
                         }
                     }
@@ -655,7 +668,7 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
             }
         }
         c->process_len = process_total;
-	pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->process_len);
+//	pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->process_len);
     }
     else if (strcmp(config.method, "hc128") == 0)
     {
@@ -830,8 +843,8 @@ void increment_nonce(unsigned char *nonce) {
                                                      */
                                                     return;
                                                 }
-#if defined(NDEBUG)
-#else
-    dump("NONCE",nonce,12);
-#endif
+//#if defined(NDEBUG)
+//#else
+//    dump("NONCE",nonce,12);
+//#endif
 }
