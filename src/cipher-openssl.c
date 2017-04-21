@@ -105,13 +105,13 @@ void cipher_encrypt(conn* c, size_t * encryptl,
                     const char * plain, size_t plainl)
 #endif
 {
+	    uint8_t * dst;
+		    int outl;
     ASSERT( plain == c->t.buf);
     //    pr_info("%s %lu", __FUNCTION__, plainl);
     //    cipher_t * cipher = shadow->cipher;
 //    unsigned char * encrypt = 0;
 
-    uint8_t * dst;
-    int outl;
     // if (!cipher.encrypt.init) {
     if (c->request_length)
     {

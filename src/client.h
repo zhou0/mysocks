@@ -1,4 +1,4 @@
-/* 
+﻿/* 
  *  * File:   client.h
  *   * Author: lzhou
  *    *

@@ -79,21 +79,19 @@ void cipher_encrypt(conn* c, size_t * encryptl,
                     const unsigned char * plain, size_t plainl)
 #endif
 {
-
+uint8_t *dst;
     ASSERT( plain == c->t.buf);
     //    pr_info("%s %lu", __FUNCTION__, plainl);
     //    cipher_t * cipher = shadow->cipher;
     //unsigned char * encrypt = 0;
 
 //    uint8_t * plainptr;
-    uint8_t *dst;
     //    int l;
     // if (!cipher.encrypt.init) {
     if (c->request_length)
     {
-
-        //            int ivl;
         size_t prepend;
+		char * true_key = malloc(MD5_DIGEST_LENGTH);
 //#if defined (_MSC_VER)
 //        uint8_t * src, * ptr;
 //#else
@@ -120,7 +118,6 @@ void cipher_encrypt(conn* c, size_t * encryptl,
         memcpy(cipher.encrypt.iv + sizeof (d1), &d2, sizeof (d2));
 #endif
 #endif
-        char *true_key = malloc(MD5_DIGEST_LENGTH);
         create_key(cipher.encrypt.iv, cipher.ivl,true_key);
         arcfour_setkey(&cipher.encrypt.ctx, true_key, cipher.keyl);
         free(true_key);

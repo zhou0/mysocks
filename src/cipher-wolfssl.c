@@ -395,12 +395,9 @@ void cipher_decrypt(conn *c, ULONG * plainl, const char * encrypt, size_t encryp
 void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encryptl)
 #endif
 {
+	    uint8_t * src;
     ASSERT(encrypt == c->t.buf);
     //pr_info("%s %u %lu", __FUNCTION__, __LINE__,encryptl);
-
-
-    uint8_t * src;
-
     //if (!cipher.decrypt.init) {
     //if (!c->init) {
 
