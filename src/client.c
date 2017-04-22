@@ -144,7 +144,7 @@ void client_finish_init(server_ctx *sx, client_ctx *cx)
  * end up (if all goes well) in the proxy state where we're just proxying
  * data between the client and upstream.
  */
-static void do_next(client_ctx *cx)
+ void do_next(client_ctx *cx)
 {
     int new_state;
 
@@ -223,7 +223,7 @@ static void do_next(client_ctx *cx)
     }
 }
 
-static int do_handshake(client_ctx *cx)
+ int do_handshake(client_ctx *cx)
 {
     unsigned int methods;
     conn *incoming;
@@ -289,13 +289,13 @@ static int do_handshake(client_ctx *cx)
 }
 
 /* TODO(bnoordhuis) Implement username/password auth. */
-static int do_handshake_auth(client_ctx *cx)
+ int do_handshake_auth(client_ctx *cx)
 {
     UNREACHABLE();
     return do_kill(cx);
 }
 
-static int do_req_start(client_ctx *cx)
+ int do_req_start(client_ctx *cx)
 {
     conn *incoming;
 
@@ -314,7 +314,7 @@ static int do_req_start(client_ctx *cx)
     return s_req_parse;
 }
 
-static int do_req_parse(client_ctx *cx)
+ int do_req_parse(client_ctx *cx)
 {
     conn *incoming;
     conn *outgoing;
@@ -427,7 +427,7 @@ static int do_req_parse(client_ctx *cx)
      */
 }
 
-static int do_req_lookup(client_ctx *cx)
+ int do_req_lookup(client_ctx *cx)
 {
     //s5_ctx *parser;
     conn *incoming;
@@ -472,7 +472,7 @@ static int do_req_lookup(client_ctx *cx)
 }
 
 /* Assumes that cx->outgoing.t.sa contains a valid AF_INET/AF_INET6 address. */
-static int do_req_connect_start(client_ctx *cx)
+ int do_req_connect_start(client_ctx *cx)
 {
     conn *incoming;
     conn *outgoing;
@@ -505,7 +505,7 @@ static int do_req_connect_start(client_ctx *cx)
     return s_req_connect;
 }
 
-static int do_req_connect(client_ctx *cx)
+ int do_req_connect(client_ctx *cx)
 {
     const struct sockaddr_in6 *in6;
     const struct sockaddr_in *in;
@@ -571,7 +571,7 @@ static int do_req_connect(client_ctx *cx)
     return s_kill;
 }
 
-static int do_proxy_start(client_ctx *cx)
+ int do_proxy_start(client_ctx *cx)
 {
     conn *incoming;
     conn *outgoing;
@@ -596,7 +596,7 @@ static int do_proxy_start(client_ctx *cx)
 }
 
 /* Proxy incoming data back and forth. */
-static int do_proxy(client_ctx *cx)
+ int do_proxy(client_ctx *cx)
 {
 
     if (conn_cycle("upstream", &cx->outgoing, &cx->incoming))
@@ -636,13 +636,13 @@ int do_kill(client_ctx *cx)
     return new_state;
 }
 
-static int do_almost_dead(client_ctx *cx)
+ int do_almost_dead(client_ctx *cx)
 {
     ASSERT(cx->state >= s_almost_dead_0);
     return cx->state + 1; /* Another finalizer completed. */
 }
 
-static int conn_cycle(const char *who, conn *a, conn *b)
+ int conn_cycle(const char *who, conn *a, conn *b)
 {
     if (a->result < 0)
     {
@@ -694,7 +694,7 @@ static int conn_cycle(const char *who, conn *a, conn *b)
     return 0;
 }
 
-static void conn_timer_reset(conn *c)
+ void conn_timer_reset(conn *c)
 {
     CHECK(0 == uv_timer_start(&c->timer_handle,
                               conn_timer_expire,
@@ -702,9 +702,9 @@ static void conn_timer_reset(conn *c)
                               0));
 }
 
-//static void conn_timer_expire(uv_timer_t *handle, int status) {
+// void conn_timer_expire(uv_timer_t *handle, int status) {
 
-static void conn_timer_expire(uv_timer_t *handle)
+ void conn_timer_expire(uv_timer_t *handle)
 {
     conn *c;
 
@@ -714,7 +714,7 @@ static void conn_timer_expire(uv_timer_t *handle)
     do_next(c->client);
 }
 
-static void conn_getaddrinfo(conn *c, const char *hostname)
+ void conn_getaddrinfo(conn *c, const char *hostname)
 {
     struct addrinfo hints;
 
@@ -731,7 +731,7 @@ static void conn_getaddrinfo(conn *c, const char *hostname)
     conn_timer_reset(c);
 }
 
-static void conn_getaddrinfo_done(uv_getaddrinfo_t *req,
+ void conn_getaddrinfo_done(uv_getaddrinfo_t *req,
                                   int status,
                                   struct addrinfo *ai)
 {
@@ -762,7 +762,7 @@ static void conn_getaddrinfo_done(uv_getaddrinfo_t *req,
 }
 
 /* Assumes that c->t.sa contains a valid AF_INET or AF_INET6 address. */
-static int conn_connect(conn *c)
+ int conn_connect(conn *c)
 {
     ASSERT(c->t.addr.sa_family == AF_INET ||
            c->t.addr.sa_family == AF_INET6);
@@ -773,7 +773,7 @@ static int conn_connect(conn *c)
                           conn_connect_done);
 }
 
-static void conn_connect_done(uv_connect_t *req, int status)
+ void conn_connect_done(uv_connect_t *req, int status)
 {
     conn *c;
 
@@ -787,7 +787,7 @@ static void conn_connect_done(uv_connect_t *req, int status)
     do_next(c->client);
 }
 
-static void conn_read(conn *c)
+ void conn_read(conn *c)
 {
     ASSERT(c->rdstate == c_stop);
     //    CHECK(0 == uv_read_start(&c->handle.stream, conn_alloc, conn_read_done));
@@ -796,7 +796,7 @@ static void conn_read(conn *c)
     conn_timer_reset(c);
 }
 
-static void conn_read_done(uv_stream_t *handle,
+ void conn_read_done(uv_stream_t *handle,
                            ssize_t nread,
                            const uv_buf_t *buf)
 {
@@ -838,7 +838,7 @@ static void conn_read_done(uv_stream_t *handle,
     do_next(c->client);
 }
 
-static void conn_alloc(uv_handle_t *handle, size_t size, uv_buf_t *buf)
+ void conn_alloc(uv_handle_t *handle, size_t size, uv_buf_t *buf)
 {
     conn *c;
 
@@ -853,16 +853,16 @@ static void conn_alloc(uv_handle_t *handle, size_t size, uv_buf_t *buf)
     //    c->buf.len = buf->len;
 }
 
-static void conn_write(conn *c, const void *data, unsigned int len)
+ void conn_write(conn *c, const void *data, unsigned int len)
 {
     uv_buf_t buf;
-    
+
     #if defined(NDEBUG)
     #else
         pr_info("%s %d", __FUNCTION__, len);
 //        dump("WRITE", data, len);
     #endif
-    
+
 
     ASSERT(c->wrstate == c_stop || c->wrstate == c_done);
     c->wrstate = c_busy;
@@ -881,7 +881,7 @@ static void conn_write(conn *c, const void *data, unsigned int len)
     conn_timer_reset(c);
 }
 
-static void conn_write_done(uv_write_t *req, int status)
+ void conn_write_done(uv_write_t *req, int status)
 {
     //    pr_info("%s %d", __FUNCTION__, status);
     conn *c;
@@ -898,7 +898,7 @@ static void conn_write_done(uv_write_t *req, int status)
     do_next(c->client);
 }
 
-static void conn_close(conn *c)
+ void conn_close(conn *c)
 {
     ASSERT(c->rdstate != c_dead);
     ASSERT(c->wrstate != c_dead);
@@ -910,7 +910,7 @@ static void conn_close(conn *c)
     uv_close((uv_handle_t *) & c->timer_handle, conn_close_done);
 }
 
-static void conn_close_done(uv_handle_t *handle)
+ void conn_close_done(uv_handle_t *handle)
 {
     conn *c;
 
