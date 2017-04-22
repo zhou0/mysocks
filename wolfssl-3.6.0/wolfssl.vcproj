@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="./"
-				PreprocessorDefinitions="OPENSSL_EXTRA;WOLFSSL_RIPEMD;WOLFSSL_SHA512;NO_PSK"
+				PreprocessorDefinitions="OPENSSL_EXTRA;WOLFSSL_RIPEMD;WOLFSSL_SHA512;NO_PSK;HAVE_HC128;HAVE_CHACHA;HAVE_POLY1305;HAVE_CAMELLIA;HAVE_ONE_TIME_AUTH;HAVE_HKDF"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -107,7 +107,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="./"
-				PreprocessorDefinitions="OPENSSL_EXTRA;WOLFSSL_RIPEMD;WOLFSSL_SHA512;NO_PSK"
+				PreprocessorDefinitions="OPENSSL_EXTRA;WOLFSSL_RIPEMD;WOLFSSL_SHA512;NO_PSK;HAVE_HC128;HAVE_CHACHA;HAVE_POLY1305;HAVE_CAMELLIA;HAVE_ONE_TIME_AUTH;HAVE_HKDF"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -169,6 +169,14 @@
 			</File>
 			<File
 				RelativePath=".\wolfcrypt\src\camellia.c"
+				>
+			</File>
+			<File
+				RelativePath=".\wolfcrypt\src\chacha.c"
+				>
+			</File>
+			<File
+				RelativePath=".\wolfcrypt\src\chacha20_poly1305.c"
 				>
 			</File>
 			<File
@@ -248,7 +256,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\wolfcrypt\src\wc_port.c"
+				RelativePath=".\wolfcrypt\src\poly1305.c"
 				>
 			</File>
 			<File
@@ -289,6 +297,10 @@
 			</File>
 			<File
 				RelativePath=".\src\tls.c"
+				>
+			</File>
+			<File
+				RelativePath=".\wolfcrypt\src\wc_port.c"
 				>
 			</File>
 		</Filter>
