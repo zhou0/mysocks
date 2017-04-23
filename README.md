@@ -14,7 +14,7 @@ Mysocks
 
 Mysocks project provides three executables,namely ssclient, ssclient-openssl and ssclient-wolfssl. Supported Platform:Unix,Windows,Linux and Mac OS X. Win32 bianies are provided, You can compile from source on other platforms. 
 
-ssclient supports rc4-md5 encryptions methods only.
+ssclient supports rc4-md5 encryption method only.
 
 ssclient-openssl supports the following 17 encryption methods:
                         aes-128-cfb,aes-128-ctr,aes-128-ofb
