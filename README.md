@@ -12,7 +12,7 @@ Mysocks
 [![](https://images.microbadger.com/badges/image/fgfw/mysocks.svg)](https://microbadger.com/images/fgfw/mysocks "Get your own image badge on microbadger.com")
 [![](https://images.microbadger.com/badges/version/fgfw/mysocks.svg)](https://microbadger.com/images/fgfw/mysocks "Get your own version badge on microbadger.com")
 
-This project provides three executables,namely ssclient, ssclient-openssl and ssclient-wolfssl. 
+Mysocks project provides three executables,namely ssclient, ssclient-openssl and ssclient-wolfssl. Supported Platform:Unix,Windows,Linux and Mac OS X. Win32 bianies are provided, You can compile from source on other platforms. 
 
 ssclient supports rc4-md5 encryptions methods only.
 
