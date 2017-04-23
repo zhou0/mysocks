@@ -1,0 +1,12 @@
+dependencies:
+  pre:
+    - sudo apt-get update -qq
+    - sudo apt-get install clang
+  post:
+    - g++ --version
+    - clang++ --version
+
+general:
+  branches:
+    only:
+      - master
