@@ -12,5 +12,23 @@ Mysocks
 [![](https://images.microbadger.com/badges/image/fgfw/mysocks.svg)](https://microbadger.com/images/fgfw/mysocks "Get your own image badge on microbadger.com")
 [![](https://images.microbadger.com/badges/version/fgfw/mysocks.svg)](https://microbadger.com/images/fgfw/mysocks "Get your own version badge on microbadger.com")
 
-Mysocks depends only on libuv and wolfssl. And the result is a client and server executable with size less than 100KB.
+This project provides three executables,namely ssclient, ssclient-openssl and ssclient-wolfssl. 
 
+ssclient supports rc4-md5 encryptions methods only.
+
+ssclient-openssl supports the following 17 encryption methods:
+                        aes-128-cfb,aes-128-ctr,aes-128-ofb
+			aes-192-cfb,aes-192-ctr,aes-192-ofb
+			aes-256-cfb,aes-256-ctr,aes-256-ofb
+			camellia-128-cfb,camellia-128-ofb
+			camellia-192-cfb,camellia-192-ofb
+			camellia-256-cfb,camellia-256-ofb
+			rc4-md5
+
+ssclient-wolfssl supports the following 13 encryption methods ( including AEAD )
+                        aes-128-cbc,aes-128-ccm,aes-128-gcm
+			aes-256-cbc,aes-256-ccm,aes-256-gcm
+			camellia-128-cbc,camellia-256-cbc
+			chacha20-ietf,hc-128,rabbit
+			chacha20-ietf-poly1305
+			rc4-md5
