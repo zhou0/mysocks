@@ -18,6 +18,7 @@
 #ifdef _MSC_VER
 #include <malloc.h>
 #endif
+#include <wolfssl/wolfcrypt/aes.h>
 #define HAVE_CHACHA
 #define HAVE_POLY1305
 #include <wolfssl/wolfcrypt/chacha20_poly1305.h>
@@ -91,6 +92,34 @@ void initialize_cipher()
         bytes_to_key((uint8_t *) config.password, (int) strlen(config.password), cipher.key, 0);
         cipher.encrypt.iv = malloc(cipher.ivl);
         cipher.decrypt.iv = malloc(cipher.ivl);
+    }
+    else if (strcmp(config.method,"aes-128-gcm") == 0 || strcmp(config.method,"aes-192-gcm") == 0 || strcmp(config.method,"aes-256-gcm") == 0)
+    {
+        if (strcmp(config.method,"aes-128-gcm") == 0)
+        {
+            cipher.keyl = 16;
+            cipher.ivl = 16;
+        }
+        else if (strcmp(config.method,"aes-192-gcm") == 0)
+        {
+            cipher.keyl = 24;
+            cipher.ivl = 24;
+        }
+        else
+        {
+            cipher.keyl = 32;
+            cipher.ivl = 32;
+        }
+        cipher.key = malloc(cipher.keyl);
+        bytes_to_key((uint8_t *) config.password, (int) strlen(config.password), cipher.key, 0);
+#if defined(NDEBUG)
+#else
+        dump("KEY",cipher.key,cipher.keyl);
+#endif
+        cipher.encrypt.iv = malloc(cipher.ivl);
+        cipher.decrypt.iv = malloc(cipher.ivl);
+        cipher.encrypt.sub_key = malloc(cipher.keyl);
+        cipher.decrypt.sub_key = malloc(cipher.keyl);
     }
     else
     {
@@ -205,7 +234,25 @@ void cipher_encrypt(conn* c, size_t * encryptl,
                 {
                     wc_RabbitSetKey(&cipher.encrypt.rabbit, cipher.key, cipher.encrypt.iv);
                 }
+                else if (strcmp(config.method,"aes-128-gcm") == 0 || strcmp(config.method,"aes-192-gcm") == 0 || strcmp(config.method,"aes-256-gcm") == 0)
+                {
+                    int ret;
+                    ret = wc_HKDF(SHA, cipher.key, cipher.keyl, cipher.encrypt.iv, cipher.keyl,"ss-subkey", strlen("ss-subkey"), cipher.encrypt.sub_key, cipher.keyl);
 
+                    if ( ret != 0 ) {
+                        pr_err("%s: error generating derived key",__FUNCTION__);
+                        cleanup_cipher();
+                        exit(1);
+                    }
+                    else
+                    {
+#if defined(NDEBUG)
+#else
+                        dump("ENCRYPTION SUBKEY",cipher.encrypt.sub_key,cipher.keyl);
+#endif
+                    }
+                    wc_AesGcmSetKey(&cipher.encrypt.aes, cipher.encrypt.sub_key, cipher.keyl);
+                }
                 /*
                 #if defined(NDEBUG)
                 #else
@@ -365,6 +412,38 @@ void cipher_encrypt(conn* c, size_t * encryptl,
     {
         wc_RabbitProcess(&cipher.encrypt.rabbit, dst, plain, plainl);
     }
+    else if (strcmp(config.method,"aes-128-gcm") == 0 || strcmp(config.method,"aes-192-gcm") == 0 || strcmp(config.method,"aes-256-gcm") == 0)
+    {
+        int ret;
+        uint16_t t;
+        uint8_t len_buf[CHUNK_SIZE_LEN];
+        unsigned char length_cipher[2];
+        unsigned char length_tag[16];
+        unsigned char data_tag[16];
+        t = htons((plainl ) & CHUNK_SIZE_MASK);
+        memcpy(len_buf, &t, CHUNK_SIZE_LEN);
+
+        ret = wc_AesGcmEncrypt(&cipher.encrypt.aes,length_cipher,len_buf, CHUNK_SIZE_LEN,c->nonce, 12,length_tag,16, 0, 0);
+        increment_nonce(c->nonce);
+//#if defined(NDEBUG)
+//#else
+//        dump("NONCE",c->nonce,12);
+//#endif
+        memcpy(dst,length_cipher,CHUNK_SIZE_LEN);
+        memcpy(dst + CHUNK_SIZE_LEN, length_tag, 16);
+        ret = wc_AesGcmEncrypt(&cipher.encrypt.aes, dst + CHUNK_SIZE_LEN + 16,plain,plainl,c->nonce,12, data_tag,16,0,0);
+        increment_nonce(c->nonce);
+//#if defined(NDEBUG)
+//#else
+//        dump("NONCE",c->nonce,12);
+//#endif
+        memcpy(dst + CHUNK_SIZE_LEN + 16 + plainl, data_tag,16);
+//#if defined(NDEBUG)
+//#else
+//        dump("FIRST CHUNK",c->process_text,plainl + 34);
+//#endif
+        c->process_len = *encryptl + 34;
+    }
     //  printf("---encrypt count---\n");
     //  printf("%d %lu %lu\n", _, *encryptl, plainl);
 
@@ -395,7 +474,7 @@ void cipher_decrypt(conn *c, ULONG * plainl, const char * encrypt, size_t encryp
 void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encryptl)
 #endif
 {
-	    uint8_t * src;
+    uint8_t * src;
     ASSERT(encrypt == c->t.buf);
     //pr_info("%s %u %lu", __FUNCTION__, __LINE__,encryptl);
     //if (!cipher.decrypt.init) {
@@ -455,7 +534,23 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
             {
                 wc_RabbitSetKey(&cipher.decrypt.rabbit, cipher.key, cipher.decrypt.iv);
             }
-
+            else if (strcmp(config.method,"aes-128-gcm") == 0 || strcmp(config.method,"aes-192-gcm") == 0 || strcmp(config.method,"aes-256-gcm") == 0)
+            {
+                int ret;
+                ret = wc_HKDF(SHA, cipher.key, cipher.keyl, cipher.decrypt.iv, cipher.keyl,"ss-subkey", 9, cipher.decrypt.sub_key, cipher.keyl);
+                if ( ret != 0 ) {
+                    pr_err("%s: error generating derived key",__FUNCTION__);
+                    do_kill(c->client);
+                }
+                else
+                {
+#if defined(NDEBUG)
+#else
+                    dump("DECRYPTION SUBKEY",cipher.decrypt.sub_key,cipher.keyl);
+#endif
+                }
+                wc_AesGcmSetKey(&cipher.decrypt.aes, cipher.decrypt.sub_key, cipher.keyl);
+            }
             //    if (c->request.base == 0) {
 
             *plainl = encryptl - cipher.ivl + c->request_length;
@@ -674,6 +769,148 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
     else if (strcmp(config.method, "rabbit") == 0)
     {
         wc_RabbitProcess(&cipher.decrypt.rabbit, c->process_text, src, *plainl);
+    }
+    else if (strcmp(config.method,"aes-128-gcm") == 0 || strcmp(config.method,"aes-192-gcm") == 0 || strcmp(config.method,"aes-256-gcm") == 0)
+    {
+        unsigned int process_total = 0;
+        //pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->half_done);
+        //pr_info("%s %u %lu",__FUNCTION__,__LINE__,*plainl);
+        //pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->partial_cipherl);
+        memcpy(c->partial_cipher + c->partial_cipherl, src,*plainl);
+        c->partial_cipherl += *plainl;
+        //pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->partial_cipherl);
+        while ( c->partial_cipherl >0)
+        {
+//	    pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->partial_cipherl);
+//            c->partial_cipher = realloc(c->partial_cipher,c->partial_cipherl + *plainl);
+            if (c->partial_cipherl   < 35)
+            {
+                c->process_len = 0;
+                break;
+            }
+            else
+            {
+//#if defined(NDEBUG)
+//#else
+//                dump("CHUNK RECEIVED",c->partial_cipher,c->partial_cipherl);
+//#endif
+                if(!c->half_done)
+                {
+                    int ret;
+                    unsigned char length_plain[2];
+                    ret = wc_AesGcmDecrypt(&cipher.decrypt.aes,length_plain,c->partial_cipher,CHUNK_SIZE_LEN,c->nonce, 12,c->partial_cipher + CHUNK_SIZE_LEN,16,0, 0);
+
+                    if(ret == AES_GCM_AUTH_E) {
+                        pr_err("%s:error during authentication",__FUNCTION__);
+                        do_kill(c->client);
+                    }
+                    else
+                    {
+                        unsigned int cipher_length;
+                        increment_nonce(c->nonce);
+//#if defined(NDEBUG)
+//#else
+//                        dump("NONCE",c->nonce,12);
+//#endif
+                        cipher_length = ntohs(*(uint16_t *)length_plain);
+#if defined(NDEBUG)
+#else
+                        pr_info("%s %u %u",__FUNCTION__,__LINE__,cipher_length);
+#endif
+                        cipher_length = cipher_length & CHUNK_SIZE_MASK;
+                        if (c->partial_cipherl < cipher_length + 34 )
+                        {
+                            c->half_done = 1;
+                            c->payload_length = cipher_length;
+                            //pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->payload_length);
+                            //c->process_len = 0;
+                            break;
+                        }
+                        else
+                        {
+                            ret = wc_AesGcmDecrypt(&cipher.decrypt.aes, c->process_text + process_total,c->partial_cipher + 18,cipher_length,c->nonce,12, c->partial_cipher + 18 + cipher_length,16,0, 0);
+                            if(ret == AES_GCM_AUTH_E) {
+                                pr_err("%s:error during authentication",__FUNCTION__);
+                                do_kill(c->client);
+                            }
+                            else
+                            {
+                                increment_nonce(c->nonce);
+//#if defined(NDEBUG)
+//#else
+//                                dump("NONCE",c->nonce,12);
+//#endif
+                                process_total += cipher_length;
+//                                c->half_done = 0;
+//                                c->payload_length = 0;
+                                ASSERT(c->partial_cipherl >= cipher_length + 34);
+                                c->partial_cipherl -= (cipher_length + 34);
+                                //pr_info("%s %u %u",__FUNCTION__,__LINE__,c->partial_cipherl);
+//                                c->partial_cipher = realloc(c->partial_cipher + cipher_length + 34, c->partial_cipherl);
+                                if (c->partial_cipherl !=0)
+                                {
+                                    memmove(c->partial_cipher,c->partial_cipher + cipher_length + 34, c->partial_cipherl);
+//				    memset(c->partial_cipher + c->partial_cipherl,0, 2048 - c->partial_cipherl );
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+//#if defined(NDEBUG)
+//#else
+//                    pr_info("%s %u %u",__FUNCTION__,__LINE__,c->partial_cipherl);
+//#endif
+                    if (c->partial_cipherl < c->payload_length + 34 )
+                    {
+//                        c->half_done = 1;
+//                        c->payload_length = cipher_length;
+                        //c->process_len = 0;
+                        break;
+                    }
+                    else
+                    {
+//#if defined(NDEBUG)
+//#else
+//                        dump("NONCE",c->nonce,12);
+//#endif
+                        //pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->payload_length);
+                        //pr_info("%s %u %lu",__FUNCTION__,__LINE__,process_total);
+                        int ret;
+                        ret = wc_AesGcmDecrypt(&cipher.decrypt.aes,c->process_text + process_total,c->partial_cipher + 18, c->payload_length, c->nonce, 12, c->partial_cipher + 18 + c->payload_length,16,0,0 );
+                        if(ret == AES_GCM_AUTH_E)
+                        {
+                            pr_err("%s:error during authentication",__FUNCTION__);
+                            do_kill(c->client);
+                        }
+                        else
+                        {
+                            increment_nonce(c->nonce);
+//#if defined(NDEBUG)
+//#else
+//                            dump("NONCE",c->nonce,12);
+//#endif
+                            process_total += c->payload_length;
+
+                            ASSERT(c->partial_cipherl >= c->payload_length + 34);
+                            c->partial_cipherl -= (c->payload_length + 34);
+                            if (c->partial_cipherl !=0)
+                            {
+//                            c->partial_cipher = realloc(c->partial_cipher + c->payload_length + 34, c->partial_cipherl);
+                                memmove(c->partial_cipher,c->partial_cipher + c->payload_length + 34, c->partial_cipherl);
+                            }
+                            c->payload_length = 0;
+                            c->half_done = 0;
+//			    c->process_len = process_total;
+                        }
+                    }
+                }
+            }
+        }
+        c->process_len = process_total;
+//	pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->process_len);
+
     }
     //  printf("---decrypt plain---\n");
     //  for (i = 0; i < 5; i++) printf("%02x ", (unsigned char)plain[i]);

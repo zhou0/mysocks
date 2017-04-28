@@ -20,6 +20,7 @@ extern "C"
 #else
 #include <stdint.h>
 #endif
+#include <wolfssl/wolfcrypt/aes.h>
 #define	HAVE_CHACHA
 #include <wolfssl/wolfcrypt/arc4.h>
 #include <wolfssl/wolfcrypt/chacha.h>
@@ -45,6 +46,7 @@ typedef struct
 //        EVP_CIPHER_CTX ctx;
         union
         {
+	    Aes aes;
             Arc4 arc4;
             ChaCha chacha;
             HC128 hc128;

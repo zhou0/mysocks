@@ -155,6 +155,7 @@ static void usage(void)
 #endif
 #ifdef WITH_WOLFSSL
            "\t\t\taes-128-cbc,aes-128-ccm,aes-128-gcm\n"
+	   "\t\t\taes-192-cbc,aes-192-ccm,aes-192-gcm\n"
            "\t\t\taes-256-cbc,aes-256-ccm,aes-256-gcm\n"
            "\t\t\tcamellia-128-cbc,camellia-256-cbc\n"
            "\t\t\tchacha20-ietf,hc-128,rabbit\n"
