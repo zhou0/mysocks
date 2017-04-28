@@ -27,6 +27,7 @@ ssclient-openssl supports the following 17 encryption methods:
 
 ssclient-wolfssl supports the following 13 encryption methods ( including AEAD )
                         aes-128-cbc,aes-128-ccm,aes-128-gcm
+                        aes-192-cbc,aes-192-ccm,aes-192-gcm
 			aes-256-cbc,aes-256-ccm,aes-256-gcm
 			camellia-128-cbc,camellia-256-cbc
 			chacha20-ietf,hc-128,rabbit
@@ -35,6 +36,8 @@ ssclient-wolfssl supports the following 13 encryption methods ( including AEAD )
 
 aes-128-ccm is alias for AEAD_AES_128_CCM
 aes-128-gcm is alias for AEAD_AES_128_GCM
+aes-192-ccm is alias for AEAD_AES_192_CCM
+aes-192-gcm is alias for AEAD_AES_192_GCM
 aes-256-ccm is alias for AEAD_AES_256_CCM
 aes-256-gcm is alias for AEAD_AES_256_GCM
 chacha20-ietf-poly1305 is alias for AEAD_CHACHA20_POLY1305
