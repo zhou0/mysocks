@@ -116,7 +116,7 @@ typedef struct
 //    unsigned char length_cipher[2];
 //    unsigned char length_tag[16];
 //    unsigned char data_tag[16];
-    unsigned char partial_cipher[4096];
+    unsigned char partial_cipher[4130];
     unsigned int partial_cipherl;
 //    unsigned char * partial_plain;
 //    unsigned int partial_plainl;

@@ -774,8 +774,8 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
     {
         unsigned int process_total = 0;
         //pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->half_done);
-        //pr_info("%s %u %lu",__FUNCTION__,__LINE__,*plainl);
-        //pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->partial_cipherl);
+        pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->partial_cipherl);
+	pr_info("%s %u %lu",__FUNCTION__,__LINE__,*plainl);
         memcpy(c->partial_cipher + c->partial_cipherl, src,*plainl);
         c->partial_cipherl += *plainl;
         //pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->partial_cipherl);
@@ -830,7 +830,7 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
                         {
                             ret = wc_AesGcmDecrypt(&cipher.decrypt.aes, c->process_text + process_total,c->partial_cipher + 18,cipher_length,c->nonce,12, c->partial_cipher + 18 + cipher_length,16,0, 0);
                             if(ret == AES_GCM_AUTH_E) {
-                                pr_err("%s:error during authentication",__FUNCTION__);
+                                pr_err("%s %s :error during authentication",__FUNCTION__,__LINE__);
                                 do_kill(c->client);
                             }
                             else
@@ -881,7 +881,7 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
                         ret = wc_AesGcmDecrypt(&cipher.decrypt.aes,c->process_text + process_total,c->partial_cipher + 18, c->payload_length, c->nonce, 12, c->partial_cipher + 18 + c->payload_length,16,0,0 );
                         if(ret == AES_GCM_AUTH_E)
                         {
-                            pr_err("%s:error during authentication",__FUNCTION__);
+                            pr_err("%s %s :error during authentication",__FUNCTION__,__LINE__);
                             do_kill(c->client);
                         }
                         else
