@@ -18,6 +18,7 @@
 #ifdef _MSC_VER
 #include <malloc.h>
 #endif
+#define HAVE_AESGCM
 #include <wolfssl/wolfcrypt/aes.h>
 #define HAVE_CHACHA
 #define HAVE_POLY1305
