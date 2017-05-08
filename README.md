@@ -25,10 +25,10 @@ ssclient-openssl supports the following 17 encryption methods:
 			camellia-256-cfb,camellia-256-ofb
 			rc4-md5
 
-ssclient-wolfssl supports the following 16 encryption methods ( including AEAD )
-                        aes-128-cbc,aes-128-ccm,aes-128-gcm
-                        aes-192-cbc,aes-192-ccm,aes-192-gcm
-			aes-256-cbc,aes-256-ccm,aes-256-gcm
+ssclient-wolfssl supports the following 19 encryption methods ( including AEAD )
+                        aes-128-cbc,aes-128-ccm,aes-128-ctr,aes-128-gcm
+                        aes-192-cbc,aes-192-ccm,aes-192-ctr,aes-192-gcm
+			aes-256-cbc,aes-256-ccm,aes-256-ctr,aes-256-gcm
 			camellia-128-cbc,camellia-256-cbc
 			chacha20-ietf,hc-128,rabbit
 			chacha20-ietf-poly1305
