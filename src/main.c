@@ -135,7 +135,7 @@ static void usage(void)
 {
 
     printf("\n"
-           "This is MySocks project, the lightweight multi-platform shadowsocks client and server,version 0.5, subversion 4 (v0.5.4). Copyright 2017, Li ZHOU\n"
+           "This is MySocks project, the lightweight multi-platform shadowsocks client and server,version 0.5, subversion 5 (v0.5.5). Copyright 2017, Li ZHOU\n"
            "\n"
            "Usage:%s [-b <local_host>] [-h] -k <password> -m <encrypt_method> [-l <port>] -p <remote_port> -s <remote_host>\n"
            "\n"
@@ -154,9 +154,9 @@ static void usage(void)
 //#endif
 #endif
 #ifdef WITH_WOLFSSL
-           "\t\t\taes-128-cbc,aes-128-ccm,aes-128-gcm\n"
-	   "\t\t\taes-192-cbc,aes-192-ccm,aes-192-gcm\n"
-           "\t\t\taes-256-cbc,aes-256-ccm,aes-256-gcm\n"
+           "\t\t\taes-128-cbc,aes-128-ccm,aes-128-ctr,aes-128-gcm\n"
+	   "\t\t\taes-192-cbc,aes-192-ccm,aes-192-ctr,aes-192-gcm\n"
+           "\t\t\taes-256-cbc,aes-256-ccm,aes-256-ctr,aes-256-gcm\n"
            "\t\t\tcamellia-128-cbc,camellia-256-cbc\n"
            "\t\t\tchacha20-ietf,hc-128,rabbit\n"
 	   "\t\t\tchacha20-ietf-poly1305\n" 
