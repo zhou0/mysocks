@@ -16,7 +16,7 @@ before_install:
     - wget https://github.com/wolfSSL/wolfssl/archive/v3.11.0-stable.tar.gz
     - tar fvx v3.11.0-stable.tar.gz
     - pushd wolfssl-3.11.0-stable
-    - ./autogen.sh && ./configure --disable-static --enable-ipv6 --enable-aesgcm --enable-aesccm --enable-aesni --disable-coding --enable-hkdf --enable-poly1305 --enable-camellia --disable-des3 --enable-hc128 --enable-rabbit --enable-chacha --disable-examples --disable-iopool --disable-oldtls --disable-asn --disable-rsa --enable-fastmath --enable-sha --disable-dh --enable-arc4 --disable-hashdrbg --disable-ecc --disable-sha512 --enable-aesctr --enable-cryptonly && make
+    - ./autogen.sh && ./configure --disable-static --enable-ipv6 --enable-aesgcm --enable-aesccm --enable-aesni --disable-coding --enable-hkdf --enable-poly1305 --enable-camellia --disable-des3 --enable-hc128 --enable-rabbit --enable-chacha --disable-examples --disable-iopool --disable-oldtls --disable-asn --disable-rsa --enable-fastmath --enable-sha --disable-dh --enable-arc4 --disable-hashdrbg --disable-ecc --disable-sha512 --enable-aesctr --enable-cryptonly --disable-extended-master  && make
     - sudo make install
     - popd  
     - pip install --user cpp-coveralls
