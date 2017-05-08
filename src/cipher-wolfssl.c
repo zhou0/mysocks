@@ -18,6 +18,8 @@
 #ifdef _MSC_VER
 #include <malloc.h>
 #endif
+#define WOLFSSL_AES_COUNTER
+#define WOLFSSL_AES_DIRECT
 #define HAVE_AESGCM
 #include <wolfssl/wolfcrypt/aes.h>
 #define HAVE_CHACHA
@@ -43,6 +45,26 @@ void initialize_cipher()
     if (strcmp(config.method, "rc4-md5") == 0)
     {
         cipher.keyl = 16;
+        cipher.ivl = 16;
+        cipher.key = malloc(cipher.keyl);
+        bytes_to_key((uint8_t *) config.password, (int) strlen(config.password), cipher.key, 0);
+        cipher.encrypt.iv = malloc(cipher.ivl);
+        cipher.decrypt.iv = malloc(cipher.ivl);
+    }
+    else if (strcmp(config.method, "aes-128-ctr") == 0 || strcmp(config.method, "aes-192-ctr") == 0 || strcmp(config.method, "aes-256-ctr") == 0)
+    {
+        if (strcmp(config.method, "aes-128-ctr") == 0)
+        {
+            cipher.keyl = 16;
+        }
+        else if (strcmp(config.method, "aes-192-ctr") == 0)
+        {
+            cipher.keyl = 24;
+        }
+        else
+        {
+            cipher.keyl = 32;
+        }
         cipher.ivl = 16;
         cipher.key = malloc(cipher.keyl);
         bytes_to_key((uint8_t *) config.password, (int) strlen(config.password), cipher.key, 0);
@@ -209,6 +231,10 @@ void cipher_encrypt(conn* c, size_t * encryptl,
                     wc_Arc4SetKey(&cipher.encrypt.arc4, true_key, cipher.keyl);
                     free(true_key);
                 }
+                else if (strcmp(config.method, "aes-128-ctr") == 0 || strcmp(config.method, "aes-192-ctr") == 0 || strcmp(config.method, "aes-256-ctr") == 0)
+                {
+                    wc_AesSetKeyDirect(&cipher.encrypt.aes, cipher.key, cipher.keyl, cipher.encrypt.iv, AES_ENCRYPTION);
+                }
                 else if (strcmp(config.method, "chacha20-ietf-poly1305") == 0)
                 {
                     int ret;
@@ -346,6 +372,10 @@ void cipher_encrypt(conn* c, size_t * encryptl,
     if (strcmp(config.method, "rc4-md5") == 0)
     {
         wc_Arc4Process(&cipher.encrypt.arc4, dst, plain, plainl);
+    }
+    else if (strcmp(config.method, "aes-128-ctr") == 0 || strcmp(config.method, "aes-192-ctr") == 0 || strcmp(config.method, "aes-256-ctr") == 0)
+    {
+        wc_AesCtrEncrypt(&cipher.encrypt.aes, dst, plain, plainl);
     }
     else if (strcmp(config.method, "chacha20-ietf") == 0)
     {
@@ -511,6 +541,10 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
                 wc_Arc4SetKey(&cipher.decrypt.arc4,true_key , cipher.keyl);
                 free(true_key);
             }
+            else if (strcmp(config.method, "aes-128-ctr") == 0 || strcmp(config.method, "aes-192-ctr") == 0 || strcmp(config.method, "aes-256-ctr") == 0)
+            {
+                wc_AesSetKeyDirect(&cipher.decrypt.aes, cipher.key, cipher.keyl, cipher.decrypt.iv, AES_DECRYPTION);
+            }
             else if (strcmp(config.method, "chacha20-ietf-poly1305") == 0)
             {
                 int ret;
@@ -589,6 +623,10 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
     if (strcmp(config.method, "rc4-md5") == 0)
     {
         wc_Arc4Process(&cipher.decrypt.arc4, c->process_text, src, *plainl);
+    }
+    else if (strcmp(config.method, "aes-128-ctr") == 0 || strcmp(config.method, "aes-192-ctr") == 0 || strcmp(config.method, "aes-256-ctr") == 0)
+    {
+        wc_AesCtrEncrypt(&cipher.decrypt.aes, c->process_text, src, *plainl);
     }
     else if (strcmp(config.method, "chacha20-ietf") == 0)
     {
@@ -776,7 +814,7 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
         unsigned int process_total = 0;
         //pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->half_done);
         pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->partial_cipherl);
-	pr_info("%s %u %lu",__FUNCTION__,__LINE__,*plainl);
+        pr_info("%s %u %lu",__FUNCTION__,__LINE__,*plainl);
         memcpy(c->partial_cipher + c->partial_cipherl, src,*plainl);
         c->partial_cipherl += *plainl;
         //pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->partial_cipherl);
