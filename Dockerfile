@@ -27,7 +27,7 @@ make install && cd .. && \
     curl -sSL $WOLFSSL_URL | tar xz && cd wolfssl-3.11.0-stable && \
  ./autogen.sh && \
 ./configure --prefix=/usr --disable-static --enable-ipv6 --enable-aesgcm \
---enable-aesccm --enable-aesni --enable-psk --disable-coding \
+--enable-aesccm --enable-aesni --enable-aesctr --disable-coding \
 --enable-hkdf --enable-poly1305 --enable-camellia --disable-des3 \
 --enable-hc128 --enable-rabbit --enable-chacha --disable-examples \
 --disable-iopool --disable-oldtls --disable-asn --disable-rsa \
