@@ -543,7 +543,7 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
             }
             else if (strcmp(config.method, "aes-128-ctr") == 0 || strcmp(config.method, "aes-192-ctr") == 0 || strcmp(config.method, "aes-256-ctr") == 0)
             {
-                wc_AesSetKeyDirect(&cipher.decrypt.aes, cipher.key, cipher.keyl, cipher.decrypt.iv, AES_DECRYPTION);
+                wc_AesSetKeyDirect(&cipher.decrypt.aes, cipher.key, cipher.keyl, cipher.decrypt.iv, AES_ENCRYPTION);
             }
             else if (strcmp(config.method, "chacha20-ietf-poly1305") == 0)
             {
