@@ -33,7 +33,7 @@ make install && cd .. && \
 --disable-iopool --disable-oldtls --disable-asn --disable-rsa \
 --enable-fastmath --enable-sha  --disable-dh --enable-arc4 \
 --disable-hashdrbg --disable-ecc --disable-sha512 --enable-cryptonly \
---disable-extended-master && \
+--disable-extended-master --disable-sha224 && \
 make && make install && cd .. && \
     curl -sSL $MYSOCKS_URL | tar xz && cd mysocks-0.5.6 && mkdir -p \
 build/release && cd build/release && \
