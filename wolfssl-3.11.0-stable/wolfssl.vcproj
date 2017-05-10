@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="./;./IDE/WIN"
-				PreprocessorDefinitions="WOLFSSL_LIB;WOLFSSL_USER_SETTINGS;CYASSL_USER_SETTINGS"
+				PreprocessorDefinitions="WOLFSSL_LIB;WOLFSSL_USER_SETTINGS;CYASSL_USER_SETTINGS;HAVE_ONE_TIME_AUTH;HAVE_CHACHA;HAVE_POLY1305;HAVE_AESGCM;HAVE_HC128;WOLFSSL_AES_COUNTER;HAVE_HKDF"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -107,7 +107,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="./;./IDE/WIN"
-				PreprocessorDefinitions="WOLFSSL_LIB;WOLFSSL_USER_SETTINGS;CYASSL_USER_SETTINGS"
+				PreprocessorDefinitions="WOLFSSL_LIB;WOLFSSL_USER_SETTINGS;CYASSL_USER_SETTINGS;HAVE_ONE_TIME_AUTH;HAVE_CHACHA;HAVE_POLY1305;HAVE_AESGCM;HAVE_HC128;WOLFSSL_AES_COUNTER;HAVE_HKDF"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -172,15 +172,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\wolfcrypt\src\coding.c"
-				>
-			</File>
-			<File
 				RelativePath=".\wolfcrypt\src\chacha.c"
 				>
 			</File>
 			<File
 				RelativePath=".\wolfcrypt\src\chacha20_poly1305.c"
+				>
+			</File>
+			<File
+				RelativePath=".\wolfcrypt\src\coding.c"
 				>
 			</File>
 			<File
@@ -256,23 +256,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\wolfcrypt\src\pkcs7.c"
-				>
-			</File>
-			<File
 				RelativePath=".\wolfcrypt\src\pkcs12.c"
 				>
 			</File>
 			<File
+				RelativePath=".\wolfcrypt\src\pkcs7.c"
+				>
+			</File>
+			<File
 				RelativePath=".\wolfcrypt\src\poly1305.c"
-				>
-			</File>
-			<File
-				RelativePath=".\wolfcrypt\src\wc_port.c"
-				>
-			</File>
-			<File
-				RelativePath=".\wolfcrypt\src\wolfmath.c"
 				>
 			</File>
 			<File
@@ -324,7 +316,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\wolfcrypt\src\wc_port.c"
+				>
+			</File>
+			<File
 				RelativePath=".\wolfcrypt\src\wolfevent.c"
+				>
+			</File>
+			<File
+				RelativePath=".\wolfcrypt\src\wolfmath.c"
 				>
 			</File>
 		</Filter>

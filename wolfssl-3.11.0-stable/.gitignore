@@ -9,7 +9,6 @@ ctaocrypt/src/src/
 *.cache
 .dirstamp
 *.user
-config*
 *Debug/
 *Release/
 *.ncb
