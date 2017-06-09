@@ -13,7 +13,7 @@ Mysocks
 [![](https://images.microbadger.com/badges/version/fgfw/mysocks.svg)](https://microbadger.com/images/fgfw/mysocks "Get your own version badge on microbadger.com")
 
 Mysocks project provides three executables,namely ssclient, ssclient-openssl and ssclient-wolfssl. Supported Platform:Unix,Windows,Linux and Mac OS X. Win32 binaries are provided, You can compile from source on other platforms. 
-
+```
 ssclient supports rc4-md5 encryption method only.
 
 ssclient-openssl supports the following 17 encryption methods:
@@ -41,4 +41,4 @@ aes-192-gcm is alias for AEAD_AES_192_GCM
 aes-256-ccm is alias for AEAD_AES_256_CCM
 aes-256-gcm is alias for AEAD_AES_256_GCM
 chacha20-ietf-poly1305 is alias for AEAD_CHACHA20_POLY1305
-
+```
