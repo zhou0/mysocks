@@ -15,9 +15,9 @@ Extra Arguments=
 Install Directory=file:///usr/local
 
 [Defines And Includes][Compiler]
-Name=GCC
-Path=gcc
-Type=GCC
+Name=None
+Path=
+Type=
 
 [Project]
 VersionControlSupport=kdevgit
