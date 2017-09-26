@@ -24,7 +24,7 @@ extern "C" {
  int do_req_connect(client_ctx *cx);
  int do_proxy_start(client_ctx *cx);
  int do_proxy(client_ctx *cx);
-int do_kill(client_ctx *cx);
+ int do_kill(client_ctx *cx);
  int do_almost_dead(client_ctx *cx);
  int conn_cycle(const char *who, conn *a, conn *b);
  void conn_timer_reset(conn *c);
@@ -45,7 +45,6 @@ int do_kill(client_ctx *cx);
  void conn_write_done(uv_write_t *req, int status);
  void conn_close(conn *c);
  void conn_close_done(uv_handle_t *handle);
-
 
 #ifdef	__cplusplus
 }
