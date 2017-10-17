@@ -32,7 +32,7 @@ endmacro(use_c11)
 
 # Workspace name
 project(mysocks)
-find_package(OpenSSL REQUIRED)
+find_package(OpenSSL)
 IF (OPENSSL_FOUND)
 IF (OPENSSL_VERSION VERSION_LESS 1.1)
 include_directories(gnulib/lib libmd5-rfc libuv-1.15.0/include OpenSSL_1_1_0/include wolfssl-3.11.0-stable)
