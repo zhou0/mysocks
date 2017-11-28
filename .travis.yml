@@ -4,7 +4,7 @@ compiler:
   - clang   
 env:
     global:
-        - LIBUV_VER=1.16.0
+        - LIBUV_VER=1.17.0
         - WOLFSSL_VER=3.11.0-stable  
         - OPENSSL_VER=1.1.0
 before_install: 
