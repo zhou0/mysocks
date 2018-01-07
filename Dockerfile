@@ -5,13 +5,8 @@
 FROM alpine:3.3
 MAINTAINER lzh <lzh@cpan.org>
 
-<<<<<<< HEAD
 ARG MYSOCKS_URL=https://github.com/zhou0/mysocks/archive/0.5.12.tar.gz
 ARG LIBUV_URL=https://github.com/libuv/libuv/archive/v1.18.0.tar.gz 
-=======
-ARG MYSOCKS_URL=https://github.com/zhou0/mysocks/archive/0.5.11.tar.gz
-ARG LIBUV_URL=https://github.com/libuv/libuv/archive/v1.17.0.tar.gz 
->>>>>>> b4bdd00bd3409248668df6acd9cfeb3070332e8a
 ARG WOLFSSL_URL=https://github.com/wolfSSL/wolfssl/archive/v3.11.0-stable.tar.gz
 RUN set -ex && \
     apk add --no-cache --virtual .build-deps \
@@ -26,11 +21,7 @@ RUN set -ex && \
                                 openssl-dev \
                                 tar \
                                 && \
-<<<<<<< HEAD
     curl -sSL $LIBUV_URL | tar xz && cd libuv-1.18.0 && \
-=======
-    curl -sSL $LIBUV_URL | tar xz && cd libuv-1.17.0 && \
->>>>>>> b4bdd00bd3409248668df6acd9cfeb3070332e8a
 ./autogen.sh && ./configure --prefix=/usr --disable-static && make && \
 make install && cd .. && \
     curl -sSL $WOLFSSL_URL | tar xz && cd wolfssl-3.11.0-stable && \
@@ -44,11 +35,7 @@ make install && cd .. && \
 --disable-hashdrbg --disable-ecc --disable-sha512 --enable-cryptonly \
 --disable-extended-master --disable-sha224 && \
 make && make install && cd .. && \
-<<<<<<< HEAD
     curl -sSL $MYSOCKS_URL | tar xz && cd mysocks-0.5.12 && mkdir -p \
-=======
-    curl -sSL $MYSOCKS_URL | tar xz && cd mysocks-0.5.11 && mkdir -p \
->>>>>>> b4bdd00bd3409248668df6acd9cfeb3070332e8a
 build/release && cd build/release && \
     cmake -DCMAKE_BUILD_TYPE=Release ../.. && \
     make && make install && \ 
@@ -62,8 +49,4 @@ build/release && cd build/release && \
     cd ../../.. && \
     apk add --no-cache --virtual .run-deps $runDeps && \
     apk del .build-deps && \
-<<<<<<< HEAD
     rm -fr libuv-1.18.0 && rm -fr wolfssl-3.11.0-stable && rm -fr mysocks-0.5.12
-=======
-    rm -fr libuv-1.17.0 && rm -fr wolfssl-3.11.0-stable && rm -fr mysocks-0.5.11
->>>>>>> b4bdd00bd3409248668df6acd9cfeb3070332e8a
