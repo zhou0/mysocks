@@ -135,11 +135,7 @@ static void usage(void)
 {
 
     printf("\n"
-<<<<<<< HEAD
            "This is MySocks project, the lightweight multi-platform shadowsocks client and server,version 0.5, subversion 12 (v0.5.12). Copyright 2017, Li ZHOU\n"
-=======
-           "This is MySocks project, the lightweight multi-platform shadowsocks client and server,version 0.5, subversion 10 (v0.5.11). Copyright 2017, Li ZHOU\n"
->>>>>>> b4bdd00bd3409248668df6acd9cfeb3070332e8a
            "\n"
            "Usage:%s [-b <local_host>] [-h] -k <password> -m <encrypt_method> [-l <port>] -p <remote_port> -s <remote_host>\n"
            "\n"
