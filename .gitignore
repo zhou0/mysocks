@@ -1,2 +1,42 @@
+# Build directories
 /build/
-/nbproject/
+/build_orig/
+bin/
+obj/
+
+# CMake artifacts
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+Makefile
+install_manifest.txt
+compile_commands.json
+
+# Executables
+ssclient
+ssclient-openssl
+ssclient-wolfssl
+
+# Object files and libraries
+*.o
+*.a
+*.so
+*.dylib
+*.exe
+*.out
+
+# IDEs and editors
+.kdev4/
+*.kdev4
+.vscode/
+.idea/
+.settings/
+.project
+.cproject
+*.swp
+*~
+.DS_Store
+
+# Other
+nbproject/
