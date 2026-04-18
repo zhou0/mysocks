@@ -1,0 +1,6 @@
+interface:
+  display_name: "Mysocks"
+  short_description: "Repo-specific patterns and workflows for mysocks"
+  default_prompt: "Use the mysocks repo skill to follow existing architecture, testing, and workflow conventions."
+policy:
+  allow_implicit_invocation: true
