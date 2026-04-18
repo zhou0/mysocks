@@ -1,17 +1,21 @@
-﻿/*
+/*
  * File:   cipher.c
  * Author: lizhou
  *
  * Created on 2017年3月31日, 下午 9:55
  */
 
+#define _GNU_SOURCE
 #include <stddef.h>
 #include <string.h>
 #include <time.h>
+#include <errno.h>
 #if defined(__linux__)
 /* Linux. --------------------------------------------------- */
 #include <linux/random.h>
 #include <features.h>
+#include <sys/syscall.h>
+#include <unistd.h>
 #endif
 #ifdef _MSC_VER
 #include <malloc.h>
@@ -30,21 +34,36 @@ cipher_t cipher;
 
 void initialize_cipher()
 {
-
+    //    cipher_t * cipher = calloc(1, sizeof (cipher_t));
+    //cipher.encrypt.init = 0;
+    //cipher.decrypt.init = 0;
     pr_info("%s %s", __FUNCTION__, config.method);
     if (strcmp(config.method, "rc4-md5") == 0)
+    {
+        config.method = "rc4";
+    }
+    //    cipher.type = EVP_get_cipherbyname(config.method);
+    if (strcmp(config.method, "rc4") == 0)
     {
         cipher.keyl = 16;
         cipher.ivl = 16;
         cipher.key = malloc(cipher.keyl);
-        bytes_to_key((uint8_t *) config.password, (int) strlen(config.password), cipher.key, 0);
+
+        bytes_to_key((uint8_t *) config.password, (int) strlen(config.password),
+                     cipher.key, 0);
+        /*
+        #if defined(NDEBUG)
+        #else
+                dump("KEY", cipher.key, cipher.keyl);
+        #endif
+         */
         cipher.encrypt.iv = malloc(cipher.ivl);
         cipher.decrypt.iv = malloc(cipher.ivl);
     }
     else
     {
         pr_err("%s is not supported.", config.method);
-        cleanup_cipher();
+	cleanup_cipher();
         exit(1);
     }
     //    return cipher;
@@ -73,44 +92,36 @@ void destroy_cipher(cipher_t * cipher) {
 #elif defined(_WIN32)
 /* Microsoft Windows (32-bit). ------------------------------ */
 void cipher_encrypt(conn* c, ULONG * encryptl,
-                    const unsigned char * plain, size_t plainl)
+                    const char * plain, size_t plainl)
 #else
 void cipher_encrypt(conn* c, size_t * encryptl,
-                    const unsigned char * plain, size_t plainl)
+                    const char * plain, size_t plainl)
 #endif
 {
-uint8_t *dst;
+    uint8_t * dst;
     ASSERT( plain == c->t.buf);
     //    pr_info("%s %lu", __FUNCTION__, plainl);
     //    cipher_t * cipher = shadow->cipher;
-    //unsigned char * encrypt = 0;
+//    unsigned char * encrypt = 0;
 
-//    uint8_t * plainptr;
-    //    int l;
     // if (!cipher.encrypt.init) {
     if (c->request_length)
     {
+        //            int ivl;
         size_t prepend;
-		char * true_key = malloc(MD5_DIGEST_LENGTH);
-//#if defined (_MSC_VER)
+        unsigned char *true_key = malloc(16);
 //        uint8_t * src, * ptr;
-//#else
-//		unsigned int srcl,ptrl;
-//		uint8_t src[srcl],ptr[ptrl];
-//#endif
 
-        //            uint8_t * iv = malloc(ivl);
-//        cipher.encrypt.iv = malloc(cipher.ivl);
-        //        RAND_bytes(cipher.encrypt.iv, cipher.ivl);
+        //shadow->cipher->encrypt.iv = malloc(ivl);
 
-#ifdef _MSC_VER
+#if defined(_WIN32) || defined(_WIN64)
+        /* Microsoft Windows. --------------------------------------- */
         msc_getentropy(cipher.encrypt.iv);
-#endif
-#if !defined(_WIN32) && (defined(__unix__) || defined(__unix) || (defined(__APPLE__) && defined(__MACH__)))
+
+#elif (defined(__unix__) || defined(unix) || (defined(__APPLE__) && defined(__MACH__)))
         /* UNIX-style OS. ------------------------------------------- */
-#include <unistd.h>
 #if defined (__GLIBC__) && (__GLIBC_MINOR__ >= 25)
-        getentropy(cipher.encrypt.iv, cipher.ivl);
+        syscall(SYS_getrandom, cipher.encrypt.iv, cipher.ivl, 0);
 #else
         double d1 = drand48();
         double d2 = drand48();
@@ -165,7 +176,7 @@ uint8_t *dst;
         memcpy(c->t.buf, c->request + 3, prepend);
         plainl += prepend;
 //        arcfour_stream(&cipher.encrypt.ctx, c->t.buf, c->process_text + cipher.ivl, plainl);
-        *encryptl = cipher.ivl + plainl;
+        *encryptl = (size_t)(cipher.ivl + plainl);
 //        encrypt = malloc(*encryptl);
 //        memcpy(encrypt, cipher.encrypt.iv, cipher.ivl);
 //             memcpy(c->process_text, cipher.encrypt.iv, cipher.ivl);
