@@ -101,7 +101,7 @@ uint8_t *dst;
 
         //            uint8_t * iv = malloc(ivl);
 //        cipher.encrypt.iv = malloc(cipher.ivl);
-        //        RAND_bytes(cipher.encrypt.iv.base, cipher.encrypt.iv.len);
+        //        RAND_bytes(cipher.encrypt.iv, cipher.ivl);
 
 #ifdef _MSC_VER
         msc_getentropy(cipher.encrypt.iv);
@@ -110,7 +110,7 @@ uint8_t *dst;
         /* UNIX-style OS. ------------------------------------------- */
 #include <unistd.h>
 #if defined (__GLIBC__) && (__GLIBC_MINOR__ >= 25)
-        getentropy(cipher.encrypt.iv.base, cipher.encrypt.iv.len);
+        getentropy(cipher.encrypt.iv, cipher.ivl);
 #else
         double d1 = drand48();
         double d2 = drand48();
@@ -124,12 +124,12 @@ uint8_t *dst;
         /*
         #if defined(NDEBUG)
         #else
-        dump("IV", cipher.encrypt.iv.base, cipher.encrypt.iv.len);
+        dump("IV", cipher.encrypt.iv, cipher.ivl);
         #endif
          */
-        //            cipher.encrypt.iv.base = malloc(ivl);
-        //            memcpy(cipher.encrypt.iv.base,iv,ivl);
-        //            cipher.encrypt.iv.len = ivl;
+        //            cipher.encrypt.iv = malloc(ivl);
+        //            memcpy(cipher.encrypt.iv,iv,ivl);
+        //            cipher.ivl = ivl;
         //        cipher.encrypt.init = 1;
         //    c->init = 1;
         //}
@@ -259,7 +259,7 @@ void cipher_decrypt(conn *c, size_t * plainl, const unsigned char * encrypt, siz
             memcpy(cipher.decrypt.iv,c->request,c->request_length);
             //     int ivl;
             //        uint8_t * iv = malloc(ivl);
-//        cipher.decrypt.iv.base = malloc(cipher.decrypt.iv.len);
+//        cipher.decrypt.iv = malloc(cipher.ivl);
             memcpy(cipher.decrypt.iv + c->request_length, encrypt, cipher.ivl - c->request_length);
             if (strcmp(config.method, "rc4-md5") == 0)
             {
