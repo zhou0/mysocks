@@ -40,18 +40,15 @@ void initialize_cipher();
 //void destroy_cipher(cipher_t *);
 //void    cipher_encrypt(shadow_t   *, size_t,  uv_buf_t *, uv_buf_t *);
 //void      cipher_decrypt(shadow_t   *, size_t,  uv_buf_t *, uv_buf_t *);
-#if defined(_WIN64)
-/* Microsoft Windows (64-bit). ------------------------------ */
-
-#elif defined(_WIN32)
+#if defined(_WIN32)
 /* Microsoft Windows (32-bit). ------------------------------ */
 void cipher_encrypt(conn*, ULONG * encryptl,
-                    const unsigned char * plain, size_t plainl);
+                    const char * plain, size_t plainl);
 void cipher_decrypt(conn *, ULONG * plainl,
                     const unsigned char * encrypt, size_t encryptl);
 #else
 void cipher_encrypt(conn*, size_t * encryptl,
-                    const unsigned char * plain, size_t plainl);
+                    const char * plain, size_t plainl);
 void cipher_decrypt(conn *, size_t * plainl,
                     const unsigned char * encrypt, size_t encryptl);
 #endif

@@ -169,11 +169,8 @@ void destroy_cipher(cipher_t * cipher) {
 }
  */
 
-#if defined(_WIN64)
-/* Microsoft Windows (64-bit). ------------------------------ */
+#if defined(_WIN32)
 
-#elif defined(_WIN32)
-/* Microsoft Windows (32-bit). ------------------------------ */
 void cipher_encrypt(conn* c, ULONG * encryptl,
                     const char * plain, size_t plainl)
 #else
@@ -495,11 +492,8 @@ void cipher_encrypt(conn* c, size_t * encryptl,
 //    return encrypt;
 }
 
-#if defined(_WIN64)
-/* Microsoft Windows (64-bit). ------------------------------ */
+#if defined(_WIN32)
 
-#elif defined(_WIN32)
-/* Microsoft Windows (32-bit). ------------------------------ */
 void cipher_decrypt(conn *c, ULONG * plainl, const char * encrypt, size_t encryptl)
 #else
 void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encryptl)
@@ -653,14 +647,14 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
     {
         unsigned int process_total = 0;
         //pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->half_done);
-        //pr_info("%s %u %lu",__FUNCTION__,__LINE__,*plainl);
-        //pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->partial_cipherl);
+        //pr_info("%s %u %u",__FUNCTION__,__LINE__,(unsigned int)*plainl);
+        //pr_info("%s %u %u",__FUNCTION__,__LINE__,(unsigned int)c->partial_cipherl);
         memcpy(c->partial_cipher + c->partial_cipherl, src,*plainl);
         c->partial_cipherl += *plainl;
-        //pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->partial_cipherl);
+        //pr_info("%s %u %u",__FUNCTION__,__LINE__,(unsigned int)c->partial_cipherl);
         while ( c->partial_cipherl >0)
         {
-//	    pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->partial_cipherl);
+//	    pr_info("%s %u %u",__FUNCTION__,__LINE__,(unsigned int)c->partial_cipherl);
 //            c->partial_cipher = realloc(c->partial_cipher,c->partial_cipherl + *plainl);
             if (c->partial_cipherl   < 35)
             {
@@ -813,14 +807,14 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
     {
         unsigned int process_total = 0;
         //pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->half_done);
-        pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->partial_cipherl);
-        pr_info("%s %u %lu",__FUNCTION__,__LINE__,*plainl);
+        pr_info("%s %u %u",__FUNCTION__,__LINE__,(unsigned int)c->partial_cipherl);
+        pr_info("%s %u %u",__FUNCTION__,__LINE__,(unsigned int)*plainl);
         memcpy(c->partial_cipher + c->partial_cipherl, src,*plainl);
         c->partial_cipherl += *plainl;
-        //pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->partial_cipherl);
+        //pr_info("%s %u %u",__FUNCTION__,__LINE__,(unsigned int)c->partial_cipherl);
         while ( c->partial_cipherl >0)
         {
-//	    pr_info("%s %u %lu",__FUNCTION__,__LINE__,c->partial_cipherl);
+//	    pr_info("%s %u %u",__FUNCTION__,__LINE__,(unsigned int)c->partial_cipherl);
 //            c->partial_cipher = realloc(c->partial_cipher,c->partial_cipherl + *plainl);
             if (c->partial_cipherl   < 35)
             {
@@ -869,7 +863,7 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
                         {
                             ret = wc_AesGcmDecrypt(&cipher.decrypt.aes, c->process_text + process_total,c->partial_cipher + 18,cipher_length,c->nonce,12, c->partial_cipher + 18 + cipher_length,16,0, 0);
                             if(ret == AES_GCM_AUTH_E) {
-                                pr_err("%s %s :error during authentication",__FUNCTION__,__LINE__);
+                                pr_err("%s %d :error during authentication",__FUNCTION__,__LINE__);
                                 do_kill(c->client);
                             }
                             else
@@ -920,7 +914,7 @@ void cipher_decrypt(conn *c, size_t * plainl, const char * encrypt, size_t encry
                         ret = wc_AesGcmDecrypt(&cipher.decrypt.aes,c->process_text + process_total,c->partial_cipher + 18, c->payload_length, c->nonce, 12, c->partial_cipher + 18 + c->payload_length,16,0,0 );
                         if(ret == AES_GCM_AUTH_E)
                         {
-                            pr_err("%s %s :error during authentication",__FUNCTION__,__LINE__);
+                            pr_err("%s %d :error during authentication",__FUNCTION__,__LINE__);
                             do_kill(c->client);
                         }
                         else
