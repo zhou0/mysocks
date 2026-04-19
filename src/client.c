@@ -803,7 +803,7 @@ int do_kill(client_ctx *cx)
     conn *c;
 #if defined(NDEBUG)
 #else
-    pr_info("%s %d", __FUNCTION__, nread);
+    pr_info("%s %ld", __FUNCTION__, (long)nread);
 #endif
 
     c = CONTAINER_OF(handle, conn, handle);

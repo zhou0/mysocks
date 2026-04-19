@@ -1,4 +1,4 @@
-﻿/*
+/*
  * File:   cipher-wolfssl.h
  * Author: lizhou
  *
@@ -20,13 +20,26 @@ extern "C"
 #else
 #include <stdint.h>
 #endif
+#include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/aes.h>
 #define	HAVE_CHACHA
 #include <wolfssl/wolfcrypt/arc4.h>
 #include <wolfssl/wolfcrypt/chacha.h>
+#include <wolfssl/wolfcrypt/random.h>
+#include <wolfssl/wolfcrypt/md5.h>
+#include <wolfssl/wolfcrypt/error-crypt.h>
+
+/* These might not be available in all wolfSSL builds */
+#if defined(HAVE_HC128) || defined(WOLFSSL_HC128)
 #include <wolfssl/wolfcrypt/hc128.h>
+#endif
+#if defined(HAVE_RABBIT) || defined(WOLFSSL_RABBIT)
 #include <wolfssl/wolfcrypt/rabbit.h>
+#endif
+
 #include "defs.h"
+#include "client.h"
+
 #define MD5_DIGEST_LENGTH 16
 #define SODIUM_BLOCK_SIZE   64
 #define CHUNK_SIZE_LEN          2
@@ -49,8 +62,12 @@ typedef struct
 	    Aes aes;
             Arc4 arc4;
             ChaCha chacha;
+#if defined(HAVE_HC128) || defined(WOLFSSL_HC128)
             HC128 hc128;
+#endif
+#if defined(HAVE_RABBIT) || defined(WOLFSSL_RABBIT)
             Rabbit rabbit;
+#endif
         };
         uint8_t * iv;
         uint8_t * sub_key;
@@ -67,14 +84,11 @@ void initialize_cipher();
 //void destroy_cipher(cipher_t *);
 //void    cipher_encrypt(shadow_t   *, size_t,  uv_buf_t *, uv_buf_t *);
 //void      cipher_decrypt(shadow_t   *, size_t,  uv_buf_t *, uv_buf_t *);
-#if defined(_WIN64)
-/* Microsoft Windows (64-bit). ------------------------------ */
-
-#elif defined(_WIN32)
-/* Microsoft Windows (32-bit). ------------------------------ */
+#if defined(_WIN32)
+/* Microsoft Windows. ------------------------------ */
 void cipher_encrypt(conn*, ULONG * encryptl,
                     const char * plain, size_t plainl);
-void cipher_decrypt(conn *, ULONG * plainl,
+void cipher_decrypt(conn *c, ULONG * plainl,
                     const char * encrypt, size_t encryptl);
 #else
 void cipher_encrypt(conn *, size_t * encryptl,const char * plain, size_t plainl);
@@ -90,4 +104,3 @@ void increment_nonce(unsigned char *);
 #endif
 
 #endif	/* CIPHER_WOLFSSL_H */
-
